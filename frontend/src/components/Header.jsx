@@ -9,7 +9,7 @@ import {
   FaTimes,
   FaChevronDown,
 } from "react-icons/fa";
-import logo from "../assets/logos/bliss_logo-06.svg";
+import logo from "../assets/logos/bliss_logo_Black_Bliss_poziom.svg";
 import "../styles/components/header.scss";
 
 const Header = () => {
