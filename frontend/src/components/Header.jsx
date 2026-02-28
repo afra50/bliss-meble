@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, NavLink } from "react-router-dom";
 import {
   FaInstagram,
@@ -33,6 +33,14 @@ const Header = () => {
       sub: ["Kołdry", "Poduszki", "Inne akcesoria"],
     },
   ];
+
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [isMobileMenuOpen]);
 
   return (
     <header className="header">

@@ -240,6 +240,13 @@
                 top: 100%;
                 left: 0;
                 width: 100%;
+
+                // --- NOWE WŁAŚCIWOŚCI ---
+                max-height: calc(100vh - 100%); // Menu zajmie max tyle, ile zostało miejsca do dołu ekranu
+                overflow-y: auto; // Włącza pionowy scroll, gdy menu jest za długie
+                -webkit-overflow-scrolling: touch; // Płynne przewijanie na iOS
+                // ------------------------
+
                 background-color: $color-white;
                 padding: 20px;
                 box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);

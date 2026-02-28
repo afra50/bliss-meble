@@ -1,8 +1,8 @@
 - index.html, seo, sitemap, googlesearch, manifest.json, robots.txt url, og.jpg, JSON-LD
-- ratelimit, jwt, cookies, 
 - linki do fb i insta w stopce i headerze
 
 ===== HOME =====
 - zmiana zdjecia w banerze?
 - przyciski powinny kierowac na pewno w dobre miejsce/zakladke
 - wybrane produkty - losowane?
+- zdjecia w bestsellerach brzydko wygladaja na telefonie
