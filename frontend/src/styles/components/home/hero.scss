@@ -1,0 +1,35 @@
+@use "../../variables" as *;
+
+.hero {
+  height: clamp(500px, 75vh, 800px);
+  background-image:
+    linear-gradient(rgba($color-cream, 0.4), rgba($color-cream, 0.4)),
+    url("https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=2000&auto=format&fit=crop");
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+
+  &__content {
+    max-width: 800px;
+    background-color: rgba($color-white, 0.85);
+    padding: clamp(40px, 5vw, 60px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+
+    h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      color: $color-black;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: clamp(1rem, 1.5vw, 1.2rem);
+      color: $color-brown;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+  }
+}

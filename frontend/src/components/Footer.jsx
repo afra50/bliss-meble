@@ -34,6 +34,9 @@ const Footer = () => {
           <h4 className="footer__title">Obsługa klienta</h4>
           <ul className="footer__list">
             <li>
+              <Link to="/koszyk">Twój koszyk</Link>
+            </li>
+            <li>
               <Link to="/kontakt">Kontakt</Link>
             </li>
             <li>
