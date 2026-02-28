@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, useRoutes } from "react-router-dom";
 import Header from "./components/Header";
-// import Footer from "./components/Footer";
+import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
 // import routes from "./routes";
 
@@ -16,7 +16,7 @@ export default function App() {
       <div className="App">
         <Header />
         {/* <AppRoutes /> */}
-        {/* <Footer /> */}
+        <Footer />
       </div>
     </Router>
   );

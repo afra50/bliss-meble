@@ -1,0 +1,102 @@
+@use "../variables" as *;
+
+.footer {
+  background-color: $color-olive; // Wyraźne, eleganckie tło
+  color: $color-cream; // Jasny tekst
+  padding: clamp(40px, 6vw, 80px) 0 0;
+  font-family: $font-body;
+
+  &__container {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 40px);
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: clamp(40px, 4vw, 60px);
+    margin-bottom: clamp(40px, 5vw, 60px);
+
+    // Responsywność dla tabletów i telefonów
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+  }
+
+  &__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    @media (max-width: 768px) {
+      align-items: center;
+    }
+  }
+
+  &__logo img {
+    height: clamp(50px, 8vw, 80px);
+    display: block;
+  }
+
+  &__description {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    opacity: 0.8;
+    max-width: 350px;
+  }
+
+  &__socials {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+
+    a {
+      color: $color-cream;
+      font-size: 1.5rem;
+      transition:
+        color 0.3s ease,
+        transform 0.3s ease;
+
+      &:hover {
+        color: $color-white;
+        transform: translateY(-3px); // Lekkie uniesienie ikony
+      }
+    }
+  }
+
+  &__title {
+    font-family: $font-heading; // Bodoni Moda pięknie tu zagra
+    font-size: 1.3rem;
+    font-weight: 400;
+    margin-bottom: 25px;
+    color: $color-cream;
+    letter-spacing: 0.5px;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    li a {
+      font-size: 0.95rem;
+      color: rgba($color-cream, 0.7); // Lekko przygaszone linki
+      transition:
+        color 0.3s ease,
+        padding-left 0.3s ease;
+      display: inline-block;
+
+      &:hover {
+        color: $color-white; // Rozjaśnienie
+        padding-left: 5px; // Eleganckie przesunięcie w prawo
+      }
+    }
+  }
+
+  &__bottom {
+    border-top: 1px solid rgba($color-cream, 0.1); // Bardzo delikatna linia
+    padding: 20px 0;
+    text-align: center;
+    font-size: 0.85rem;
+    color: rgba($color-cream, 0.5);
+  }
+}
