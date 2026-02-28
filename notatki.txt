@@ -1,4 +1,5 @@
 - index.html, seo, sitemap, googlesearch, manifest.json, robots.txt url, og.jpg, JSON-LD
+- ratelimit, jwt, cookies, 
 - linki do fb i insta w stopce i headerze
 
 ===== HOME =====
