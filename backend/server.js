@@ -1,27 +1,29 @@
-// Load environment variables from .env file
+// Ładowanie zmiennych środowiskowych z pliku .env
 require("dotenv").config();
 
 const app = require("./app");
 const http = require("http");
 
-// Get port from environment or set default to 5000
+// Pobieranie portu z .env lub ustawienie domyślnego na 5000
 const PORT = process.env.PORT || 5000;
 
-// Create server
+// Tworzenie serwera
 const server = http.createServer(app);
 
-// Start listening
+// Uruchamianie nasłuchiwania
 server.listen(PORT, () => {
   console.log(`
-  🛡️  Server listening on port: ${PORT} 🛡️
+  ################################################
+  🛡️  Serwer uruchomiony na porcie: ${PORT} 🛡️
+  ################################################
   `);
 });
 
-// Handle startup errors
+// Obsługa błędów podczas startu serwera
 server.on("error", (error) => {
   if (error.syscall !== "listen") {
     throw error;
   }
-  console.error("Server error:", error);
+  console.error("Błąd serwera:", error);
   process.exit(1);
 });
