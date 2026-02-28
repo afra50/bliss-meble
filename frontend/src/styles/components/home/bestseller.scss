@@ -1,8 +1,22 @@
 @use "../../variables" as *;
 
+.bestseller-wrapper {
+  // Możesz tu dodać marginesy pionowe dla całej grupy, jeśli chcesz
+}
+
 .bestseller {
-  background-color: $color-slate;
   color: $color-cream;
+
+  // Warianty kolorystyczne z bazy
+  &--slate {
+    background-color: $color-slate;
+  }
+  &--brown {
+    background-color: $color-brown;
+  }
+  &--olive {
+    background-color: $color-olive; // DODANE: Wariant oliwkowy
+  }
 
   &__container {
     max-width: 1500px;
@@ -20,9 +34,28 @@
     }
   }
 
+  // Magia szachownicy - odwracanie kolejności kolumn w CSS!
+  &--reversed .bestseller__grid {
+    direction: rtl; // Odwraca kierunek dla desktopu
+
+    > * {
+      direction: ltr; // Przywraca normalny kierunek czytania tekstu wewnątrz bloku
+    }
+
+    @media (max-width: 992px) {
+      direction: ltr; // Na mobile obrazek niech wraca na górę, jest czytelniej
+
+      .bestseller__image {
+        order: -1; // Wymusza obrazek na samej górze w gridzie na mobile
+      }
+    }
+  }
+
   &__text {
     padding: clamp(40px, 6vw, 80px);
-    padding-left: 0;
+
+    // Jeśli nie jest reversed, tekst ma padding po prawej, jeśli reversed to po lewej
+    padding-right: 40px;
 
     @media (max-width: 992px) {
       padding: 40px 0;
@@ -32,6 +65,7 @@
       font-size: clamp(2rem, 3.5vw, 3rem);
       margin-bottom: 25px;
       line-height: 1.2;
+      font-weight: 400; // Pod Libre Bodoni
     }
 
     p {
@@ -39,6 +73,16 @@
       line-height: 1.8;
       margin-bottom: 30px;
       opacity: 0.9;
+    }
+  }
+
+  // Specyficzny padding dla odwróconego tekstu
+  &--reversed .bestseller__text {
+    padding-right: 0;
+    padding-left: 40px;
+
+    @media (max-width: 992px) {
+      padding: 40px 0;
     }
   }
 
@@ -50,6 +94,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block; // Usuwa dziwny margines dolny pod img
     }
   }
 

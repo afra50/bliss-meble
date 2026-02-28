@@ -5,4 +5,4 @@
 ===== HOME =====
 - zmiana zdjecia w banerze?
 - przyciski powinny kierowac na pewno w dobre miejsce/zakladke
-- promocje - karuzela/jakas paginacja/przewijanie? ile tego koncowo bedzie?
+- wybrane produkty - losowane?

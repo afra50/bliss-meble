@@ -12,7 +12,7 @@
   cursor: pointer;
   border: 1px solid transparent;
   text-align: center;
-  text-decoration: none; // Ubezpieczenie, gdyby to był link
+  text-decoration: none;
 
   &--primary {
     background-color: $color-brown;
@@ -23,18 +23,38 @@
     }
   }
 
-  &--light {
+  // --- NOWE WARIANTY OUTLINE ZALEŻNE OD TŁA ---
+
+  &--outline-slate {
     background-color: transparent;
     border-color: $color-cream;
     color: $color-cream;
 
     &:hover {
       background-color: $color-cream;
-      color: $color-slate;
+      color: $color-slate; // Niebieski tekst na hover
     }
   }
 
-  // Tutaj w przyszłości możemy łatwo dodać kolejne warianty, np.:
-  // &--outline { ... }
-  // &--dark { ... }
+  &--outline-olive {
+    background-color: transparent;
+    border-color: $color-cream;
+    color: $color-cream;
+
+    &:hover {
+      background-color: $color-cream;
+      color: $color-olive; // Zielony/Oliwkowy tekst na hover
+    }
+  }
+
+  &--outline-brown {
+    background-color: transparent;
+    border-color: $color-cream;
+    color: $color-cream;
+
+    &:hover {
+      background-color: $color-cream;
+      color: $color-brown; // Brązowy tekst na hover
+    }
+  }
 }

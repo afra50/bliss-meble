@@ -1,6 +1,6 @@
 @use "../../variables" as *;
 
-.promotions {
+.featured {
   padding: clamp(60px, 8vw, 100px) 0;
   background-color: $color-cream;
 
@@ -15,6 +15,7 @@
     font-size: clamp(2rem, 3vw, 2.5rem);
     margin-bottom: 50px;
     color: $color-brown;
+    font-weight: 400; // Pasuje do Libre Bodoni
   }
 
   &__grid {
@@ -45,19 +46,23 @@
     position: absolute;
     top: 30px;
     left: 30px;
-    background-color: $color-olive;
     color: $color-white;
     padding: 5px 15px;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     z-index: 2;
+
+    &--new {
+      background-color: $color-slate;
+    }
   }
 
   &__img {
     aspect-ratio: 1/1;
     overflow: hidden;
     margin-bottom: 20px;
+    background-color: rgba($color-cream, 0.5);
 
     img {
       width: 100%;
@@ -78,28 +83,15 @@
       font-family: $font-body;
       font-weight: 500;
       font-size: 1.1rem;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       color: $color-black;
     }
   }
 
-  &__prices {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
+  &__price {
     font-family: $font-heading;
-
-    .promotions__price-old {
-      text-decoration: line-through;
-      color: rgba($color-black, 0.4);
-      font-size: 1.1rem;
-    }
-
-    .promotions__price-new {
-      color: $color-brown;
-      font-size: 1.4rem;
-      font-weight: 600;
-    }
+    color: $color-brown;
+    font-size: 1.3rem; // Odrobinę powiększone, żeby wyglądało szlachetniej
+    font-weight: 600;
   }
 }
