@@ -1,2 +1,7 @@
 - index.html, seo, sitemap, googlesearch, manifest.json, robots.txt url, og.jpg, JSON-LD
-- linki do fb i insta
+- linki do fb i insta w stopce i headerze
+
+===== HOME =====
+- zmiana zdjecia w banerze?
+- przyciski powinny kierowac na pewno w dobre miejsce/zakladke
+- promocje - karuzela/jakas paginacja/przewijanie? ile tego koncowo bedzie?

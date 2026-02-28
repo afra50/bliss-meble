@@ -1,0 +1,40 @@
+@use "../../variables" as *;
+
+.btn {
+  display: inline-block;
+  padding: 15px 35px;
+  font-family: $font-body;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-align: center;
+  text-decoration: none; // Ubezpieczenie, gdyby to był link
+
+  &--primary {
+    background-color: $color-brown;
+    color: $color-white;
+
+    &:hover {
+      background-color: $color-black;
+    }
+  }
+
+  &--light {
+    background-color: transparent;
+    border-color: $color-cream;
+    color: $color-cream;
+
+    &:hover {
+      background-color: $color-cream;
+      color: $color-slate;
+    }
+  }
+
+  // Tutaj w przyszłości możemy łatwo dodać kolejne warianty, np.:
+  // &--outline { ... }
+  // &--dark { ... }
+}

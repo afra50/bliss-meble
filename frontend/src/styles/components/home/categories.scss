@@ -1,0 +1,99 @@
+@use "../../variables" as *;
+
+.categories {
+  padding: clamp(60px, 8vw, 100px) 0;
+  background-color: $color-white;
+
+  &__container {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 40px);
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(15px, 2vw, 30px);
+
+    @media (max-width: 992px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    @media (max-width: 576px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__card {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+
+    &:hover {
+      .categories__img-wrap img {
+        transform: scale(1.05);
+      }
+      .categories__overlay {
+        background-color: rgba($color-black, 0.1);
+      }
+      .categories__ribbon {
+        background-color: rgba($color-olive, 0.95);
+      }
+    }
+  }
+
+  &__img-wrap {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 3/4;
+    background-color: $color-cream;
+    margin-bottom: 20px;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s ease;
+    }
+  }
+
+  &__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba($color-black, 0.35);
+    transition: background-color 0.4s ease;
+    z-index: 1;
+  }
+
+  &__ribbon {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 100%;
+    background-color: rgba($color-olive, 0.7);
+    padding: 15px 0;
+    z-index: 2;
+    transition: background-color 0.4s ease;
+
+    h3 {
+      font-family: $font-heading;
+      font-size: 1.4rem;
+      color: $color-cream;
+      font-weight: 400;
+      letter-spacing: 1px;
+      margin: 0;
+    }
+  }
+
+  &__desc {
+    font-family: $font-body;
+    font-size: 0.95rem;
+    color: $color-olive;
+    line-height: 1.5;
+    padding: 0 10px;
+  }
+}
