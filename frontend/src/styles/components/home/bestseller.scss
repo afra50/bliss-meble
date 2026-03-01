@@ -44,10 +44,6 @@
 
     @media (max-width: 992px) {
       direction: ltr; // Na mobile obrazek niech wraca na górę, jest czytelniej
-
-      .bestseller__image {
-        order: -1; // Wymusza obrazek na samej górze w gridzie na mobile
-      }
     }
   }
 

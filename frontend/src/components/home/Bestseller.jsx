@@ -22,7 +22,17 @@ const Bestseller = () => {
       price: "od 4 299 zł",
       link: "/kolekcja-snu",
       img: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1000&auto=format&fit=crop",
-      theme: "olive", // ZMIANA: Tło oliwkowe!
+      theme: "olive", // Tło oliwkowe!
+    },
+    {
+      id: 3,
+      badge: "Edycja Limitowana",
+      title: "Fotel Artisan",
+      desc: "Ręcznie robiony detal i dębowe drewno łączą się z najwyższym komfortem. Idealny akcent do nowoczesnego gabinetu lub salonu.",
+      price: "od 1 899 zł",
+      link: "/strefa-komfortu/fotele",
+      img: "https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?q=80&w=1000&auto=format&fit=crop", // Możesz oczywiście zmienić ten placeholder
+      theme: "brown", // Trzeci motyw - ciemny brąz
     },
   ];
 

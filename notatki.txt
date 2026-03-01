@@ -21,4 +21,3 @@ DLA KRZYŚKA:
 - zmiana zdjecia w banerze?
 - przyciski powinny kierowac na pewno w dobre miejsce/zakladke
 - wybrane produkty - losowane?
-- zdjecia w bestsellerach brzydko wygladaja na telefonie
