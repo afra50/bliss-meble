@@ -2,7 +2,11 @@
 - linki do fb i insta w stopce i headerze
 - errorstate
 - loader
-- api.js
+- filtry + wyszukiwarka
+- podstrony kategorii
+
+BACKEND + INTEGRACJA
+- wykorzystywać api.js, tam robić helpery do integracji
 
 DLA KRZYŚKA:
 - 404 
