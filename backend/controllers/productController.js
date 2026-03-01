@@ -79,6 +79,7 @@ exports.createProduct = async (req, res, next) => {
     description,
     price_brut,
     is_bestseller,
+    is_available, // WYCIĄGNIJ Z BODY
     attributes,
   } = req.body;
   const files = req.files;
@@ -93,17 +94,30 @@ exports.createProduct = async (req, res, next) => {
   await connection.beginTransaction();
 
   try {
-    if (is_bestseller === "true") {
+    // 1. RZUTOWANIE I LOGIKA BEZPIECZEŃSTWA (analogicznie do update)
+    const availableVal = is_available === "false" || is_available == 0 ? 0 : 1;
+    const bestsellerVal =
+      is_bestseller === "true" || is_bestseller == 1 ? 1 : 0;
+
+    // Automatyczne zerowanie: niedostępny produkt nie może być bestsellerem
+    const finalBestseller = availableVal === 0 ? 0 : bestsellerVal;
+
+    // 2. WALIDACJA LIMITU
+    if (finalBestseller === 1) {
       const count = await Product.countBestsellers();
       if (count >= 3) {
         connection.release();
         return res
           .status(400)
-          .json({ error: "Osiągnięto limit 3 bestsellerów." });
+          .json({
+            error: "Osiągnięto limit 3 bestsellerów dla widocznych produktów.",
+          });
       }
     }
 
     const slug = `${slugify(name, { lower: true })}-${Date.now()}`;
+
+    // 3. PRZEKAZANIE DO MODELU
     const productId = await Product.create(connection, {
       subcategory_id,
       name,
@@ -111,7 +125,8 @@ exports.createProduct = async (req, res, next) => {
       slug,
       description,
       price_brut,
-      is_bestseller: is_bestseller === "true" ? 1 : 0,
+      is_bestseller: finalBestseller,
+      is_available: availableVal, // PRZEKAŻ WARTOŚĆ
     });
 
     if (files && files.length > 0) {
@@ -176,32 +191,36 @@ exports.updateProduct = async (req, res, next) => {
   await connection.beginTransaction();
 
   try {
-    // 1. Rzutowanie wartości (zabezpieczenie przed undefined)
+    // 1. Rzutowanie wartości
+    const availableVal = is_available === "true" || is_available == 1 ? 1 : 0;
     const bestsellerVal =
       is_bestseller === "true" || is_bestseller == 1 ? 1 : 0;
-    const availableVal = is_available === "true" || is_available == 1 ? 1 : 0;
 
-    // 2. Walidacja bestsellerów
-    if (bestsellerVal === 1) {
+    // AUTOMATYCZNE WYŁĄCZENIE: Jeśli produkt jest niedostępny, nie może być bestsellerem
+    const finalBestseller = availableVal === 0 ? 0 : bestsellerVal;
+
+    // 2. Walidacja bestsellerów (używamy finalBestseller zamiast bestsellerVal)
+    if (finalBestseller === 1) {
       const count = await Product.countBestsellers();
       const current = await Product.getBestsellerStatus(connection, id);
+
+      // Jeśli produkt nie był bestsellerem, a teraz ma nim zostać, sprawdź limit
       if (count >= 3 && current.is_bestseller === 0) {
         connection.release();
-        return res
-          .status(400)
-          .json({ error: "Osiągnięto limit 3 bestsellerów." });
+        return res.status(400).json({
+          error: "Osiągnięto limit 3 bestsellerów dla widocznych produktów.",
+        });
       }
     }
 
-    // 3. Wywołanie modelu z zabezpieczonymi danymi
-    // Używamy operatora || null, aby zamienić undefined na null (akceptowalne przez SQL)
+    // 3. Wywołanie modelu (przekazujemy finalBestseller)
     await Product.update(connection, id, {
       subcategory_id: subcategory_id || null,
       name: name || null,
       short_description: short_description || null,
       description: description || null,
       price_brut: price_brut || null,
-      is_bestseller: bestsellerVal,
+      is_bestseller: finalBestseller, // Używamy przeliczonej wartości
       is_available: availableVal,
     });
 
@@ -259,13 +278,27 @@ exports.deleteProduct = async (req, res, next) => {
 
 exports.deleteImage = async (req, res, next) => {
   try {
+    // 1. Próba pobrania danych o zdjęciu
     const image = await Product.getImageById(req.params.imageId);
-    if (image) {
-      const fullPath = path.join(__dirname, "../uploads/products", image.url);
-      if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
-      await Product.deleteImageRecord(req.params.imageId);
+
+    // 2. Jeśli zdjęcie nie istnieje, zwróć 404 i zakończ funkcję
+    if (!image) {
+      return res.status(404).json({ error: "Zdjęcie nie istnieje." });
     }
-    res.json({ success: true });
+
+    // 3. Jeśli istnieje, wykonaj operacje usuwania
+    const fullPath = path.join(__dirname, "../uploads/products", image.url);
+
+    // Usuwanie pliku fizycznego
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+    }
+
+    // Usuwanie wpisu z bazy danych
+    await Product.deleteImageRecord(req.params.imageId);
+
+    // 4. Sukces wysyłamy TYLKO po faktycznym usunięciu
+    res.json({ success: true, message: "Zdjęcie zostało usunięte." });
   } catch (error) {
     logError("deleteImage", error);
     next(error);

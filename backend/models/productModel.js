@@ -126,7 +126,7 @@ const Product = {
 
   countBestsellers: async () => {
     const [rows] = await pool.execute(
-      "SELECT COUNT(*) as total FROM products WHERE is_bestseller = 1 AND is_deleted = 0",
+      "SELECT COUNT(*) as total FROM products WHERE is_bestseller = 1 AND is_deleted = 0 AND is_available = 1", // Dodano AND is_available = 1
     );
     return rows[0].total;
   },
@@ -158,9 +158,12 @@ const Product = {
       description,
       price_brut,
       is_bestseller,
+      is_available, // DODAJ TO
     } = data;
+
     const [result] = await connection.execute(
-      "INSERT INTO products (subcategory_id, name, short_description, slug, description, price_brut, is_bestseller) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      // DODAJ is_available DO INSERT I VALUES
+      "INSERT INTO products (subcategory_id, name, short_description, slug, description, price_brut, is_bestseller, is_available) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [
         subcategory_id,
         name,
@@ -169,6 +172,7 @@ const Product = {
         description,
         price_brut,
         is_bestseller,
+        is_available, // DODAJ TO
       ],
     );
     return result.insertId;
