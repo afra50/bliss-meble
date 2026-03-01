@@ -79,12 +79,39 @@ api.interceptors.response.use(
   },
 );
 
-// ---- AUTH API (Tylko to, co masz gotowe) ----
+// ---- AUTH API ----
 export const authApi = {
   login: (credentials) => api.post("/auth/login", credentials),
   logout: () => api.post("/auth/logout"),
   refresh: () => api.post("/auth/refresh"),
-  me: () => api.get("/auth/me"), // Sprawdzenie statusu zalogowania
+  me: () => api.get("/auth/me"),
+};
+
+// ---- PRODUCT API ----
+export const productApi = {
+  // Publiczne
+  getAll: (params) => api.get("/products", { params }), // Obsługuje ?subcategory=...
+  getBySlug: (slug) => api.get(`/products/single/${slug}`),
+  getBestsellers: () => api.get("/products/bestsellers"),
+  search: (query) => api.get("/products/search", { params: { q: query } }),
+
+  // Admin
+  getAdminAll: () => api.get("/products/admin/all"),
+  getAdminById: (id) => api.get(`/products/admin/${id}`),
+
+  // Ważne: create i update przyjmują obiekt FormData dla Multera
+  create: (formData) =>
+    api.post("/products", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+
+  update: (id, formData) =>
+    api.put(`/products/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+
+  delete: (id) => api.delete(`/products/${id}`),
+  deleteImage: (imageId) => api.delete(`/products/image/${imageId}`),
 };
 
 export default api;

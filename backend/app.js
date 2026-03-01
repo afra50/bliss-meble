@@ -12,6 +12,9 @@ const rateLimit = require("express-rate-limit");
 const slowDown = require("express-slow-down");
 const winston = require("winston");
 
+const authRoutes = require("./routes/authRoutes");
+const productRoutes = require("./routes/productRoutes");
+
 // --- KONFIGURACJA LOGGERA (Winston) ---
 const logger = winston.createLogger({
   level: "info",
@@ -83,9 +86,17 @@ app.use(express.json());
 app.use(cookieParser());
 
 // --- 4. PLIKI STATYCZNE (Zdjęcia produktów) ---
-app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // --- 5. TRASY (Routes) ---
+// Podstawowy test, czy API żyje
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", message: "Bliss Meble API is running" });
+});
+
+// Główne moduły aplikacji
+app.use("/api/auth", authRoutes); // Wszystko co dotyczy logowania, sesji i admina
+app.use("/api/products", productRoutes); // Katalog mebli, wyszukiwarka, bestsellery
 
 // Obsługa nieznalezionych tras (404)
 app.use((req, res, next) => {

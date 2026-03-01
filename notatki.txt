@@ -7,6 +7,11 @@
 
 BACKEND + INTEGRACJA
 - wykorzystywać api.js, tam robić helpery do integracji
+- mozlwiosc wyboru zdjecia glownego
+- usuwanie zdjecia nieistniejacego id daje sukces
+- usuwanie lub ustawienie porduktu na niewidoczny musi weryfikowac czy to bestseller zeby nie zapychalo miejsca / ew endpoint od bestsellerow sobie to sprawdza
+- Joi do walidacji requestow?
+- jakie crony? usuwanie zamowien, order_items, shipping deatils, review tokens? produktow usunietych i ich zdjec?
 
 DLA KRZYŚKA:
 - 404 
