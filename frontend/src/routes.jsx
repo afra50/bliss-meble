@@ -1,13 +1,12 @@
 import Home from "./pages/Home";
+import NotFound from "./pages/NotFound";
 
 const routes = [
-  {
-    path: "/",
-    element: <Home />,
-  },
-  // W przyszłości będziesz tu dodawać kolejne strony, w ten sposób:
-  // { path: "/o-marce", element: <About /> },
-  // { path: "/kontakt", element: <Contact /> },
+	{
+		path: "/",
+		element: <Home />,
+	},
+	{ path: "*", element: <NotFound /> },
 ];
 
 export default routes;
