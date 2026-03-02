@@ -1,0 +1,36 @@
+@use "../../../variables" as *;
+
+.search-preview {
+    position: absolute;
+    top: calc(100% + 15px); // Odstęp od linii pod paskiem
+    left: 50%; // Przesunięcie do połowy szerokości paska
+    transform: translateX(-50%); // Cofnięcie o połowę własnej szerokości
+    width: 400px; // Szerokość dopasowana do Twoich screenów
+    background: $color-white;
+    border: 1px solid rgba($color-brown, 0.1);
+    // box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    z-index: 1001;
+    overflow: hidden;
+
+    &__more {
+        display: block;
+        text-align: center;
+        padding: 12px;
+        background: rgba($color-olive, 0.9);
+        color: $color-cream;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border-top: 1px solid rgba($color-brown, 0.05);
+        transition: 0.2s ease background, 0.2s ease color;
+
+        &:hover {
+            background: $color-olive;
+            color: $color-white;
+        }
+    }
+
+    @media (max-width: 1200px) {
+        display: none !important;
+    }
+}

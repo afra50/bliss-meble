@@ -1,0 +1,46 @@
+@use "../../../variables" as *;
+
+.search-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 15px;
+    text-decoration: none;
+    transition: background 0.2s;
+    border-bottom: 1px solid rgba($color-brown, 0.03);
+
+    &:hover {
+        background: rgba($color-slate, 0.1);
+    }
+
+    &__image {
+        width: 50px;
+        height: 50px;
+        background: $color-white;
+        overflow: hidden;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    &__name {
+        margin: 0;
+        font-size: 0.9rem;
+        color: $color-black;
+        font-weight: 500;
+        // Obcinanie tekstu do 1 linii
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 230px;
+    }
+
+    &__price {
+        margin: 0;
+        font-size: 0.8rem;
+        color: $color-black;
+    }
+}

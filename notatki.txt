@@ -6,6 +6,7 @@
 - wstecz?
 - filtry + wyszukiwarka
 - podstrony kategorii
+- defaultowe zdjecie dla produktu
 
 BACKEND + INTEGRACJA
 - wykorzystywać api.js, tam robić helpery do integracji
