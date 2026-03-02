@@ -1,21 +1,24 @@
 import { Link } from "react-router-dom";
 import Button from "./Button";
+// 1. IMPORTUJEMY DOMYŚLNY OBRAZEK
+import defaultImg from "../../assets/default-product.jpg";
 import "../../styles/components/ui/product-card.scss";
 import { formatPrice } from "../../utils/formatPrice";
 
-// Pomocnicza stała do budowania ścieżek z bazy
 const BACKEND_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL.replace("/api", "")
   : "http://localhost:5000";
 
 const ProductCard = ({ product, isNew = false }) => {
-  // Czysta funkcja do zdjęć z bazy
   const getImageUrl = (imagePath) => {
     return `${BACKEND_URL}/uploads/products/${imagePath}`;
   };
 
-  // Używamy struktury dokładnie takiej, jaka jest w bazie danych
-  const imageUrl = getImageUrl(product.main_image);
+  // 2. LOGIKA WYBORU: Jeśli brak main_image, używamy defaultImg
+  const imageUrl = product.main_image
+    ? getImageUrl(product.main_image)
+    : defaultImg;
+
   const productLink = `/produkt/${product.slug || product.id}`;
 
   return (
@@ -27,7 +30,14 @@ const ProductCard = ({ product, isNew = false }) => {
           </div>
         )}
         <div className="product-card__img">
-          <img src={imageUrl} alt={product.name} />
+          {/* 3. DODAJEMY onError DLA ZABEZPIECZENIA PRZED BŁĘDNYMI ŚCIEŻKAMI */}
+          <img
+            src={imageUrl}
+            alt={product.name}
+            onError={(e) => {
+              e.target.src = defaultImg;
+            }}
+          />
           <div className="product-card__img-overlay">
             <span>Zobacz produkt</span>
           </div>
@@ -39,7 +49,6 @@ const ProductCard = ({ product, isNew = false }) => {
           <Link to={productLink}>{product.name}</Link>
         </h4>
 
-        {/* Po prostu formatujemy pole price_brut, dokładnie jak w Bestsellerze */}
         <p className="product-card__price">
           od {formatPrice(product.price_brut)} zł
         </p>

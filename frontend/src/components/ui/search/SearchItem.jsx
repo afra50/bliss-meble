@@ -1,9 +1,14 @@
 import { Link } from "react-router-dom";
+// 1. Importujemy domyślny obrazek (ścieżka relatywna do komponentu)
+import defaultImg from "../../../assets/default-product.jpg";
 import "../../../styles/components/ui/search/search-item.scss";
 
 const SearchItem = ({ product, onClick }) => {
-  // Budujemy poprawny URL do zdjęcia (używając BASE_URL z Twojego api.js)
-  const imageUrl = `${import.meta.env.VITE_API_URL.replace("/api", "")}/uploads/products/${product.main_image}`;
+  // 2. Sprawdzamy, czy product.main_image istnieje.
+  // Jeśli tak - budujemy URL, jeśli nie - używamy zaimportowanego defaultImg.
+  const imageUrl = product.main_image
+    ? `${import.meta.env.VITE_API_URL.replace("/api", "")}/uploads/products/${product.main_image}`
+    : defaultImg;
 
   return (
     <Link
@@ -12,7 +17,14 @@ const SearchItem = ({ product, onClick }) => {
       onClick={onClick}
     >
       <div className="search-item__image">
-        <img src={imageUrl} alt={product.name} />
+        {/* 3. Dodajemy obsługę błędu (onError), jeśli plik fizycznie nie istnieje na serwerze */}
+        <img
+          src={imageUrl}
+          alt={product.name}
+          onError={(e) => {
+            e.target.src = defaultImg;
+          }}
+        />
       </div>
       <div className="search-item__info">
         <p className="search-item__name">{product.name}</p>

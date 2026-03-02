@@ -1,0 +1,84 @@
+@use "../../variables" as *;
+
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    width: 100%;
+    min-height: 200px;
+
+    &--full {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba($color-white, 0.9);
+        z-index: 9999;
+        padding: 0;
+    }
+}
+
+.loader {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    &__ring {
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        border: 2px solid transparent;
+        border-radius: 50%;
+
+        // Każdy pierścień ma inny kolor z Twojej palety
+        &:nth-child(1) {
+            border-top-color: $color-slate;
+            animation: spin 1.5s linear infinite;
+        }
+
+        &:nth-child(2) {
+            width: 60px;
+            height: 60px;
+            border-bottom-color: $color-olive;
+            animation: spin 2s linear reverse infinite;
+        }
+
+        &:nth-child(3) {
+            width: 40px;
+            height: 40px;
+            border-right-color: $color-brown;
+            animation: spin 1s linear infinite;
+        }
+    }
+
+    &__text {
+        margin-top: 150px;
+        font-family: $font-heading; // Używamy Twojej czcionki szeryfowej
+        color: $color-black;
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}

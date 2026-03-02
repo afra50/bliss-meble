@@ -1,12 +1,11 @@
 - index.html, seo, sitemap, googlesearch, manifest.json, robots.txt url, og.jpg, JSON-LD
 - linki do fb i insta w stopce i headerze
-- errorstate
-- loader
 - breadcrumbs
 - wstecz?
 - filtry + wyszukiwarka
 - podstrony kategorii
-- defaultowe zdjecie dla produktu
+- errorstate i loader wszedzie
+- defaultowe zdjecie dla produktu wszedzie dac
 
 BACKEND + INTEGRACJA
 - wykorzystywać api.js, tam robić helpery do integracji
