@@ -9,14 +9,14 @@ const Product = {
     isAdmin = false,
   }) => {
     let query = `
-      SELECT p.id, p.name, p.short_description, p.slug, p.price_brut, p.is_bestseller, p.is_available,
+      SELECT p.id, p.name, p.short_description, p.slug, p.price_brut, p.is_bestseller, p.is_available, p.created_at,
              pi.url as main_image, s.name as subcategory_name, c.name as category_name 
       FROM products p
       LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
       LEFT JOIN subcategories s ON p.subcategory_id = s.id
       LEFT JOIN categories c ON s.category_id = c.id
       WHERE p.is_deleted = 0
-    `;
+    `; // Dodano p.created_at
     const params = [];
 
     if (!isAdmin) query += " AND p.is_available = 1";
@@ -93,13 +93,13 @@ const Product = {
 
   findAllAdmin: async () => {
     const query = `
-      SELECT p.id, p.name, p.short_description, p.price_brut, p.is_available, pi.url as main_image, s.name as subcategory_name 
+      SELECT p.id, p.name, p.short_description, p.price_brut, p.is_available, p.created_at, pi.url as main_image, s.name as subcategory_name 
       FROM products p
       LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
       LEFT JOIN subcategories s ON p.subcategory_id = s.id
       WHERE p.is_deleted = 0
       ORDER BY p.created_at DESC
-    `;
+    `; // Dodano p.created_at
     const [rows] = await pool.execute(query);
     return rows;
   },
