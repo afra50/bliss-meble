@@ -17,7 +17,10 @@ function PaymentCancel() {
 					<Button className="pc-button" to="/">
 						Strona główna
 					</Button>
-					<Button className="pc-button-contact" to="contact">
+					<Button
+						className="pc-button-contact"
+						to="contact"
+						variant="outline-olive">
 						Kontakt
 					</Button>
 				</div>
