@@ -1,0 +1,120 @@
+@use "../../variables" as *;
+
+.product-card {
+  background-color: $color-white;
+  position: relative;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  transition:
+    transform 0.4s ease,
+    box-shadow 0.4s ease;
+
+  &:hover {
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+
+    .product-card__img img {
+      transform: scale(1.05);
+    }
+    .product-card__img-overlay {
+      transform: translateY(0);
+    }
+  }
+
+  &__link {
+    display: block;
+    text-decoration: none;
+  }
+
+  &__badge {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    color: $color-white;
+    padding: 5px 15px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 2;
+
+    &--new {
+      background-color: $color-slate;
+    }
+  }
+
+  &__img {
+    aspect-ratio: 1/1;
+    overflow: hidden;
+    margin-bottom: 20px;
+    background-color: rgba($color-cream, 0.5);
+    position: relative;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+      display: block;
+    }
+
+    &-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 15px;
+      background-color: rgba($color-white, 0.95);
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      text-align: center;
+
+      span {
+        font-family: $font-body;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: $color-slate;
+      }
+    }
+  }
+
+  &__info {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+
+    h4 {
+      font-family: $font-body;
+      font-weight: 500;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+
+      a {
+        color: $color-black;
+        text-decoration: none;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: $color-slate;
+        }
+      }
+    }
+  }
+
+  &__price {
+    font-family: $font-heading;
+    color: $color-brown;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  &__btn.btn {
+    margin-top: auto;
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 0.85rem;
+  }
+}
