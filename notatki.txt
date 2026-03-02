@@ -14,13 +14,10 @@ BACKEND + INTEGRACJA
 - jakie crony? usuwanie zamowien, order_items, shipping deatils, review tokens? produktow usunietych i ich zdjec?
 
 DLA KRZYŚKA:
-- 404 
 - logowanie admina
 - o marce
 - zwroty i reklamacje
 - kontakt
-- platność udana
-- płatność cancel
 
 ===== HOME =====
 - zmiana zdjecia w banerze?
