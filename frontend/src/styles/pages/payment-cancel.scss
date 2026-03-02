@@ -25,12 +25,14 @@
 		align-items: center;
 
 		.pc-title {
+			color: $color-black;
 			font-size: 2rem;
 			font-weight: bold;
 			margin-bottom: 0.5rem;
 		}
 
 		.pc-text {
+			color: $color-slate;
 			font-size: 1.1rem;
 			margin-bottom: 2rem;
 		}

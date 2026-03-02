@@ -1,0 +1,128 @@
+@use "../variables" as *;
+
+.about-page {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 4rem 2rem;
+	max-width: 1200px;
+	min-height: 80vh;
+	margin: 0 auto;
+	gap: 5rem;
+	background-color: $color-white;
+
+	.about-header {
+		text-align: left;
+		width: 100%;
+
+		.about-title {
+			font-size: 3rem;
+			font-weight: bold;
+			color: $color-brown;
+			margin-bottom: 1rem;
+		}
+	}
+
+	.about-block,
+	.about-block-reverse {
+		display: flex;
+		align-items: center;
+		gap: 6rem;
+		width: 100%;
+
+		.about-contener {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+
+			.about-subtitle {
+				font-size: 2.2rem;
+				font-weight: bold;
+				margin-bottom: 1.5rem;
+				color: $color-black;
+				line-height: 1.3;
+			}
+
+			.about-text {
+				font-size: 1.1rem;
+				line-height: 1.8;
+				color: $color-black;
+			}
+		}
+
+		.about-image {
+			flex: 1;
+			border-radius: 12px;
+			overflow: hidden;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+			img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				display: block;
+			}
+		}
+	}
+
+	.about-block-reverse {
+		flex-direction: row-reverse;
+	}
+
+	@media (max-width: 1024px) {
+		padding: 3rem 1.5rem;
+		gap: 4rem;
+
+		.about-header {
+			.about-title {
+				font-size: 2.5rem;
+			}
+		}
+
+		.about-block,
+		.about-block-reverse {
+			gap: 4rem;
+
+			.about-contener {
+				.about-subtitle {
+					font-size: 1.8rem;
+					margin-bottom: 1.2rem;
+				}
+				.about-text {
+					font-size: 1.05rem;
+				}
+			}
+		}
+	}
+
+	@media (max-width: 768px) {
+		padding: 2rem 1rem;
+		gap: 3rem;
+
+		.about-header {
+			.about-title {
+				font-size: 2rem;
+			}
+		}
+
+		.about-block,
+		.about-block-reverse {
+			flex-direction: column;
+			text-align: left;
+			gap: 2.5rem;
+
+			.about-image {
+				order: -1;
+				width: 100%;
+			}
+
+			.about-contener {
+				.about-subtitle {
+					font-size: 1.5rem;
+					margin-bottom: 1rem;
+				}
+			}
+		}
+	}
+}
