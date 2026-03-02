@@ -1,0 +1,68 @@
+@use "../variables" as *;
+
+.ps-page {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 80vh;
+	text-align: center;
+	padding: 2rem;
+
+	svg {
+		color: $color-olive;
+		background-color: rgba(
+			$color-olive,
+			0.1
+		); /* Delikatne tło dla ikony, jeśli wspierasz rgba z tą zmienną */
+		padding: 1rem;
+		border-radius: 50%;
+		margin-bottom: 1.5rem;
+	}
+	.ps-hero {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+
+		.ps-title {
+			font-size: 2rem;
+			font-weight: bold;
+			margin-bottom: 0.5rem;
+		}
+
+		.ps-text {
+			font-size: 1.1rem;
+			margin-bottom: 2rem;
+		}
+	}
+	@media (max-width: 1024px) {
+		min-height: 70vh;
+		padding: 1.5rem;
+
+		.ps-hero {
+			.ps-title {
+				font-size: 1.75rem;
+			}
+		}
+	}
+	@media (max-width: 768px) {
+		min-height: 60vh;
+		padding: 1rem;
+
+		svg {
+			padding: 0.8rem;
+			margin-bottom: 1rem;
+		}
+
+		.ps-hero {
+			.ps-title {
+				font-size: 1.5rem;
+			}
+
+			.ps-text {
+				font-size: 1rem;
+				margin-bottom: 1.5rem;
+			}
+		}
+	}
+}
