@@ -1,0 +1,90 @@
+@use "../../../variables" as *;
+
+.search-bar {
+    position: relative; // Baza dla dropdownu
+
+    &__field {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba($color-brown, 0.4);
+        padding-bottom: 2px; // Mały odstęp od linii
+        height: 35px; // USTALONA WYSOKOŚĆ DLA CAŁOŚCI
+    }
+
+    &__input {
+        flex: 1;
+        height: 100%; // Zajmuje całą wysokość kontenera
+        border: none;
+        background: transparent;
+        font-family: $font-body;
+        font-size: 0.95rem;
+        color: $color-black;
+        padding: 0; // Usuwamy domyślne paddingi
+        margin: 0;
+        line-height: 35px; // MUSI BYĆ RÓWNE WYSOKOŚCI (centruje tekst w pionie)
+        width: 150px;
+        transition: width 0.3s ease;
+
+        &:focus {
+            outline: none;
+            width: 220px;
+        }
+
+        &::placeholder {
+            color: rgba($color-black, 0.4);
+            line-height: 35px; // Centrowanie placeholderu
+        }
+    }
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%; // Ta sama wysokość co input
+        padding-left: 10px;
+        color: $color-black;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: color 0.3s ease;
+
+        &:hover {
+            color: $color-slate;
+        }
+
+        svg {
+            display: block; // Usuwa puste miejsce pod ikoną
+        }
+    }
+
+    // MODYFIKATOR MOBILE
+    &.header__search-mobile {
+        display: none;
+        width: 100%;
+        margin-bottom: 25px;
+
+        @media (max-width: 1200px) {
+            display: block; // Kontener nadrzędny
+
+            .search-bar__field {
+                display: flex;
+                width: 100%;
+            }
+        }
+
+        .search-bar__input {
+            width: 100%;
+
+            &:focus {
+                width: 100%;
+            }
+        }
+    }
+
+    // MODYFIKATOR DESKTOP
+    &.header__search-desktop {
+        @media (max-width: 1200px) {
+            display: none;
+        }
+    }
+}

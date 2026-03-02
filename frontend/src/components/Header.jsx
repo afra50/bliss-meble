@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa";
 import logo from "../assets/logos/bliss_logo_Black_Bliss_poziom.svg";
 import "../styles/components/header.scss";
-import SearchBar from "./ui/SearchBar";
+import SearchBar from "./ui/search/SearchBar";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
