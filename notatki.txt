@@ -22,7 +22,6 @@ DLA KRZYŚKA:
 - przyciski powinny kierowac na pewno w dobre miejsce/zakladke
 
 ===== PRODUKTY =====
-- nowosc nie dziala?
 - paginacja
 - karta produktu ma kierowac na podstrone produktu
 - sortowanie komponent
