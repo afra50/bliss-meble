@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { productApi } from "../../utils/api";
 import Button from "../ui/Button";
+import Loader from "../ui/Loader";
+import ErrorState from "../ui/ErrorState"; // 1. IMPORTUJEMY KOMPONENT BŁĘDU
+import defaultImg from "../../assets/default-product.jpg";
 import "../../styles/components/home/bestseller.scss";
 import { formatPrice } from "../../utils/formatPrice";
 
-// Pomocnicza stała do budowania pełnych ścieżek do zdjęć z backendu
 const BACKEND_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL.replace("/api", "")
   : "http://localhost:5000";
@@ -12,48 +14,58 @@ const BACKEND_URL = import.meta.env.VITE_API_URL
 const Bestseller = () => {
   const [bestsellers, setBestsellers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null); // 2. DODAJEMY STAN BŁĘDU
 
-  // Tablica dostępnych motywów kolorystycznych dla tła
   const themes = ["slate", "olive", "brown"];
 
-  useEffect(() => {
-    const fetchBestsellers = async () => {
-      try {
-        const response = await productApi.getBestsellers();
-        // Pobieramy dane i przypisujemy do stanu (max 3, jak zwraca API)
-        setBestsellers(response.data);
-      } catch (error) {
-        console.error("Błąd podczas pobierania bestsellerów:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // 3. WYDZIELAMY FUNKCJĘ POBIERANIA (ABY UŻYĆ JEJ W onRetry)
+  const fetchBestsellers = async () => {
+    setIsLoading(true);
+    setError(null); // Resetujemy błąd przed każdą próbą
+    try {
+      const response = await productApi.getBestsellers();
+      setBestsellers(response.data);
+    } catch (error) {
+      console.error("Błąd podczas pobierania bestsellerów:", error);
+      setError("Nie udało się wczytać bestsellerów."); // 4. USTAWIDAMY KOMUNIKAT
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchBestsellers();
   }, []);
 
-  // Funkcja bezpiecznie budująca URL zdjęcia
   const getImageUrl = (imagePath) => {
-    if (!imagePath) return ""; // Puste, jeśli brak zdjęcia
+    if (!imagePath) return defaultImg;
     if (imagePath.startsWith("http")) return imagePath;
     return `${BACKEND_URL}/uploads/products/${imagePath}`;
   };
 
   if (isLoading) {
-    return null; // Można tu dać <div className="bestseller-loading">...</div>, ale na start 'null' zapobiega skokom układu
+    return (
+      <section className="bestseller-wrapper">
+        <Loader message="Przygotowujemy bestsellery miesiąca..." />
+      </section>
+    );
   }
 
-  if (bestsellers.length === 0) {
-    return null; // Jeśli nie ma bestsellerów, nie renderujemy całej sekcji
+  // 5. OBSŁUGA STANU BŁĘDU
+  if (error) {
+    return (
+      <section className="bestseller-wrapper">
+        <ErrorState message={error} onRetry={fetchBestsellers} />
+      </section>
+    );
   }
+
+  if (bestsellers.length === 0) return null;
 
   return (
     <section className="bestseller-wrapper">
       {bestsellers.map((product, index) => {
-        // Logika szachownicy: Jeśli indeks jest nieparzysty (czyli co drugi element), dodaj klasę reversed
         const isReversed = index % 2 !== 0;
-
-        // Przypisywanie motywu z tablicy po kolei (slate -> olive -> brown)
         const currentTheme = themes[index % themes.length];
 
         return (
@@ -66,7 +78,6 @@ const Bestseller = () => {
             <div className="bestseller__container bestseller__grid">
               <div className="bestseller__text">
                 <span className="bestseller__badge">
-                  {/* Zakładam, że w obiekcie product może być badge, jeśli nie, używam twardego tekstu */}
                   {product.badge || "Bestseller Miesiąca"}
                 </span>
                 <h2>{product.name}</h2>
@@ -82,7 +93,13 @@ const Bestseller = () => {
                 </Button>
               </div>
               <div className="bestseller__image">
-                <img src={getImageUrl(product.main_image)} alt={product.name} />
+                <img
+                  src={getImageUrl(product.main_image)}
+                  alt={product.name}
+                  onError={(e) => {
+                    e.target.src = defaultImg;
+                  }}
+                />
               </div>
             </div>
           </article>
