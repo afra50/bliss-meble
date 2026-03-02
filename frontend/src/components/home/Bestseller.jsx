@@ -1,63 +1,88 @@
+import { useState, useEffect } from "react";
+import { productApi } from "../../utils/api";
 import Button from "../ui/Button";
 import "../../styles/components/home/bestseller.scss";
+import { formatPrice } from "../../utils/formatPrice";
+
+// Pomocnicza stała do budowania pełnych ścieżek do zdjęć z backendu
+const BACKEND_URL = import.meta.env.VITE_API_URL
+  ? import.meta.env.VITE_API_URL.replace("/api", "")
+  : "http://localhost:5000";
 
 const Bestseller = () => {
-  // W przyszłości te dane przyjdą z bazy danych
-  const featuredProducts = [
-    {
-      id: 1,
-      badge: "Bohater Miesiąca",
-      title: "Sofa Velvet Comfort",
-      desc: "Najwyższej jakości welur, głębokie siedzisko i nowoczesny, minimalistyczny design. Odkryj nasz najczęściej wybierany produkt, który odmieni Twój salon.",
-      price: "od 3 499 zł",
-      link: "/strefa-komfortu/sofy",
-      img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=1000&auto=format&fit=crop",
-      theme: "slate", // Tło slate (niebieskie)
-    },
-    {
-      id: 2,
-      badge: "Wyjątkowa Oferta",
-      title: "Łóżko Cloud Nine",
-      desc: "Zanurz się w luksusie każdej nocy. Nasze flagowe łóżko tapicerowane to synonim elegancji i niesamowitej wygody. Dostępne w 5 odcieniach.",
-      price: "od 4 299 zł",
-      link: "/kolekcja-snu",
-      img: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1000&auto=format&fit=crop",
-      theme: "olive", // Tło oliwkowe!
-    },
-    {
-      id: 3,
-      badge: "Edycja Limitowana",
-      title: "Fotel Artisan",
-      desc: "Ręcznie robiony detal i dębowe drewno łączą się z najwyższym komfortem. Idealny akcent do nowoczesnego gabinetu lub salonu.",
-      price: "od 1 899 zł",
-      link: "/strefa-komfortu/fotele",
-      img: "https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?q=80&w=1000&auto=format&fit=crop", // Możesz oczywiście zmienić ten placeholder
-      theme: "brown", // Trzeci motyw - ciemny brąz
-    },
-  ];
+  const [bestsellers, setBestsellers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Tablica dostępnych motywów kolorystycznych dla tła
+  const themes = ["slate", "olive", "brown"];
+
+  useEffect(() => {
+    const fetchBestsellers = async () => {
+      try {
+        const response = await productApi.getBestsellers();
+        // Pobieramy dane i przypisujemy do stanu (max 3, jak zwraca API)
+        setBestsellers(response.data);
+      } catch (error) {
+        console.error("Błąd podczas pobierania bestsellerów:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBestsellers();
+  }, []);
+
+  // Funkcja bezpiecznie budująca URL zdjęcia
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return ""; // Puste, jeśli brak zdjęcia
+    if (imagePath.startsWith("http")) return imagePath;
+    return `${BACKEND_URL}/uploads/products/${imagePath}`;
+  };
+
+  if (isLoading) {
+    return null; // Można tu dać <div className="bestseller-loading">...</div>, ale na start 'null' zapobiega skokom układu
+  }
+
+  if (bestsellers.length === 0) {
+    return null; // Jeśli nie ma bestsellerów, nie renderujemy całej sekcji
+  }
 
   return (
     <section className="bestseller-wrapper">
-      {featuredProducts.map((product, index) => {
+      {bestsellers.map((product, index) => {
+        // Logika szachownicy: Jeśli indeks jest nieparzysty (czyli co drugi element), dodaj klasę reversed
         const isReversed = index % 2 !== 0;
+
+        // Przypisywanie motywu z tablicy po kolei (slate -> olive -> brown)
+        const currentTheme = themes[index % themes.length];
 
         return (
           <article
             key={product.id}
-            className={`bestseller bestseller--${product.theme} ${isReversed ? "bestseller--reversed" : ""}`}
+            className={`bestseller bestseller--${currentTheme} ${
+              isReversed ? "bestseller--reversed" : ""
+            }`}
           >
             <div className="bestseller__container bestseller__grid">
               <div className="bestseller__text">
-                <span className="bestseller__badge">{product.badge}</span>
-                <h2>{product.title}</h2>
-                <p>{product.desc}</p>
-                <p className="bestseller__price">{product.price}</p>
-                <Button to={product.link} variant={`outline-${product.theme}`}>
+                <span className="bestseller__badge">
+                  {/* Zakładam, że w obiekcie product może być badge, jeśli nie, używam twardego tekstu */}
+                  {product.badge || "Bestseller Miesiąca"}
+                </span>
+                <h2>{product.name}</h2>
+                <p>{product.short_description}</p>
+                <p className="bestseller__price">
+                  od {formatPrice(product.price_brut)} zł
+                </p>
+                <Button
+                  to={`/produkt/${product.slug || product.id}`}
+                  variant={`outline-${currentTheme}`}
+                >
                   Zobacz produkt
                 </Button>
               </div>
               <div className="bestseller__image">
-                <img src={product.img} alt={product.title} />
+                <img src={getImageUrl(product.main_image)} alt={product.name} />
               </div>
             </div>
           </article>

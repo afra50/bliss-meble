@@ -10,7 +10,7 @@ const Hero = () => {
           Kolekcje SNU i Strefa KOMFORTU, które wprowadzą luksus i spokój do
           Twojego wnętrza.
         </p>
-        <Button to="/zestawy" variant="primary">
+        <Button to="/sklep" variant="primary">
           Zobacz produkty
         </Button>
       </div>

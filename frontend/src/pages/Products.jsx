@@ -1,5 +1,5 @@
 import { useParams, Link, useLocation, Navigate } from "react-router-dom";
-import Button from "../components/ui/Button";
+import ProductCard from "../components/ui/ProductCard"; // Importujemy kartę!
 import "../styles/pages/products.scss";
 
 // 1. Słownik poprawnych adresów URL (teraz Z POLSKIMI ZNAKAMI)
@@ -89,9 +89,10 @@ const Products = () => {
 
   return (
     <main className="products-page">
-      {/* HEADER */}
+      {/* HEADER Z BŁĘKITNĄ / OLIWKOWĄ TARCZĄ (Zostaje Twoje tło) */}
       <section className="products-page__header">
         <div className="products-page__container">
+          {/* Cale Menu Breadcrumbs zostawiamy z oryginalnego kodu */}
           <nav className="products-page__breadcrumb">
             <Link to="/">Strona główna</Link>
 
@@ -307,32 +308,9 @@ const Products = () => {
             </div>
 
             <div className="products-page__grid">
+              {/* UŻYWAMY KOMPONENTU KARTY PRODUKTU */}
               {dummyProducts.map((product) => (
-                <article key={product.id} className="product-card">
-                  <Link
-                    to={`/produkt/${product.id}`}
-                    className="product-card__img"
-                  >
-                    <img src={product.img} alt={product.name} />
-                    <div className="product-card__img-overlay">
-                      <span>Zobacz produkt</span>
-                    </div>
-                  </Link>
-                  <div className="product-card__info">
-                    <h4>
-                      <Link to={`/produkt/${product.id}`}>{product.name}</Link>
-                    </h4>
-                    <p className="product-card__price">od {product.price}</p>
-
-                    {/* ZMIANA: Używamy Twojego komponentu Button z nowym wariantem */}
-                    <Button
-                      variant="outline-slate-dark"
-                      className="product-card__btn"
-                    >
-                      Kup teraz
-                    </Button>
-                  </div>
-                </article>
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </div>
