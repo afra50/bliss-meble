@@ -2,6 +2,8 @@
 - linki do fb i insta w stopce i headerze
 - errorstate
 - loader
+- breadcrumbs
+- wstecz?
 - filtry + wyszukiwarka
 - podstrony kategorii
 
