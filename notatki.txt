@@ -19,12 +19,9 @@ DLA KRZYŚKA:
 
 ===== HOME =====
 - przyciski powinny kierowac na pewno w dobre miejsce/zakladke
-- wybrane produkty - losowane?
-- przycisk Zobacz wszystkie + dodaj do koszyka
-- wydzielic karte produktu do osobnego komponentu?
 
 ===== PRODUKTY =====
-- wydzielic karte produktu do osobnego komponentu?
+- nowosc nie dziala?
 - paginacja
 - karta produktu ma kierowac na podstrone produktu
 - sortowanie komponent
