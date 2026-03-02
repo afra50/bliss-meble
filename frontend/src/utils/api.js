@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Ustalenie adresu backendu
-const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 // Instancja axiosa z obsługą ciasteczek HttpOnly
 const api = axios.create({

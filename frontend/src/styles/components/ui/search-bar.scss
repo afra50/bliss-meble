@@ -1,0 +1,68 @@
+@use "../../variables" as *;
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba($color-brown, 0.4);
+    padding-bottom: 3px;
+    transition: all 0.3s ease;
+
+    &__input {
+        width: 150px;
+        padding: 0;
+        border: none;
+        background: transparent;
+        font-family: $font-body;
+        font-size: 0.9rem;
+        color: $color-black;
+        transition: width 0.3s ease;
+
+        &:focus {
+            outline: none;
+            width: 200px;
+        }
+
+        &::placeholder {
+            color: rgba($color-black, 0.4);
+        }
+    }
+
+    &__icon {
+        color: $color-black;
+        font-size: 1.2rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: color 0.3s ease;
+
+        &:hover {
+            color: $color-slate;
+        }
+    }
+
+    // MODYFIKATOR MOBILE
+    &.header__search-mobile {
+        display: none; // UKRYTE NA DESKTOPIE
+        width: 100%;
+        margin-bottom: 25px;
+
+        @media (max-width: 1200px) {
+            display: flex; // POKAZUJE SIĘ TYLKO W MENU BURGER
+        }
+
+        .search-bar__input {
+            width: 100%;
+
+            &:focus {
+                width: 100%;
+            }
+        }
+    }
+
+    // MODYFIKATOR DESKTOP
+    &.header__search-desktop {
+        @media (max-width: 1200px) {
+            display: none; // UKRYWA WERSJĘ Z PASKA NA MAŁYCH EKRANACH
+        }
+    }
+}

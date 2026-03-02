@@ -137,39 +137,6 @@
         gap: clamp(15px, 2vw, 30px);
     }
 
-    // WSPÓLNE STYLOWANIE DLA WYSZUKIWAREK
-    &__search-desktop,
-    &__search-mobile {
-        display: flex;
-        align-items: center;
-        border-bottom: 1px solid rgba($color-brown, 0.4); // Delikatna linia na dole
-        padding-bottom: 3px; // Odstęp od linii
-    }
-
-    &__search-mobile {
-        display: none; // Domyślnie ukryte na desktopie
-    }
-
-    &__search-input {
-        width: 150px; // Zawsze widoczna stała szerokość
-        padding: 0;
-        border: none;
-        background: transparent;
-        font-family: $font-body;
-        font-size: 0.9rem;
-        color: $color-black;
-        transition: width 0.3s ease;
-
-        &:focus {
-            outline: none;
-            width: 200px; // Rozszerza się po kliknięciu
-        }
-
-        &::placeholder {
-            color: rgba($color-black, 0.4);
-        }
-    }
-
     &__action-icon,
     &__cart {
         color: $color-black;
@@ -251,22 +218,6 @@
                 padding: 20px;
                 box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
                 border-top: 1px solid rgba($color-brown, 0.1);
-            }
-        }
-
-        &__search-desktop {
-            display: none; // Ukrywamy wersję w pasku
-        }
-
-        &__search-mobile {
-            display: flex; // Pokazujemy wersję w menu
-            margin-bottom: 25px; // Odstęp od listy linków
-            border-bottom: 1px solid rgba($color-brown, 0.4);
-            padding-bottom: 5px;
-            width: 100%;
-
-            .header__search-input {
-                width: 100%; // Pełna szerokość w mobile
             }
         }
 

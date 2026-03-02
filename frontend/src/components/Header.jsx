@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import logo from "../assets/logos/bliss_logo_Black_Bliss_poziom.svg";
 import "../styles/components/header.scss";
+import SearchBar from "./ui/SearchBar";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -54,17 +55,7 @@ const Header = () => {
         <nav
           className={`header__nav ${isMobileMenuOpen ? "header__nav--active" : ""}`}
         >
-          {/* WYSZUKIWARKA W MOBILE (Wewnątrz burgera) */}
-          <div className="header__search-mobile">
-            <input
-              type="text"
-              placeholder="Czego szukasz?"
-              className="header__search-input"
-            />
-            <div className="header__action-icon">
-              <FaSearch />
-            </div>
-          </div>
+          <SearchBar className="header__search-mobile" />
 
           <ul className="header__menu">
             {menuData.map((item, index) => (
@@ -108,16 +99,7 @@ const Header = () => {
         {/* AKCJE (Prawa strona) */}
         <div className="header__actions">
           {/* WYSZUKIWARKA NA DESKTOPIE (Zawsze widoczna) */}
-          <div className="header__search-desktop">
-            <input
-              type="text"
-              placeholder="Czego szukasz?"
-              className="header__search-input"
-            />
-            <div className="header__action-icon">
-              <FaSearch />
-            </div>
-          </div>
+          <SearchBar className="header__search-desktop" />
 
           <div className="header__socials">
             <a href="https://instagram.com" target="_blank" rel="noreferrer">
