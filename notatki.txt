@@ -15,12 +15,20 @@ BACKEND + INTEGRACJA
 - jakie crony? usuwanie zamowien, order_items, shipping deatils, review tokens? produktow usunietych i ich zdjec?
 
 DLA KRZYŚKA:
-- logowanie admina
 - o marce
 - zwroty i reklamacje
-- kontakt
 
 ===== HOME =====
-- zmiana zdjecia w banerze?
 - przyciski powinny kierowac na pewno w dobre miejsce/zakladke
 - wybrane produkty - losowane?
+- przycisk Zobacz wszystkie + dodaj do koszyka
+- wydzielic karte produktu do osobnego komponentu?
+
+===== PRODUKTY =====
+- wydzielic karte produktu do osobnego komponentu?
+- paginacja
+- karta produktu ma kierowac na podstrone produktu
+- sortowanie komponent
+- chceckboxy komponent
+- podpiac backend
+- wydzielic na mniejsze komponenty

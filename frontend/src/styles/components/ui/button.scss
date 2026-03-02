@@ -36,6 +36,19 @@
     }
   }
 
+  // ZMIANA: Nowy wariant dla przycisków na jasnym tle (karty produktów)
+  &--outline-slate-dark {
+    background-color: transparent;
+    border-color: $color-slate;
+    color: $color-slate;
+
+    &:hover {
+      background-color: $color-slate; // Oliwkowe tło po najechaniu
+      border-color: $color-slate;
+      color: $color-white;
+    }
+  }
+
   &--outline-olive {
     background-color: transparent;
     border-color: $color-cream;
