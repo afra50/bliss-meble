@@ -1,0 +1,97 @@
+@use "../../variables" as *;
+
+.admin-dashboard {
+    &__intro {
+        margin-bottom: 40px;
+
+        h1 {
+            font-family: $font-heading;
+            font-size: 2.5rem;
+            color: $color-black;
+            margin-bottom: 8px;
+        }
+
+        p {
+            font-family: $font-body;
+            color: $color-slate;
+            font-size: 1.1rem;
+        }
+    }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 25px;
+    }
+}
+
+.admin-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 30px;
+    background-color: $color-white;
+    text-decoration: none;
+    border: 1px solid rgba($color-brown, 0.1);
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba($color-brown, 0.1);
+        border-color: $color-slate;
+
+        .admin-card__icon {
+            background-color: $color-slate;
+            color: $color-white;
+        }
+    }
+
+    &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        background-color: rgba($color-cream, 0.5); // Jasny beż z Twoich zmiennych
+        color: $color-brown;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+
+        svg {
+            stroke-width: 1.5px;
+        }
+    }
+
+    &__info {
+        h2 {
+            font-family: $font-body;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: $color-black;
+            margin-bottom: 8px;
+        }
+
+        p {
+            font-family: $font-body;
+            font-size: 0.9rem;
+            color: $color-slate;
+            line-height: 1.5;
+        }
+    }
+}
+
+// Responsywność dla mniejszych ekranów
+@media (max-width: 768px) {
+    .admin-dashboard {
+        &__intro {
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        &__grid {
+            grid-template-columns: 1fr;
+        }
+    }
+}

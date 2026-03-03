@@ -1,11 +1,15 @@
 - index.html, seo, sitemap, googlesearch, manifest.json, robots.txt url, og.jpg, JSON-LD
 - linki do fb i insta w stopce i headerze
+- polityka prywatności
+- regulamin
 - breadcrumbs
 - wstecz?
+- alert + confirmdialog
+- baner ciasteczek?
 - filtry + wyszukiwarka
-- podstrony kategorii
 - errorstate i loader wszedzie
 - defaultowe zdjecie dla produktu wszedzie dac
+- minheight wszedzie
 
 BACKEND + INTEGRACJA
 - wykorzystywać api.js, tam robić helpery do integracji
@@ -27,3 +31,7 @@ DLA KRZYŚKA:
 - chceckboxy komponent
 - podpiac backend
 - wydzielic na mniejsze komponenty
+
+===== ADMIN =====
+- responsywność - logowanie, dashboard, layout
+- przycisk wstecz na layout poprawic
