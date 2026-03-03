@@ -40,7 +40,7 @@ const Login = () => {
       <div className="admin-login__card">
         <div className="admin-login__header">
           <h1>Panel Admina</h1>
-          <p>Zaloguj się, aby zarządzać BLISS Meble</p>
+          <p>Zaloguj się, aby zarządzać BLISS meble</p>
         </div>
 
         <form className="admin-login__form" onSubmit={handleSubmit}>
