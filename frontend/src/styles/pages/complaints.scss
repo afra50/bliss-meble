@@ -1,0 +1,114 @@
+@use "../variables" as *;
+
+.complaints-page {
+	max-width: 1000px;
+	margin: 0 auto;
+	padding: 4rem 2rem;
+	display: flex;
+	flex-direction: column;
+	gap: 3rem;
+	background-color: $color-white;
+
+	.complaints-header {
+		text-align: left;
+		border-bottom: 2px solid rgba($color-brown, 0.1);
+		padding-bottom: 2rem;
+		margin-bottom: 1rem;
+
+		.complaints-title {
+			font-size: 2.5rem;
+			font-weight: bold;
+			color: $color-brown;
+			margin-bottom: 1rem;
+		}
+
+		.complaints-intro {
+			font-size: 1.15rem;
+			line-height: 1.6;
+			color: $color-olive;
+		}
+	}
+
+	.complaints-section {
+		padding: 2.5rem;
+		border-radius: 8px;
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Subtelny cień */
+
+		.complaints-subtitle {
+			font-size: 1.6rem;
+			font-weight: 600;
+			color: $color-black;
+			margin-bottom: 1rem;
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+
+			svg {
+				color: $color-brown; /* Kolor ikon spójny z resztą strony */
+				flex-shrink: 0; /* Zapobiega zmniejszaniu się ikony na wąskich ekranach */
+			}
+		}
+
+		.complaints-text {
+			font-size: 1.05rem;
+			line-height: 1.7;
+			color: $color-olive;
+			margin-bottom: 1.5rem;
+		}
+
+		.complaints-list {
+			list-style-type: disc;
+			padding-left: 1.5rem; /* Wcięcie dla listy */
+			margin-bottom: 1rem;
+
+			/* Zagnieżdżona lista (np. w sekcji 2) */
+			ul.complaints-list {
+				list-style-type: circle;
+				margin-top: 0.5rem;
+				margin-bottom: 0; /* Reset dolnego marginesu w środku elementu rodzica */
+			}
+
+			.complaints-list-text {
+				font-size: 1.05rem;
+				line-height: 1.7;
+				color: $color-olive;
+				margin-bottom: 0.8rem;
+
+				/* Pogrubienia na początku punktów */
+				strong {
+					color: $color-olive;
+					font-weight: 600;
+				}
+			}
+		}
+	}
+
+	/* --- Media Queries --- */
+
+	@media (max-width: 768px) {
+		padding: 2.5rem 1.5rem;
+		gap: 2rem;
+
+		.complaints-header {
+			.complaints-title {
+				font-size: 2rem;
+			}
+			.complaints-intro {
+				font-size: 1.05rem;
+			}
+		}
+
+		.complaints-section {
+			padding: 1.5rem;
+
+			.complaints-subtitle {
+				font-size: 1.3rem;
+			}
+
+			.complaints-text,
+			.complaints-list .complaints-list-text {
+				font-size: 1rem;
+			}
+		}
+	}
+}
