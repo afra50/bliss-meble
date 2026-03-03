@@ -59,6 +59,15 @@ const Products = () => {
   // NOWE STANY DO PAGINACJI
   const [currentPage, setCurrentPage] = useState(1);
 
+  // FUNKCJA SPRAWDZAJĄCA CZY PRODUKT JEST NOWOŚCIĄ (mniej niż 30 dni)
+  const isProductNew = (createdAt) => {
+    if (!createdAt) return false;
+    const addedDate = new Date(createdAt);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    return addedDate >= thirtyDaysAgo;
+  };
+
   const fetchProducts = async () => {
     setIsLoading(true);
     setError(null);
@@ -342,7 +351,11 @@ const Products = () => {
               ) : currentProducts.length > 0 ? (
                 // ZMIANA: Używamy currentProducts, a nie od razu sortedProducts
                 currentProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    isNew={isProductNew(product.created_at)}
+                  />
                 ))
               ) : (
                 <p className="products-page__empty">
