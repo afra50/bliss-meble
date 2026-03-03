@@ -1,0 +1,86 @@
+@use "../../variables" as *;
+
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: rgba($color-slate, 0.1);
+}
+
+.admin-sidebar {
+    width: 280px;
+    background-color: $color-black;
+    color: $color-white;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+
+    &__header {
+        padding: 30px;
+        border-bottom: 1px solid rgba($color-white, 0.1);
+
+        h2 {
+            font-family: $font-heading;
+            font-size: 1.5rem;
+
+            span {
+                color: $color-slate;
+                font-size: 0.8rem;
+                text-transform: uppercase;
+            }
+        }
+    }
+
+    &__nav {
+        flex: 1;
+        padding: 20px 0;
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        a {
+            display: flex;
+            align-items: center;
+            padding: 15px 30px;
+            color: rgba($color-white, 0.7);
+            text-decoration: none;
+            transition: all 0.3s;
+            gap: 15px;
+
+            &.active,
+            &:hover {
+                background-color: rgba($color-slate, 0.1);
+                color: $color-white;
+                border-left: 4px solid $color-slate;
+            }
+        }
+    }
+
+    &__footer {
+        padding: 20px 30px;
+        border-top: 1px solid rgba($color-white, 0.1);
+        display: flex;
+        justify-content: space-between;
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: $color-red;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-family: $font-body;
+            letter-spacing: 0.1rem;
+        }
+    }
+}
+
+.admin-content {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto;
+}

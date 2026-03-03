@@ -1,0 +1,44 @@
+@use "../../variables" as *;
+@use "../../forms" as *; // Importujemy nasze bazowe style formularzy
+
+.admin-login {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: $color-cream; // Beżowe tło dla całego widoku
+    padding: 20px;
+
+    &__card {
+        width: 100%;
+        max-width: 450px;
+        background-color: $color-white;
+        padding: 50px 40px;
+        box-shadow: 0 20px 50px rgba($color-brown, 0.15);
+        border-radius: 2px;
+    }
+
+    &__header {
+        text-align: center;
+        margin-bottom: 40px;
+
+        h1 {
+            font-family: $font-heading;
+            font-size: 2rem;
+            color: $color-black;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        p {
+            font-family: $font-body;
+            color: $color-slate;
+            font-size: 0.9rem;
+        }
+    }
+
+    &__submit {
+        width: 100%;
+        margin-top: 20px;
+    }
+}
