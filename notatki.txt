@@ -17,10 +17,7 @@ BACKEND + INTEGRACJA
 - jakie crony? usuwanie zamowien, order_items, shipping deatils, review tokens? produktow usunietych i ich zdjec?
 
 DLA KRZYŚKA:
-- o marce
-- zwroty i reklamacje
-
-
+- kontakt
 
 ===== HOME =====
 - przyciski powinny kierowac na pewno w dobre miejsce/zakladke

@@ -6,6 +6,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
 import AboutUs from "./pages/AboutUs";
 import Complaints from "./pages/Complaints";
+import Contact from "./pages/Contact";
 import Products from "./pages/Products";
 
 // Importy Admina
@@ -22,6 +23,7 @@ const routes = [
   // --- CZĘŚĆ PUBLICZNA ---
   { path: "/", element: <Home /> },
   { path: "/o-marce", element: <AboutUs /> },
+  { path: "kontakt", element: <Contact /> },
   { path: "/zwroty-reklamacje", element: <Complaints /> },
   { path: "/platnosc-udana", element: <PaymentSuccess /> },
   { path: "/platnosc-anulowana", element: <PaymentCancel /> },
