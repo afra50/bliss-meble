@@ -1,314 +1,369 @@
+import { useState, useEffect, useMemo } from "react";
 import { useParams, Link, useLocation, Navigate } from "react-router-dom";
-import ProductCard from "../components/ui/ProductCard"; // Importujemy kartę!
-import NotFound from "./NotFound"; // Upewnij się, że ścieżka do pliku jest poprawna
+import ProductCard from "../components/ui/ProductCard";
+import NotFound from "./NotFound";
+import Loader from "../components/ui/Loader";
+import ErrorState from "../components/ui/ErrorState";
+import Breadcrumbs from "../components/ui/Breadcrumbs";
+import SortSelect from "../components/ui/SortSelect";
+import Pagination from "../components/ui/Pagination"; // IMPORT PAGINACJI
+import { productApi } from "../utils/api";
+import { getPluralProductForm } from "../utils/grammar";
 import "../styles/pages/products.scss";
 
-// 1. Słownik poprawnych adresów URL (teraz Z POLSKIMI ZNAKAMI)
 const validCategories = {
-	zestawy: [],
-	"kolekcja-snu": ["materace", "łóżka-kontynentalne", "łóżka-tapicerowane"],
-	"strefa-komfortu": ["narożniki", "narożniki-u", "sofy", "fotele"],
-	dodatki: ["kołdry", "poduszki", "inne-akcesoria"],
+  zestawy: [],
+  "kolekcja-snu": ["materace", "łóżka-kontynentalne", "łóżka-tapicerowane"],
+  "strefa-komfortu": ["narożniki", "narożniki-u", "sofy", "fotele"],
+  dodatki: ["kołdry", "poduszki", "inne-akcesoria"],
 };
 
-// 2. Słownik do ładnego wyświetlania nazw (Rozwiązuje problem z formatowaniem!)
 const categoryNames = {
-	zestawy: "Zestawy",
-	"kolekcja-snu": "Kolekcja SNU",
-	"strefa-komfortu": "Strefa KOMFORTU",
-	dodatki: "Dodatki",
-	materace: "Materace",
-	"łóżka-kontynentalne": "Łóżka kontynentalne",
-	"łóżka-tapicerowane": "Łóżka tapicerowane",
-	narożniki: "Narożniki",
-	"narożniki-u": "Narożniki U",
-	sofy: "Sofy",
-	fotele: "Fotele",
-	kołdry: "Kołdry",
-	poduszki: "Poduszki",
-	"inne-akcesoria": "Inne akcesoria",
+  zestawy: "Zestawy",
+  "kolekcja-snu": "Kolekcja SNU",
+  "strefa-komfortu": "Strefa KOMFORTU",
+  dodatki: "Dodatki",
+  materace: "Materace",
+  "łóżka-kontynentalne": "Łóżka kontynentalne",
+  "łóżka-tapicerowane": "Łóżka tapicerowane",
+  narożniki: "Narożniki",
+  "narożniki-u": "Narożniki U",
+  sofy: "Sofy",
+  fotele: "Fotele",
+  kołdry: "Kołdry",
+  poduszki: "Poduszki",
+  "inne-akcesoria": "Inne akcesoria",
 };
 
-// Makieta danych
-const dummyProducts = [
-	{
-		id: 1,
-		name: "Fotel Leniwy Boucle",
-		price: "1 499 zł",
-		img: "https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?q=80&w=600&auto=format&fit=crop",
-	},
-	{
-		id: 2,
-		name: "Sofa Velvet Comfort",
-		price: "3 499 zł",
-		img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80&w=600&auto=format&fit=crop",
-	},
-	{
-		id: 3,
-		name: "Stolik Kawowy Dąb",
-		price: "699 zł",
-		img: "https://images.unsplash.com/photo-1567016526105-22da7c13161a?q=80&w=600&auto=format&fit=crop",
-	},
-	{
-		id: 4,
-		name: "Łóżko Cloud Nine",
-		price: "4 299 zł",
-		img: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=600&auto=format&fit=crop",
-	},
-];
+// ILE PRODUKTÓW NA STRONĘ? (Możesz tu zmienić np. na 9 lub 12)
+const ITEMS_PER_PAGE = 9;
 
 const Products = () => {
-	// DecodeURI odkodowuje polskie znaki z paska przeglądarki (np. %C5%82 na ł)
-	const category = useParams().category
-		? decodeURI(useParams().category)
-		: undefined;
-	const subcategory = useParams().subcategory
-		? decodeURI(useParams().subcategory)
-		: undefined;
-	const location = useLocation();
+  const category = useParams().category
+    ? decodeURI(useParams().category)
+    : undefined;
+  const subcategory = useParams().subcategory
+    ? decodeURI(useParams().subcategory)
+    : undefined;
+  const location = useLocation();
 
-	const isAllProducts = location.pathname === "/sklep";
-	const isSearch = location.pathname === "/szukaj";
+  const isAllProducts = location.pathname === "/sklep";
+  const isSearch = location.pathname === "/szukaj";
 
-	if (!isAllProducts && !isSearch && category) {
-		if (!validCategories[category]) {
-			return <NotFound />;
-		}
-		if (subcategory && !validCategories[category].includes(subcategory)) {
-			return <NotFound />;
-		}
-	}
+  // STANY DLA DANYCH Z API I SORTOWANIA
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [sortOption, setSortOption] = useState("default");
 
-	// Funkcja pobierająca ładną nazwę
-	const formatName = (slug) => categoryNames[slug] || slug;
+  // NOWE STANY DO PAGINACJI
+  const [currentPage, setCurrentPage] = useState(1);
 
-	let pageTitle = "Wszystkie produkty";
-	if (isSearch) pageTitle = "Wyniki wyszukiwania";
-	if (category && !subcategory) pageTitle = formatName(category);
-	if (subcategory) pageTitle = formatName(subcategory);
+  const fetchProducts = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const params = {};
+      if (category) params.category = category;
+      if (subcategory) params.subcategory = subcategory;
 
-	return (
-		<main className="products-page">
-			{/* HEADER Z BŁĘKITNĄ / OLIWKOWĄ TARCZĄ (Zostaje Twoje tło) */}
-			<section className="products-page__header">
-				<div className="products-page__container">
-					{/* Cale Menu Breadcrumbs zostawiamy z oryginalnego kodu */}
-					<nav className="products-page__breadcrumb">
-						<Link to="/">Strona główna</Link>
+      const response = await productApi.getAll(params);
+      setProducts(response.data);
+    } catch (err) {
+      console.error("Błąd pobierania:", err);
+      setError("Wystąpił błąd podczas ładowania produktów.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-						{!isAllProducts && !isSearch && (
-							<>
-								<span className="separator">/</span>
-								<Link to="/sklep">Sklep</Link>
-							</>
-						)}
+  useEffect(() => {
+    fetchProducts();
+    // ZMIANA: Reset sortowania i strony na 1 po zmianie kategorii
+    setSortOption("default");
+    setCurrentPage(1);
+  }, [category, subcategory]);
 
-						{isSearch && (
-							<>
-								<span className="separator">/</span>
-								<span className="current">Szukaj</span>
-							</>
-						)}
+  // LOGIKA SORTOWANIA
+  const sortedProducts = useMemo(() => {
+    let sorted = [...products];
 
-						{isAllProducts && (
-							<>
-								<span className="separator">/</span>
-								<span className="current">Sklep</span>
-							</>
-						)}
+    switch (sortOption) {
+      case "price_asc":
+        sorted.sort((a, b) => Number(a.price_brut) - Number(b.price_brut));
+        break;
+      case "price_desc":
+        sorted.sort((a, b) => Number(b.price_brut) - Number(a.price_brut));
+        break;
+      case "newest":
+        sorted.sort((a, b) => b.id - a.id);
+        break;
+      default:
+        break;
+    }
+    return sorted;
+  }, [products, sortOption]);
 
-						{category && (
-							<>
-								<span className="separator">/</span>
-								{subcategory ? (
-									<Link to={`/${category}`}>{formatName(category)}</Link>
-								) : (
-									<span className="current">{formatName(category)}</span>
-								)}
-							</>
-						)}
+  // LOGIKA PAGINACJI (Przecinanie posortowanej tablicy na fragmenty)
+  const currentProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return sortedProducts.slice(startIndex, endIndex);
+  }, [sortedProducts, currentPage]);
 
-						{subcategory && (
-							<>
-								<span className="separator">/</span>
-								<span className="current">{formatName(subcategory)}</span>
-							</>
-						)}
-					</nav>
+  const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
 
-					<h1 className="products-page__title">{pageTitle}</h1>
-				</div>
-			</section>
+  const handleSortChange = (selectedOption) => {
+    setSortOption(selectedOption.value);
+    setCurrentPage(1); // Przy zmianie sortowania też wracamy na 1. stronę!
+  };
 
-			{/* GŁÓWNA ZAWARTOŚĆ */}
-			<section className="products-page__content">
-				<div className="products-page__container products-page__layout">
-					{/* LEWA KOLUMNA: Filtry */}
-					<aside className="products-page__sidebar">
-						<div className="filter-group">
-							<h3>Kategorie</h3>
-							<div className="filter-accordion">
-								<div className="filter-accordion-item">
-									<Link to="/zestawy" className="filter-accordion-link">
-										Zestawy
-									</Link>
-								</div>
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" }); // Przewija łagodnie do góry
+  };
 
-								<details
-									className="filter-accordion-item"
-									open={category === "kolekcja-snu"}>
-									<summary>Kolekcja SNU</summary>
-									<ul>
-										<li className="view-all">
-											<Link to="/kolekcja-snu">Pokaż wszystko</Link>
-										</li>
-										<li>
-											<Link to="/kolekcja-snu/materace">Materace</Link>
-										</li>
-										<li>
-											<Link to="/kolekcja-snu/łóżka-kontynentalne">
-												Łóżka kontynentalne
-											</Link>
-										</li>
-										<li>
-											<Link to="/kolekcja-snu/łóżka-tapicerowane">
-												Łóżka tapicerowane
-											</Link>
-										</li>
-									</ul>
-								</details>
+  if (!isAllProducts && !isSearch && category) {
+    if (!validCategories[category]) {
+      return <NotFound />;
+    }
+    if (subcategory && !validCategories[category].includes(subcategory)) {
+      return <NotFound />;
+    }
+  }
 
-								<details
-									className="filter-accordion-item"
-									open={category === "strefa-komfortu"}>
-									<summary>Strefa KOMFORTU</summary>
-									<ul>
-										<li className="view-all">
-											<Link to="/strefa-komfortu">Pokaż wszystko</Link>
-										</li>
-										<li>
-											<Link to="/strefa-komfortu/narożniki">Narożniki</Link>
-										</li>
-										<li>
-											<Link to="/strefa-komfortu/narożniki-u">Narożniki U</Link>
-										</li>
-										<li>
-											<Link to="/strefa-komfortu/sofy">Sofy</Link>
-										</li>
-										<li>
-											<Link to="/strefa-komfortu/fotele">Fotele</Link>
-										</li>
-									</ul>
-								</details>
+  const formatName = (slug) => categoryNames[slug] || slug;
 
-								<details
-									className="filter-accordion-item"
-									open={category === "dodatki"}>
-									<summary>Dodatki</summary>
-									<ul>
-										<li className="view-all">
-											<Link to="/dodatki">Pokaż wszystko</Link>
-										</li>
-										<li>
-											<Link to="/dodatki/kołdry">Kołdry</Link>
-										</li>
-										<li>
-											<Link to="/dodatki/poduszki">Poduszki</Link>
-										</li>
-										<li>
-											<Link to="/dodatki/inne-akcesoria">Inne akcesoria</Link>
-										</li>
-									</ul>
-								</details>
-							</div>
-						</div>
+  let pageTitle = "Wszystkie produkty";
+  if (isSearch) pageTitle = "Wyniki wyszukiwania";
+  if (category && !subcategory) pageTitle = formatName(category);
+  if (subcategory) pageTitle = formatName(subcategory);
 
-						<div className="filter-group">
-							<h3>Filtruj</h3>
+  const buildBreadcrumbPaths = () => {
+    const paths = [];
+    if (isSearch) {
+      paths.push({ label: "Szukaj" });
+    } else if (isAllProducts) {
+      paths.push({ label: "Sklep" });
+    } else {
+      paths.push({ label: "Sklep", to: "/sklep" });
+      if (category) {
+        paths.push({
+          label: formatName(category),
+          to: subcategory ? `/${category}` : null,
+        });
+      }
+      if (subcategory) {
+        paths.push({ label: formatName(subcategory) });
+      }
+    }
+    return paths;
+  };
 
-							<div className="filter-subgroup">
-								<h4>Cena</h4>
-								<div className="filter-checkbox">
-									<input type="checkbox" id="price1" />{" "}
-									<label htmlFor="price1">Poniżej 1000 zł</label>
-								</div>
-								<div className="filter-checkbox">
-									<input type="checkbox" id="price2" />{" "}
-									<label htmlFor="price2">1000 zł - 3000 zł</label>
-								</div>
-								<div className="filter-checkbox">
-									<input type="checkbox" id="price3" />{" "}
-									<label htmlFor="price3">Powyżej 3000 zł</label>
-								</div>
-							</div>
+  return (
+    <main className="products-page">
+      <section className="products-page__header">
+        <div className="products-page__container">
+          <Breadcrumbs paths={buildBreadcrumbPaths()} theme="light" />
 
-							<div className="filter-subgroup">
-								<h4>Materiał</h4>
-								<div className="filter-checkbox">
-									<input type="checkbox" id="mat1" />{" "}
-									<label htmlFor="mat1">Welur</label>
-								</div>
-								<div className="filter-checkbox">
-									<input type="checkbox" id="mat2" />{" "}
-									<label htmlFor="mat2">Boucle</label>
-								</div>
-								<div className="filter-checkbox">
-									<input type="checkbox" id="mat3" />{" "}
-									<label htmlFor="mat3">Tkanina strukturalna</label>
-								</div>
-							</div>
+          <h1 className="products-page__title">{pageTitle}</h1>
+        </div>
+      </section>
 
-							<div className="filter-subgroup">
-								<h4>Kolor</h4>
-								<div className="filter-colors">
-									<button
-										className="color-btn color-btn--beige"
-										title="Beżowy"></button>
-									<button
-										className="color-btn color-btn--brown"
-										title="Brązowy"></button>
-									<button
-										className="color-btn color-btn--slate"
-										title="Zgaszony błękit"></button>
-									<button
-										className="color-btn color-btn--olive"
-										title="Oliwkowy"></button>
-									<button
-										className="color-btn color-btn--grey"
-										title="Szary"></button>
-									<button
-										className="color-btn color-btn--black"
-										title="Czarny"></button>
-								</div>
-							</div>
-						</div>
-					</aside>
+      <section className="products-page__content">
+        <div className="products-page__container products-page__layout">
+          <aside className="products-page__sidebar">
+            <div className="filter-group">
+              <h3>Kategorie</h3>
+              <div className="filter-accordion">
+                <div className="filter-accordion-item">
+                  <Link to="/zestawy" className="filter-accordion-link">
+                    Zestawy
+                  </Link>
+                </div>
 
-					{/* PRAWA KOLUMNA: Siatka produktów */}
-					<div className="products-page__main">
-						<div className="products-page__toolbar">
-							<span className="products-count">
-								Pokazano {dummyProducts.length} produkty
-							</span>
-							<select className="sort-select">
-								<option>Sortuj: Domyślnie</option>
-								<option>Cena: od najniższej</option>
-								<option>Cena: od najwyższej</option>
-								<option>Najnowsze</option>
-							</select>
-						</div>
+                <details
+                  className="filter-accordion-item"
+                  open={category === "kolekcja-snu"}
+                >
+                  <summary>Kolekcja SNU</summary>
+                  <ul>
+                    <li className="view-all">
+                      <Link to="/kolekcja-snu">Pokaż wszystko</Link>
+                    </li>
+                    <li>
+                      <Link to="/kolekcja-snu/materace">Materace</Link>
+                    </li>
+                    <li>
+                      <Link to="/kolekcja-snu/łóżka-kontynentalne">
+                        Łóżka kontynentalne
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to="/kolekcja-snu/łóżka-tapicerowane">
+                        Łóżka tapicerowane
+                      </Link>
+                    </li>
+                  </ul>
+                </details>
 
-						<div className="products-page__grid">
-							{/* UŻYWAMY KOMPONENTU KARTY PRODUKTU */}
-							{dummyProducts.map((product) => (
-								<ProductCard key={product.id} product={product} />
-							))}
-						</div>
-					</div>
-				</div>
-			</section>
-		</main>
-	);
+                <details
+                  className="filter-accordion-item"
+                  open={category === "strefa-komfortu"}
+                >
+                  <summary>Strefa KOMFORTU</summary>
+                  <ul>
+                    <li className="view-all">
+                      <Link to="/strefa-komfortu">Pokaż wszystko</Link>
+                    </li>
+                    <li>
+                      <Link to="/strefa-komfortu/narożniki">Narożniki</Link>
+                    </li>
+                    <li>
+                      <Link to="/strefa-komfortu/narożniki-u">Narożniki U</Link>
+                    </li>
+                    <li>
+                      <Link to="/strefa-komfortu/sofy">Sofy</Link>
+                    </li>
+                    <li>
+                      <Link to="/strefa-komfortu/fotele">Fotele</Link>
+                    </li>
+                  </ul>
+                </details>
+
+                <details
+                  className="filter-accordion-item"
+                  open={category === "dodatki"}
+                >
+                  <summary>Dodatki</summary>
+                  <ul>
+                    <li className="view-all">
+                      <Link to="/dodatki">Pokaż wszystko</Link>
+                    </li>
+                    <li>
+                      <Link to="/dodatki/kołdry">Kołdry</Link>
+                    </li>
+                    <li>
+                      <Link to="/dodatki/poduszki">Poduszki</Link>
+                    </li>
+                    <li>
+                      <Link to="/dodatki/inne-akcesoria">Inne akcesoria</Link>
+                    </li>
+                  </ul>
+                </details>
+              </div>
+            </div>
+
+            <div className="filter-group">
+              <h3>Filtruj</h3>
+
+              <div className="filter-subgroup">
+                <h4>Cena</h4>
+                <div className="custom-checkbox">
+                  <input type="checkbox" id="price1" />{" "}
+                  <label htmlFor="price1">Poniżej 1000 zł</label>
+                </div>
+                <div className="custom-checkbox">
+                  <input type="checkbox" id="price2" />{" "}
+                  <label htmlFor="price2">1000 zł - 3000 zł</label>
+                </div>
+                <div className="custom-checkbox">
+                  <input type="checkbox" id="price3" />{" "}
+                  <label htmlFor="price3">Powyżej 3000 zł</label>
+                </div>
+              </div>
+
+              <div className="filter-subgroup">
+                <h4>Materiał</h4>
+                <div className="custom-checkbox">
+                  <input type="checkbox" id="mat1" />{" "}
+                  <label htmlFor="mat1">Welur</label>
+                </div>
+                <div className="custom-checkbox">
+                  <input type="checkbox" id="mat2" />{" "}
+                  <label htmlFor="mat2">Boucle</label>
+                </div>
+                <div className="custom-checkbox">
+                  <input type="checkbox" id="mat3" />{" "}
+                  <label htmlFor="mat3">Tkanina strukturalna</label>
+                </div>
+              </div>
+
+              <div className="filter-subgroup">
+                <h4>Kolor</h4>
+                <div className="color-swatches">
+                  <button
+                    className="color-swatch color-swatch--beige"
+                    title="Beżowy"
+                  ></button>
+                  <button
+                    className="color-swatch color-swatch--brown"
+                    title="Brązowy"
+                  ></button>
+                  <button
+                    className="color-swatch color-swatch--slate"
+                    title="Zgaszony błękit"
+                  ></button>
+                  <button
+                    className="color-swatch color-swatch--olive"
+                    title="Oliwkowy"
+                  ></button>
+                  <button
+                    className="color-swatch color-swatch--grey"
+                    title="Szary"
+                  ></button>
+                  <button
+                    className="color-swatch color-swatch--black"
+                    title="Czarny"
+                  ></button>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <div className="products-page__main">
+            <div className="products-page__toolbar">
+              <span className="products-count">
+                Pokazano {products.length}{" "}
+                {getPluralProductForm(products.length)}
+              </span>
+              <SortSelect value={sortOption} onChange={handleSortChange} />
+            </div>
+
+            <div className="products-page__grid">
+              {isLoading ? (
+                <div className="products-page__loader-wrapper">
+                  <Loader message="Pobieranie produktów..." />
+                </div>
+              ) : error ? (
+                <div className="products-page__error-wrapper">
+                  <ErrorState message={error} onRetry={fetchProducts} />
+                </div>
+              ) : currentProducts.length > 0 ? (
+                // ZMIANA: Używamy currentProducts, a nie od razu sortedProducts
+                currentProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))
+              ) : (
+                <p className="products-page__empty">
+                  Brak produktów spełniających kryteria.
+                </p>
+              )}
+            </div>
+
+            {/* ZMIANA: WYŚWIETLENIE KOMPONENTU PAGINACJI */}
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            )}
+          </div>
+        </div>
+      </section>
+    </main>
+  );
 };
 
 export default Products;

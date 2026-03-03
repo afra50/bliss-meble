@@ -19,7 +19,7 @@ const ProductCard = ({ product, isNew = false }) => {
     ? getImageUrl(product.main_image)
     : defaultImg;
 
-  const productLink = `/produkt/${product.slug || product.id}`;
+  const productLink = `/sklep/${product.slug}`;
 
   return (
     <article className="product-card">

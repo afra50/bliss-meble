@@ -1,0 +1,105 @@
+@use "../../variables" as *;
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 60px;
+  font-family: $font-body;
+
+  &__list {
+    display: flex;
+    list-style: none;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+  }
+
+  &__item {
+    display: flex;
+  }
+
+  &__btn,
+  &__number {
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: $color-black;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; // Kółka zamiast kwadratów dla większej elegancji
+
+    &:hover:not(&--active) {
+      background-color: rgba($color-slate, 0.1);
+      color: $color-slate;
+    }
+
+    &--active {
+      background-color: $color-olive;
+      color: $color-white;
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba($color-olive, 0.3);
+    }
+  }
+
+  &__dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: rgba($color-black, 0.4);
+    letter-spacing: 2px;
+  }
+
+  &__btn {
+    padding: 8px 16px;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border-radius: 4px;
+
+    &:hover:not(:disabled) {
+      color: $color-slate;
+    }
+
+    &:disabled {
+      color: rgba($color-black, 0.3);
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Na małych ekranach ukrywamy słowa "Poprzednia/Następna" na rzecz małych strzałek (lub tylko wyśrodkowanych kółek)
+@media (max-width: 576px) {
+  .pagination {
+    gap: 10px;
+
+    &__btn {
+      padding: 8px;
+      font-size: 0; // Ukrywa tekst
+      &::after {
+        font-size: 1rem;
+      }
+
+      &--prev::after {
+        content: "«";
+      }
+
+      &--next::after {
+        content: "»";
+      }
+    }
+  }
+}

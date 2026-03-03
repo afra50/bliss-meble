@@ -19,33 +19,6 @@
     text-align: center;
   }
 
-  &__breadcrumb {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: rgba($color-cream, 0.6);
-    margin-bottom: 25px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-
-    a {
-      color: rgba($color-cream, 0.8);
-      transition: color 0.3s ease; // ZMIANA: Animacja koloru linku
-      &:hover {
-        color: $color-cream;
-      }
-    }
-
-    .separator {
-      margin: 0 15px;
-      opacity: 0.4;
-      font-weight: 300;
-    }
-
-    .current {
-      color: $color-white;
-    }
-  }
-
   &__title {
     font-family: $font-heading;
     font-size: clamp(2.5rem, 5vw, 4rem);
@@ -159,75 +132,6 @@
           }
         }
       }
-
-      .filter-checkbox {
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-size: 0.9rem;
-        color: rgba($color-black, 0.8);
-
-        input[type="checkbox"] {
-          accent-color: $color-olive;
-          width: 16px;
-          height: 16px;
-          cursor: pointer;
-        }
-
-        label {
-          cursor: pointer;
-          transition: color 0.3s ease; // ZMIANA: Animacja po najechaniu na napis obok checkboxa
-
-          &:hover {
-            color: $color-slate;
-          }
-        }
-      }
-
-      // Kolory
-      .filter-colors {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-
-        .color-btn {
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          border: 1px solid rgba($color-black, 0.1);
-          cursor: pointer;
-          transition:
-            transform 0.3s ease,
-            border-color 0.3s ease,
-            box-shadow 0.3s ease; // ZMIANA: Animacje kółek
-
-          &:hover {
-            transform: scale(1.1) translateY(-2px);
-            border-color: $color-black;
-            box-shadow: 0 4px 8px rgba($color-black, 0.1);
-          }
-
-          &--beige {
-            background-color: #ede1d1;
-          }
-          &--brown {
-            background-color: #564333;
-          }
-          &--slate {
-            background-color: #64757d;
-          }
-          &--olive {
-            background-color: #505443;
-          }
-          &--grey {
-            background-color: #d1d1d1;
-          }
-          &--black {
-            background-color: #1d1d1b;
-          }
-        }
-      }
     }
   }
 
@@ -242,29 +146,7 @@
 
     .products-count {
       font-size: 0.9rem;
-      color: rgba($color-black, 0.5);
-    }
-
-    .sort-select {
-      font-family: $font-body;
-      padding: 10px 15px;
-      border: 1px solid transparent; // Baza pod border by nie skakało
-      background-color: transparent;
-      outline: none;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: $color-black;
-      border-radius: 4px;
-      transition: all 0.3s ease; // ZMIANA: Animacja selecta
-
-      &:hover {
-        color: $color-slate;
-      }
-
-      &:focus {
-        border-color: rgba($color-slate, 0.5);
-      }
+      color: $color-slate;
     }
   }
 
@@ -280,5 +162,20 @@
     @media (max-width: 576px) {
       grid-template-columns: 1fr;
     }
+  }
+
+  // STANY: Klasy rozciągające się na całą siatkę gridu
+  &__loader-wrapper,
+  &__error-wrapper,
+  &__empty {
+    grid-column: 1 / -1; // Zajmuje wszystkie kolumny (środek siatki)
+    padding: 60px 0;
+  }
+
+  &__empty {
+    text-align: center;
+    font-family: $font-body;
+    color: $color-olive;
+    font-size: 1.1rem;
   }
 }

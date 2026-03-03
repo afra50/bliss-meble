@@ -86,7 +86,7 @@ const Bestseller = () => {
                   od {formatPrice(product.price_brut)} zł
                 </p>
                 <Button
-                  to={`/produkt/${product.slug || product.id}`}
+                  to={`/sklep/${product.slug}`}
                   variant={`outline-${currentTheme}`}
                 >
                   Zobacz produkt

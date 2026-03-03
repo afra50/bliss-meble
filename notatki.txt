@@ -2,7 +2,6 @@
 - linki do fb i insta w stopce i headerze
 - polityka prywatności
 - regulamin
-- breadcrumbs
 - wstecz?
 - alert + confirmdialog
 - baner ciasteczek?
@@ -21,16 +20,13 @@ DLA KRZYŚKA:
 - o marce
 - zwroty i reklamacje
 
+
+
 ===== HOME =====
 - przyciski powinny kierowac na pewno w dobre miejsce/zakladke
 
 ===== PRODUKTY =====
-- paginacja
-- karta produktu ma kierowac na podstrone produktu
-- sortowanie komponent
-- chceckboxy komponent
-- podpiac backend
-- wydzielic na mniejsze komponenty
+- filtry komponent? + ma dzialac
 
 ===== ADMIN =====
 - responsywność - logowanie, dashboard, layout

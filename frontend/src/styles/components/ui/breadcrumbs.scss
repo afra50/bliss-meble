@@ -1,0 +1,68 @@
+@use "../../variables" as *;
+
+.breadcrumbs {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center; // Centralnie, tak jak było w Products.jsx
+  flex-wrap: wrap;
+
+  &__item {
+    display: flex;
+    align-items: center;
+  }
+
+  &__separator {
+    margin: 0 15px;
+    font-weight: 300;
+  }
+
+  &__link {
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+
+  // --- MOTYW JASNY (NA CIEMNE TŁO, NP. OLIVE/SLATE) ---
+  &--light {
+    color: rgba($color-cream, 0.6);
+
+    .breadcrumbs__link {
+      color: rgba($color-cream, 0.8);
+      &:hover {
+        color: $color-white;
+      }
+    }
+
+    .breadcrumbs__separator {
+      opacity: 0.4;
+    }
+
+    .breadcrumbs__current {
+      color: $color-white;
+    }
+  }
+
+  // --- MOTYW CIEMNY (NA JASNE TŁO, NP. CREAM/WHITE) ---
+  &--dark {
+    color: rgba($color-black, 0.4);
+
+    .breadcrumbs__link {
+      color: rgba($color-black, 0.7);
+      &:hover {
+        color: $color-brown; // Akcent przy najechaniu
+      }
+    }
+
+    .breadcrumbs__separator {
+      opacity: 0.5;
+    }
+
+    .breadcrumbs__current {
+      color: $color-black;
+    }
+  }
+}
