@@ -36,4 +36,3 @@ DLA KRZYŚKA:
 ===== ADMIN =====
 - responsywność - logowanie, dashboard, layout
 - przycisk wstecz na layout poprawic
-- weryfikacja nawigacji i opisów na dashboard
