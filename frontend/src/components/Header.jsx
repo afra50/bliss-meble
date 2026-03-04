@@ -21,7 +21,12 @@ const Header = () => {
     {
       title: "Kolekcja SNU",
       path: "/kolekcja-snu",
-      sub: ["Materace", "Łóżka kontynentalne", "Łóżka tapicerowane"],
+      sub: [
+        "Materace",
+        "Materace nawierzchniowe",
+        "Łóżka kontynentalne",
+        "Łóżka tapicerowane",
+      ],
     },
     {
       title: "Strefa KOMFORTU",

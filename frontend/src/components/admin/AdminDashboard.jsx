@@ -4,8 +4,9 @@ import {
   Package,
   ShoppingCart,
   Star,
-  MessageSquare, // Nowa ikona dla recenzji
-  Truck, // Nowa ikona dla wysyłek
+  MessageSquare,
+  Truck,
+  Layers, // Ikona dla atrybutów
 } from "lucide-react";
 import "../../styles/components/admin/admin-dashboard.scss";
 
@@ -26,10 +27,17 @@ const AdminDashboard = () => {
       link: "/admin/zamowienia",
     },
     {
+      id: "attributes",
+      title: "Atrybuty",
+      desc: "Dodawaj nowe kolory, rodzaje tkanin oraz dostępne rozmiary mebli.",
+      icon: <Layers size={32} />,
+      link: "/admin/atrybuty",
+    },
+    {
       id: "reviews",
       title: "Recenzje",
       desc: "Moderuj opinie klientów o meblach i dbaj o wizerunek marki BLISS meble.",
-      icon: <MessageSquare size={32} />, // Zmieniono z Layers na MessageSquare
+      icon: <MessageSquare size={32} />,
       link: "/admin/recenzje",
     },
     {

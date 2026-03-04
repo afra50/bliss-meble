@@ -26,5 +26,3 @@ DLA KRZYŚKA:
 - filtry komponent? + ma dzialac
 
 ===== ADMIN =====
-- responsywność - logowanie, dashboard, layout
-- przycisk wstecz na layout poprawic

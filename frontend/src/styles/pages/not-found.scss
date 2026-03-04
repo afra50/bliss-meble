@@ -22,7 +22,6 @@
 			flex-direction: column;
 			text-align: center;
 			gap: 32px;
-			padding: 0 32px; // Dodany padding dla całego kontenera
 		}
 
 		.notfound-image-wrapper {
@@ -38,6 +37,7 @@
 				object-fit: cover;
 			}
 		}
+
 		.notfound-hero {
 			flex: 1;
 
@@ -52,6 +52,7 @@
 				text-transform: uppercase;
 				letter-spacing: 1px;
 			}
+
 			.nf-tittle {
 				font-family: $font-heading;
 				color: $color-black;
@@ -63,6 +64,7 @@
 					font-size: 2.2rem;
 				}
 			}
+
 			.nf-text {
 				font-family: $font-body;
 				color: $color-slate;

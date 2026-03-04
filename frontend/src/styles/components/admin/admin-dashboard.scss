@@ -6,7 +6,8 @@
 
         h1 {
             font-family: $font-heading;
-            font-size: 2.5rem;
+            // clamp sprawi, że font płynnie zmaleje na mobile, nie psując layoutu
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
             color: $color-black;
             margin-bottom: 8px;
         }
@@ -27,9 +28,9 @@
 
 .admin-card {
     display: flex;
-    align-items: flex-start;
+    align-items: center; // Powrót do Twojego wyrównania
     gap: 20px;
-    padding: 30px;
+    padding: 30px; // Powrót do Twojego paddingu
     background-color: $color-white;
     text-decoration: none;
     border: 1px solid rgba($color-brown, 0.1);
@@ -50,9 +51,9 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 60px;
+        width: 60px; // Powrót do Twojego rozmiaru
         height: 60px;
-        background-color: rgba($color-cream, 0.5); // Jasny beż z Twoich zmiennych
+        background-color: rgba($color-cream, 0.5); // Powrót do Twojej przezroczystości
         color: $color-brown;
         border-radius: 12px;
         transition: all 0.3s ease;
@@ -81,15 +82,8 @@
     }
 }
 
-// Responsywność dla mniejszych ekranów
 @media (max-width: 768px) {
     .admin-dashboard {
-        &__intro {
-            h1 {
-                font-size: 2rem;
-            }
-        }
-
         &__grid {
             grid-template-columns: 1fr;
         }

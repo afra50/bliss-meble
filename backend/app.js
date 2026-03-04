@@ -14,6 +14,7 @@ const winston = require("winston");
 
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
+const attributeRoutes = require("./routes/attributeRoutes");
 
 // --- KONFIGURACJA LOGGERA (Winston) ---
 const logger = winston.createLogger({
@@ -97,6 +98,7 @@ app.get("/api/health", (req, res) => {
 // Główne moduły aplikacji
 app.use("/api/auth", authRoutes); // Wszystko co dotyczy logowania, sesji i admina
 app.use("/api/products", productRoutes); // Katalog mebli, wyszukiwarka, bestsellery
+app.use("/api/attributes", attributeRoutes);
 
 // Obsługa nieznalezionych tras (404)
 app.use((req, res, next) => {

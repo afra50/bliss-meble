@@ -5,9 +5,10 @@ import {
   LayoutDashboard,
   Package,
   ShoppingCart,
-  MessageSquare, // Ikona dla recenzji
+  MessageSquare,
   Star,
-  Truck, // Ikona dla wysyłek
+  Truck,
+  Layers, // Import ikony
   LogOut,
   ArrowLeft,
 } from "lucide-react";
@@ -26,11 +27,11 @@ const AdminLayout = () => {
     }
   };
 
-  // Zaktualizowana lista nawigacji - teraz w 100% spójna z Dashboardem
   const navItems = [
     { path: "/admin", Icon: LayoutDashboard, label: "Dashboard", end: true },
     { path: "/admin/produkty", Icon: Package, label: "Produkty" },
     { path: "/admin/zamowienia", Icon: ShoppingCart, label: "Zamówienia" },
+    { path: "/admin/atrybuty", Icon: Layers, label: "Atrybuty" }, // NOWA POZYCJA
     { path: "/admin/recenzje", Icon: MessageSquare, label: "Recenzje" },
     { path: "/admin/bestsellery", Icon: Star, label: "Bestsellery" },
     { path: "/admin/wysylki", Icon: Truck, label: "Koszty wysyłek" },
@@ -65,18 +66,22 @@ const AdminLayout = () => {
         </nav>
 
         <div className="admin-sidebar__footer">
-          {!isDashboard && (
+          {!isDashboard ? (
             <button
               onClick={() => navigate("/admin")}
               className="mobile-back-btn"
-              title="Wróć do głównego panelu"
+              title="Wróć do Dashboardu"
             >
               <ArrowLeft size={20} />
+              <span className="btn-text">Wstecz</span>
             </button>
+          ) : (
+            <div className="mobile-placeholder"></div>
           )}
+
           <button onClick={handleLogout} className="logout-btn">
             <LogOut size={20} className="nav-icon" />
-            <span>Wyloguj</span>
+            <span className="btn-text">Wyloguj</span>
           </button>
         </div>
       </aside>

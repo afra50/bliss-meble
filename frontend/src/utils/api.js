@@ -114,4 +114,14 @@ export const productApi = {
   deleteImage: (imageId) => api.delete(`/products/image/${imageId}`),
 };
 
+// ---- ATTRIBUTE API ----
+export const attributeApi = {
+  // Pobieranie wszystkich grup wraz z wartościami (Publiczne/Admin)
+  getAll: () => api.get("/attributes"), // Zwraca strukturę grup i opcji
+
+  // Admin: Zarządzanie konkretnymi wartościami (np. Velvet 01, 160x200)
+  createValue: (data) => api.post("/attributes/values", data), // data: { group_id: X, value: "..." }
+  deleteValue: (id) => api.delete(`/attributes/values/${id}`), //
+};
+
 export default api;

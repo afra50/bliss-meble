@@ -2,8 +2,12 @@
 
 .admin-layout {
     display: flex;
-    min-height: 100vh;
+    min-height: 60vh;
     background-color: rgba($color-slate, 0.1);
+
+    @media (max-width: 992px) {
+        flex-direction: column; // Na mobile układ pionowy
+    }
 }
 
 .admin-sidebar {
@@ -15,10 +19,23 @@
     position: sticky;
     top: 0;
     height: 100vh;
+    z-index: 1000;
+
+    @media (max-width: 992px) {
+        width: 100%;
+        height: 60px; // Stała wysokość paska na mobile
+        flex-direction: row;
+        align-items: center;
+        padding: 0 20px;
+    }
 
     &__header {
         padding: 30px;
         border-bottom: 1px solid rgba($color-white, 0.1);
+
+        @media (max-width: 992px) {
+            display: none; // Ukrywamy logo admina na mobile, by zrobić miejsce
+        }
 
         h2 {
             font-family: $font-heading;
@@ -35,6 +52,10 @@
     &__nav {
         flex: 1;
         padding: 20px 0;
+
+        @media (max-width: 992px) {
+            display: none; // UKRYWAMY MENU NA TELEFONIE
+        }
 
         ul {
             list-style: none;
@@ -64,17 +85,45 @@
         border-top: 1px solid rgba($color-white, 0.1);
         display: flex;
         justify-content: space-between;
+        align-items: center;
 
-        .logout-btn {
+        @media (max-width: 992px) {
+            width: 100%;
+            border: none;
+            padding: 0;
+        }
+
+        .btn-text {
+            @media (min-width: 993px) {
+                // Na desktopie tekst jest opcjonalny zależnie od Twojego designu
+            }
+        }
+
+        .logout-btn,
+        .mobile-back-btn {
             background: none;
             border: none;
-            color: $color-red;
+            color: $color-white;
             display: flex;
             align-items: center;
             gap: 10px;
             cursor: pointer;
             font-family: $font-body;
+            text-transform: uppercase;
+            font-size: 0.75rem;
             letter-spacing: 0.1rem;
+
+            &:hover {
+                color: $color-slate;
+            }
+        }
+
+        .logout-btn {
+            color: $color-red;
+        }
+
+        .mobile-placeholder {
+            width: 40px; // Zapewnia odstęp, gdy nie ma przycisku wstecz
         }
     }
 }
@@ -83,4 +132,9 @@
     flex: 1;
     padding: 40px;
     overflow-y: auto;
+    min-width: 0; // Zapobiega rozpychaniu layoutu przez duże tabele
+
+    @media (max-width: 768px) {
+        padding: 20px;
+    }
 }
