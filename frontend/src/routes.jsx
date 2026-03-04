@@ -8,6 +8,7 @@ import AboutUs from "./pages/AboutUs";
 import Complaints from "./pages/Complaints";
 import Contact from "./pages/Contact";
 import Products from "./pages/Products";
+import ProductDetails from "./pages/ProductDetails";
 
 // Importy Admina
 import LoginPage from "./pages/admin/Login";
@@ -33,6 +34,7 @@ const routes = [
   { path: "/szukaj", element: <Products /> },
   { path: "/:category", element: <Products /> },
   { path: "/:category/:subcategory", element: <Products /> },
+  { path: "/sklep/:slug", element: <ProductDetails /> },
 
   // --- LOGOWANIE ADMINA (Publiczne) ---
   { path: "/admin/login", element: <LoginPage /> },

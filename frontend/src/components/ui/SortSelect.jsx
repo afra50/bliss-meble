@@ -3,10 +3,10 @@ import CustomSelect from "./CustomSelect";
 
 // 1. Opcje dla publicznego sklepu
 export const storeSortOptions = [
-  { value: "default", label: "Sortuj: Domyślnie" },
+  { value: "newest", label: "Najnowsze" }, // Teraz to jest opcja bazowa
+  { value: "oldest", label: "Najstarsze" }, // NOWA OPCJA
   { value: "price_asc", label: "Cena: od najniższej" },
   { value: "price_desc", label: "Cena: od najwyższej" },
-  { value: "newest", label: "Najnowsze" },
 ];
 
 // 2. Opcje dla panelu admina

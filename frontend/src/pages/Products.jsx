@@ -59,23 +59,20 @@ const Products = () => {
     : undefined;
   const location = useLocation();
 
-  // ZMIANA: Odczytujemy parametr ?q=... z adresu URL
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("q") || "";
 
   const isAllProducts = location.pathname === "/sklep";
   const isSearch = location.pathname === "/szukaj";
 
-  // STANY DLA DANYCH Z API I SORTOWANIA
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortOption, setSortOption] = useState("default");
 
-  // NOWE STANY DO PAGINACJI
+  // ZMIANA: Stan inicjalny to "newest"
+  const [sortOption, setSortOption] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
 
-  // FUNKCJA SPRAWDZAJĄCA CZY PRODUKT JEST NOWOŚCIĄ (mniej niż 30 dni)
   const isProductNew = (createdAt) => {
     if (!createdAt) return false;
     const addedDate = new Date(createdAt);
@@ -90,11 +87,9 @@ const Products = () => {
     try {
       let response;
 
-      // ZMIANA: Jeśli to wyszukiwarka i mamy wpisane hasło, uderzamy do endpointu search
       if (isSearch && searchQuery) {
         response = await productApi.search(searchQuery);
       } else {
-        // W przeciwnym razie ładujemy po kategoriach
         const params = {};
         if (category) params.category = category;
         if (subcategory) params.subcategory = subcategory;
@@ -112,9 +107,9 @@ const Products = () => {
 
   useEffect(() => {
     fetchProducts();
-    setSortOption("default");
+    // ZMIANA: Zawsze resetuj do "newest"
+    setSortOption("newest");
     setCurrentPage(1);
-    // ZMIANA: Dodano searchQuery do zależności, by strona odświeżała się przy nowym wyszukiwaniu
   }, [category, subcategory, isSearch, searchQuery]);
 
   // LOGIKA SORTOWANIA
@@ -129,15 +124,21 @@ const Products = () => {
         sorted.sort((a, b) => Number(b.price_brut) - Number(a.price_brut));
         break;
       case "newest":
+        // Od najwyższego (najnowszego) ID do najniższego
         sorted.sort((a, b) => b.id - a.id);
         break;
+      case "oldest":
+        // NOWE: Od najniższego (najstarszego) ID do najwyższego
+        sorted.sort((a, b) => a.id - b.id);
+        break;
       default:
+        // Zabezpieczenie (wpadnie tu jeśli z jakiegoś powodu będzie 'newest')
+        sorted.sort((a, b) => b.id - a.id);
         break;
     }
     return sorted;
   }, [products, sortOption]);
 
-  // LOGIKA PAGINACJI (Przecinanie posortowanej tablicy na fragmenty)
   const currentProducts = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
