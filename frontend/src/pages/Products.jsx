@@ -1,5 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams, Link, useLocation, Navigate } from "react-router-dom";
+import {
+  useParams,
+  Link,
+  useLocation,
+  Navigate,
+  useSearchParams,
+} from "react-router-dom";
 import ProductCard from "../components/ui/ProductCard";
 import NotFound from "./NotFound";
 import Loader from "../components/ui/Loader";
@@ -13,7 +19,12 @@ import "../styles/pages/products.scss";
 
 const validCategories = {
   zestawy: [],
-  "kolekcja-snu": ["materace", "łóżka-kontynentalne", "łóżka-tapicerowane"],
+  "kolekcja-snu": [
+    "materace",
+    "materace-nawierzchniowe",
+    "łóżka-kontynentalne",
+    "łóżka-tapicerowane",
+  ],
   "strefa-komfortu": ["narożniki", "narożniki-u", "sofy", "fotele"],
   dodatki: ["kołdry", "poduszki", "inne-akcesoria"],
 };
@@ -24,6 +35,7 @@ const categoryNames = {
   "strefa-komfortu": "Strefa KOMFORTU",
   dodatki: "Dodatki",
   materace: "Materace",
+  "materace-nawierzchniowe": "Materace nawierzchniowe",
   "łóżka-kontynentalne": "Łóżka kontynentalne",
   "łóżka-tapicerowane": "Łóżka tapicerowane",
   narożniki: "Narożniki",
@@ -47,6 +59,10 @@ const Products = () => {
     : undefined;
   const location = useLocation();
 
+  // ZMIANA: Odczytujemy parametr ?q=... z adresu URL
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get("q") || "";
+
   const isAllProducts = location.pathname === "/sklep";
   const isSearch = location.pathname === "/szukaj";
 
@@ -59,15 +75,32 @@ const Products = () => {
   // NOWE STANY DO PAGINACJI
   const [currentPage, setCurrentPage] = useState(1);
 
+  // FUNKCJA SPRAWDZAJĄCA CZY PRODUKT JEST NOWOŚCIĄ (mniej niż 30 dni)
+  const isProductNew = (createdAt) => {
+    if (!createdAt) return false;
+    const addedDate = new Date(createdAt);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    return addedDate >= thirtyDaysAgo;
+  };
+
   const fetchProducts = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const params = {};
-      if (category) params.category = category;
-      if (subcategory) params.subcategory = subcategory;
+      let response;
 
-      const response = await productApi.getAll(params);
+      // ZMIANA: Jeśli to wyszukiwarka i mamy wpisane hasło, uderzamy do endpointu search
+      if (isSearch && searchQuery) {
+        response = await productApi.search(searchQuery);
+      } else {
+        // W przeciwnym razie ładujemy po kategoriach
+        const params = {};
+        if (category) params.category = category;
+        if (subcategory) params.subcategory = subcategory;
+        response = await productApi.getAll(params);
+      }
+
       setProducts(response.data);
     } catch (err) {
       console.error("Błąd pobierania:", err);
@@ -79,10 +112,10 @@ const Products = () => {
 
   useEffect(() => {
     fetchProducts();
-    // ZMIANA: Reset sortowania i strony na 1 po zmianie kategorii
     setSortOption("default");
     setCurrentPage(1);
-  }, [category, subcategory]);
+    // ZMIANA: Dodano searchQuery do zależności, by strona odświeżała się przy nowym wyszukiwaniu
+  }, [category, subcategory, isSearch, searchQuery]);
 
   // LOGIKA SORTOWANIA
   const sortedProducts = useMemo(() => {
@@ -134,8 +167,12 @@ const Products = () => {
 
   const formatName = (slug) => categoryNames[slug] || slug;
 
+  // ZMIANA: Tytuł uwzględniający wpisane słowo
   let pageTitle = "Wszystkie produkty";
-  if (isSearch) pageTitle = "Wyniki wyszukiwania";
+  if (isSearch)
+    pageTitle = searchQuery
+      ? `Wyniki dla "${searchQuery}"`
+      : "Wyniki wyszukiwania";
   if (category && !subcategory) pageTitle = formatName(category);
   if (subcategory) pageTitle = formatName(subcategory);
 
@@ -193,6 +230,11 @@ const Products = () => {
                     </li>
                     <li>
                       <Link to="/kolekcja-snu/materace">Materace</Link>
+                    </li>
+                    <li>
+                      <Link to="/kolekcja-snu/materace-nawierzchniowe">
+                        Materace nawierzchniowe
+                      </Link>
                     </li>
                     <li>
                       <Link to="/kolekcja-snu/łóżka-kontynentalne">
@@ -342,7 +384,11 @@ const Products = () => {
               ) : currentProducts.length > 0 ? (
                 // ZMIANA: Używamy currentProducts, a nie od razu sortedProducts
                 currentProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    isNew={isProductNew(product.created_at)}
+                  />
                 ))
               ) : (
                 <p className="products-page__empty">

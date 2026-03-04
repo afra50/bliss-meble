@@ -5,7 +5,7 @@
 - wstecz?
 - alert + confirmdialog
 - baner ciasteczek?
-- filtry + wyszukiwarka
+- filtry
 - errorstate i loader wszedzie
 - defaultowe zdjecie dla produktu wszedzie dac
 - minheight wszedzie

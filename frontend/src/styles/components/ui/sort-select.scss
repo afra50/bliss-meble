@@ -1,4 +1,5 @@
 @use "../../variables" as *;
+@use "sass:color"; // ZMIANA: Importujemy nowoczesny moduł kolorów Sassa
 
 .sort-select-wrapper {
   // Sztywna minimalna szerokość zapobiega kurczeniu się po wybraniu np. "Najnowsze"
@@ -8,9 +9,9 @@
   // --- GŁÓWNY PRZYCISK (KONTROLKA) ---
   .react-select__control {
     background-color: transparent;
-    border: 1px solid transparent !important; // ZMIANA: !important zapobiega nadpisywaniu przez bibliotekę
+    border: 1px solid transparent !important; // !important zapobiega nadpisywaniu przez bibliotekę
     border-radius: 4px;
-    box-shadow: none !important; // ZMIANA: Zabija domyślną niebieską poświatę biblioteki!
+    box-shadow: none !important; // Zabija domyślną niebieską poświatę biblioteki!
     cursor: pointer;
     min-height: unset;
     padding: 4px 8px;
@@ -18,18 +19,13 @@
 
     &:hover {
       color: $color-slate;
-      background-color: rgba($color-slate, 0.05);
-      border-color: rgba(
-        $color-slate,
-        0.5
-      ) !important; // ZMIANA: Wymusza Twój błękit przy najechaniu
+      // Nowoczesne półprzezroczyste tło (zamiast starego rgba)
+      background-color: color.change($color-slate, $alpha: 0.05);
+      border-color: color.change($color-slate, $alpha: 0.5) !important;
     }
 
     &--is-focused {
-      border-color: rgba(
-        $color-slate,
-        0.5
-      ) !important; // ZMIANA: Wymusza Twój błękit przy kliknięciu
+      border-color: color.change($color-slate, $alpha: 0.5) !important;
       box-shadow: none !important;
     }
   }
@@ -59,8 +55,9 @@
   .react-select__menu {
     background-color: $color-white;
     border-radius: 4px;
-    box-shadow: 0 10px 30px rgba($color-black, 0.1);
-    border: 1px solid rgba($color-slate, 0.15);
+    // Nowoczesne przezroczyste cienie
+    box-shadow: 0 10px 30px color.change($color-black, $alpha: 0.1);
+    border: 1px solid color.change($color-slate, $alpha: 0.15);
     margin-top: 5px;
     z-index: 100;
 
@@ -85,7 +82,7 @@
       color 0.2s ease;
 
     &--is-focused {
-      background-color: rgba($color-slate, 0.05);
+      background-color: color.change($color-slate, $alpha: 0.05);
     }
 
     &--is-selected {
@@ -93,7 +90,8 @@
       color: $color-white;
 
       &:hover {
-        background-color: darken($color-olive, 5%);
+        // ZMIANA: Nowoczesne przyciemnianie koloru zamiast starego darken()!
+        background-color: color.scale($color-olive, $lightness: -5%);
       }
     }
 
