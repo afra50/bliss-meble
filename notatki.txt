@@ -41,12 +41,10 @@ DLA KRZYŚKA:
 - wydzielic na mniejsze komponenty - galeria, dodaj do koszyka, ilosc, kolory itp?
 
 ===== ADMIN =====
+- wyrzucic zakladke bestsellery i dodac info na kaflu produkty o bestsellerach
 1. PRODUKTY
     - dodawanie/edycja produktu:
         * wybor zdjecia miniatury
-        * reactdropzone wydzielic osobno
-        * ujemne kwoty nie pozwolic
         * usuwanie pojedynczych zdjec dopiero po zapisz
-        * dla kategorii zestawy nie mozna zostawic pustej podkategorii bo narzeka
         * responsywność
         * testy

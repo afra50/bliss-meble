@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
-import { useDropzone } from "react-dropzone";
 import { productApi, attributeApi } from "../../utils/api";
-import { X, UploadCloud, Trash2 } from "lucide-react";
+import { X } from "lucide-react";
 import CustomSelect from "../ui/CustomSelect";
 import Button from "../ui/Button";
 import Loader from "../ui/Loader";
 import ToastAlert from "../ui/ToastAlert";
+import ImageUploadZone from "../ui/ImageUploadZone"; // NOWOŚĆ: Import naszego komponentu
 import "../../styles/components/admin/admin-modal.scss";
 import { CATEGORIES, SUBCATEGORIES } from "../../utils/categories";
 
@@ -117,26 +117,16 @@ const AdminProductModal = ({
     initData();
   }, [isOpen, isEditMode, productToEdit]);
 
-  const onDrop = useCallback((acceptedFiles) => {
-    const filesWithPreview = acceptedFiles.map((file) =>
-      Object.assign(file, {
-        preview: URL.createObjectURL(file),
-      }),
-    );
-    setNewFiles((prev) => [...prev, ...filesWithPreview]);
-  }, []);
+  // --- FUNKCJE DLA IMAGE UPLOAD ZONE ---
+  const handleFilesSelected = (files) => {
+    setNewFiles((prev) => [...prev, ...files]);
+  };
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: { "image/*": [] },
-    maxFiles: 10,
-  });
-
-  const removeNewFile = (fileToRemove) => {
+  const handleNewFileRemove = (fileToRemove) => {
     setNewFiles((prev) => prev.filter((file) => file !== fileToRemove));
   };
 
-  const removeExistingImage = async (imageId) => {
+  const handleExistingImageRemove = async (imageId) => {
     if (!window.confirm("Czy na pewno chcesz usunąć to zdjęcie z serwera?"))
       return;
     try {
@@ -148,15 +138,37 @@ const AdminProductModal = ({
     }
   };
 
+  // --- OBSŁUGA DANYCH FORMULARZA ---
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    let { name, value, type, checked } = e.target;
+
+    if (name === "price_brut") {
+      value = value.replace(/,/g, ".");
+      value = value.replace(/[^0-9.]/g, "");
+
+      const parts = value.split(".");
+      if (parts.length > 2) {
+        value = parts[0] + "." + parts.slice(1).join("");
+      }
+
+      if (value.includes(".")) {
+        const [integerPart, decimalPart] = value.split(".");
+        if (decimalPart.length > 2) {
+          value = `${integerPart}.${decimalPart.slice(0, 2)}`;
+        }
+      }
+
+      // NOWOŚĆ: Usuwa wiodące zera (np. 012 -> 12), ale zostawia "0." (np. 0.50)
+      value = value.replace(/^0+(?=\d)/, "");
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  const handleAttributeChange = (attrId, isChecked, priceModifier = 0) => {
+  const handleAttributeChange = (attrId, isChecked, priceModifier = "") => {
     if (isChecked) {
       setSelectedAttributes((prev) => [
         ...prev,
@@ -168,18 +180,44 @@ const AdminProductModal = ({
   };
 
   const handlePriceModifierChange = (attrId, newPrice) => {
+    let validPrice = newPrice.replace(/,/g, ".");
+    validPrice = validPrice.replace(/[^0-9.]/g, "");
+
+    const parts = validPrice.split(".");
+    if (parts.length > 2) {
+      validPrice = parts[0] + "." + parts.slice(1).join("");
+    }
+
+    if (validPrice.includes(".")) {
+      const [integerPart, decimalPart] = validPrice.split(".");
+      if (decimalPart.length > 2) {
+        validPrice = `${integerPart}.${decimalPart.slice(0, 2)}`;
+      }
+    }
+
+    // NOWOŚĆ: Usuwa wiodące zera
+    validPrice = validPrice.replace(/^0+(?=\d)/, "");
+
     setSelectedAttributes((prev) =>
-      prev.map((a) => (a.id === attrId ? { ...a, price: newPrice } : a)),
+      prev.map((a) => (a.id === attrId ? { ...a, price: validPrice } : a)),
     );
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.subcategory_id) {
-      showToast(
-        "Wybierz podkategorię! Jeśli lista jest pusta, zmień kategorię główną.",
-        "error",
-      );
+
+    // NOWOŚĆ: Sprawdzamy, czy wybrana kategoria główna MA w ogóle jakieś podkategorie
+    const categoryHasSubcategories = subcategoryOptions.length > 0;
+
+    // Blokujemy zapis TYLKO wtedy, gdy podkategorie istnieją, a użytkownik żadnej nie wybrał
+    if (categoryHasSubcategories && !formData.subcategory_id) {
+      showToast("Wybierz podkategorię z listy!", "error");
+      return;
+    }
+
+    // Dodatkowe zabezpieczenie: jeśli nie ma głównej kategorii
+    if (!categoryId) {
+      showToast("Wybierz kategorię główną!", "error");
       return;
     }
 
@@ -190,7 +228,10 @@ const AdminProductModal = ({
       submitData.append("short_description", formData.short_description);
       submitData.append("description", formData.description);
       submitData.append("price_brut", formData.price_brut);
-      submitData.append("subcategory_id", formData.subcategory_id);
+
+      // Zabezpieczenie na wypadek, gdyby formularz wysyłał puste id
+      submitData.append("subcategory_id", formData.subcategory_id || "");
+
       submitData.append("is_available", formData.is_available);
       submitData.append("is_bestseller", formData.is_bestseller);
       submitData.append("attributes", JSON.stringify(selectedAttributes));
@@ -214,10 +255,6 @@ const AdminProductModal = ({
       setIsSubmitting(false);
     }
   };
-
-  useEffect(() => {
-    return () => newFiles.forEach((file) => URL.revokeObjectURL(file.preview));
-  }, [newFiles]);
 
   if (!isOpen) return null;
 
@@ -264,7 +301,6 @@ const AdminProductModal = ({
               <Loader message="Wczytywanie danych..." />
             </div>
           ) : (
-            // ZMIANA: Formularz obejmuje teraz całe body i stopkę!
             <form
               className="admin-modal__form-wrapper"
               id="product-form"
@@ -335,8 +371,8 @@ const AdminProductModal = ({
                       Cena Brutto (zł) *
                     </label>
                     <input
-                      type="number"
-                      step="0.01"
+                      type="text" // ZMIANA Z NUMBER
+                      inputMode="decimal" // POKAZUJE KLAWIATURĘ NUMERYCZNĄ NA TELEFONACH
                       required
                       className="form-group__input"
                       name="price_brut"
@@ -376,53 +412,15 @@ const AdminProductModal = ({
 
                 <div className="form-section">
                   <h3>Galeria Zdjęć</h3>
-                  <div
-                    {...getRootProps()}
-                    className={`image-upload-zone ${isDragActive ? "is-dragover" : ""}`}
-                  >
-                    <input {...getInputProps()} />
-                    <UploadCloud size={40} className="upload-icon" />
-                    <p>Przeciągnij i upuść zdjęcia tutaj</p>
-                    <small>
-                      lub kliknij, aby wybrać pliki (JPG, PNG, WEBP)
-                    </small>
-                  </div>
-                  {(existingImages.length > 0 || newFiles.length > 0) && (
-                    <div className="image-gallery">
-                      {existingImages.map((img) => (
-                        <div
-                          key={img.id}
-                          className={`image-gallery__item ${img.is_main ? "is-main" : ""}`}
-                        >
-                          <img
-                            src={`${BACKEND_URL}/uploads/products/${img.url}`}
-                            alt="Mebel"
-                          />
-                          <div
-                            className="delete-overlay"
-                            onClick={() => removeExistingImage(img.id)}
-                          >
-                            <Trash2 size={24} />
-                          </div>
-                        </div>
-                      ))}
-                      {newFiles.map((file, index) => (
-                        <div key={index} className="image-gallery__item">
-                          <img src={file.preview} alt="Podgląd" />
-                          <div
-                            className="delete-overlay"
-                            onClick={() =>
-                              setNewFiles((prev) =>
-                                prev.filter((f) => f !== file),
-                              )
-                            }
-                          >
-                            <X size={24} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  {/* ZMIANA: Wywołanie wyizolowanego komponentu */}
+                  <ImageUploadZone
+                    existingImages={existingImages}
+                    newFiles={newFiles}
+                    onFilesSelected={handleFilesSelected}
+                    onExistingImageRemove={handleExistingImageRemove}
+                    onNewFileRemove={handleNewFileRemove}
+                    backendUrl={BACKEND_URL}
+                  />
                 </div>
 
                 <div className="form-section">
@@ -444,7 +442,7 @@ const AdminProductModal = ({
                           );
                           const currentPrice =
                             selectedAttributes.find((a) => a.id === val.id)
-                              ?.price || 0;
+                              ?.price ?? "";
                           return (
                             <div
                               key={val.id}
@@ -471,8 +469,8 @@ const AdminProductModal = ({
                                 <div className="price-modifier-wrap">
                                   <span>Dopłata do ceny bazowej:</span>
                                   <input
-                                    type="number"
-                                    step="0.01"
+                                    type="text" // ZMIANA Z NUMBER
+                                    inputMode="decimal" // POKAZUJE KLAWIATURĘ NUMERYCZNĄ NA TELEFONACH
                                     className="form-group__input price-modifier-wrap__input"
                                     value={currentPrice}
                                     onChange={(e) =>
@@ -524,13 +522,12 @@ const AdminProductModal = ({
                 </div>
               </div>
 
-              {/* ZMIANA: Footer jest teraz wewnątrz formularza */}
               <div className="admin-modal__footer">
                 <Button
                   className="btn-cancel"
                   variant="outline-olive"
                   onClick={(e) => {
-                    e.preventDefault(); // Powstrzymuje submit w razie czego
+                    e.preventDefault();
                     onClose();
                   }}
                   disabled={isSubmitting}
@@ -543,10 +540,9 @@ const AdminProductModal = ({
                   variant="primary"
                   type="submit"
                   disabled={isSubmitting || isLoading}
-                  isLoading={isSubmitting} // <--- ADD THIS LINE
+                  isLoading={isSubmitting}
                 >
-                  {isSubmitting ? "Zapisywanie..." : "Zapisz Produkt"}{" "}
-                  {/* <--- AND CHANGE THIS TEXT */}
+                  {isSubmitting ? "Zapisywanie..." : "Zapisz Produkt"}
                 </Button>
               </div>
             </form>
