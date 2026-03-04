@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { productApi } from "../../utils/api";
 import { AlertCircle } from "lucide-react";
 import Loader from "../../components/ui/Loader";
@@ -10,8 +9,9 @@ import AdminEditButton from "../../components/admin/AdminEditButton";
 import AdminDeleteButton from "../../components/admin/AdminDeleteButton";
 import Pagination from "../../components/ui/Pagination";
 import SortSelect, { adminSortOptions } from "../../components/ui/SortSelect";
-import ConfirmDialog from "../../components/ui/ConfirmDialog"; // IMPORT MODALA
-import ToastAlert from "../../components/ui/ToastAlert"; // IMPORT ALERTU
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
+import ToastAlert from "../../components/ui/ToastAlert";
+import AdminProductModal from "../../components/admin/AdminProductModal";
 import defaultImg from "../../assets/default-product.jpg";
 import "../../styles/pages/admin/admin-product-list.scss";
 
@@ -20,33 +20,46 @@ const BACKEND_URL = import.meta.env.VITE_API_URL
   : "http://localhost:5000";
 
 const AdminProductList = () => {
+  // --- STANY BAZOWE ---
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // --- STANY LISTY (Filtry, Sortowanie, Paginacja) ---
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const navigate = useNavigate();
 
-  // --- NOWE STANY DO WŁASNYCH KOMPONENTÓW ---
+  // --- STANY MODALI I POWIADOMIEŃ ---
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState(null);
+
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     productId: null,
     productName: "",
-    isLoading: false, // Nowa flaga
+    isLoading: false,
   });
+
   const [toast, setToast] = useState({
     isOpen: false,
     message: "",
     type: "success",
   });
 
+  // --- FUNKCJE POMOCNICZE ---
   const showToast = (message, type = "success") => {
     setToast({ isOpen: true, message, type });
   };
 
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return defaultImg;
+    if (imagePath.startsWith("http")) return imagePath;
+    return `${BACKEND_URL}/uploads/products/${imagePath}`;
+  };
+
+  // --- POBIERANIE DANYCH ---
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -65,26 +78,23 @@ const AdminProductList = () => {
     fetchProducts();
   }, []);
 
+  // Reset strony do 1 przy wyszukiwaniu/sortowaniu
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, sortOption]);
 
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return defaultImg;
-    if (imagePath.startsWith("http")) return imagePath;
-    return `${BACKEND_URL}/uploads/products/${imagePath}`;
-  };
-
-  // Krok 1: Otwieramy nasz własny Confirm Dialog zamiast window.confirm
+  // --- OBSŁUGA USUWANIA ---
   const handleDeleteClick = (id, name) => {
-    setConfirmDialog({ isOpen: true, productId: id, productName: name });
+    setConfirmDialog({
+      isOpen: true,
+      productId: id,
+      productName: name,
+      isLoading: false,
+    });
   };
 
-  // Krok 2: Funkcja odpalana, gdy user kliknie "Usuń" w modalu
   const confirmDelete = async () => {
-    // Blokujemy przyciski i kręcimy spinnerem
     setConfirmDialog((prev) => ({ ...prev, isLoading: true }));
-
     try {
       await productApi.delete(confirmDialog.productId);
       setProducts(products.filter((p) => p.id !== confirmDialog.productId));
@@ -95,7 +105,6 @@ const AdminProductList = () => {
     } catch (error) {
       showToast("Wystąpił błąd podczas usuwania produktu.", "error");
     } finally {
-      // Zamykamy modal (loader znika automatycznie)
       setConfirmDialog({
         isOpen: false,
         productId: null,
@@ -105,7 +114,31 @@ const AdminProductList = () => {
     }
   };
 
+  // --- OBSŁUGA MODALA DODAWANIA/EDYCJI ---
+  const handleAddNew = () => {
+    setProductToEdit(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditClick = (product) => {
+    setProductToEdit(product);
+    setIsModalOpen(true);
+  };
+
+  const handleModalSuccess = () => {
+    setIsModalOpen(false);
+    showToast(
+      productToEdit
+        ? "Produkt został zaktualizowany."
+        : "Nowy produkt został dodany.",
+      "success",
+    );
+    fetchProducts();
+  };
+
+  // --- PRZETWARZANIE DANYCH (Client-side) ---
   let processedProducts = [...products];
+
   if (searchTerm) {
     processedProducts = processedProducts.filter((p) =>
       p.name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -139,14 +172,17 @@ const AdminProductList = () => {
     currentPage * itemsPerPage,
   );
 
+  // --- RENDEROWANIE STANU ŁADOWANIA / BŁĘDU ---
   if (loading) return <Loader message="Ładowanie listy produktów..." />;
-  if (error)
+  if (error) {
     return (
       <div className="admin-products admin-products--error">
         <ErrorState message={error} onRetry={fetchProducts} />
       </div>
     );
+  }
 
+  // --- GŁÓWNY RENDER ---
   return (
     <div className="admin-products">
       <header className="admin-products__header">
@@ -157,7 +193,7 @@ const AdminProductList = () => {
             {products.length})
           </p>
         </div>
-        <AdminAddButton to="/admin/produkty/nowy" text="Dodaj Nowy Produkt" />
+        <AdminAddButton onClick={handleAddNew} text="Dodaj Nowy Produkt" />
       </header>
 
       <div className="admin-products__controls">
@@ -169,7 +205,6 @@ const AdminProductList = () => {
           />
         </div>
         <div className="controls-sort">
-          {/* Przekazujemy adminSortOptions jako prop */}
           <SortSelect
             options={adminSortOptions}
             value={sortOption}
@@ -180,7 +215,6 @@ const AdminProductList = () => {
 
       <div className="admin-products__table-wrapper admin-table-wrapper">
         <table className="admin-table">
-          {/* THEAD */}
           <thead>
             <tr>
               <th>Miniatura</th>
@@ -191,7 +225,6 @@ const AdminProductList = () => {
               <th>Akcje</th>
             </tr>
           </thead>
-          {/* TBODY */}
           <tbody>
             {currentProducts.length > 0 ? (
               currentProducts.map((product) => (
@@ -221,11 +254,8 @@ const AdminProductList = () => {
                   <td className="td-actions">
                     <div className="actions-container">
                       <AdminEditButton
-                        onClick={() =>
-                          navigate(`/admin/produkty/edytuj/${product.id}`)
-                        }
+                        onClick={() => handleEditClick(product)}
                       />
-                      {/* PODPINAMY NOWĄ FUNKCJĘ */}
                       <AdminDeleteButton
                         onClick={() =>
                           handleDeleteClick(product.id, product.name)
@@ -257,7 +287,14 @@ const AdminProductList = () => {
         </div>
       )}
 
-      {/* RENDEROWANIE NASZYCH NOWYCH KOMPONENTÓW */}
+      {/* --- KOMPONENTY GLOBALNE (MODALE I TOASTY) --- */}
+      <AdminProductModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        productToEdit={productToEdit}
+        onSuccess={handleModalSuccess}
+      />
+
       <ConfirmDialog
         isOpen={confirmDialog.isOpen}
         title="Usuwanie produktu"
@@ -265,7 +302,7 @@ const AdminProductList = () => {
         confirmText="Tak, usuń"
         cancelText="Wróć"
         variant="danger"
-        isLoading={confirmDialog.isLoading} // Przekazujesz stan
+        isLoading={confirmDialog.isLoading}
         onConfirm={confirmDelete}
         onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
       />

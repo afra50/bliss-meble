@@ -1,8 +1,7 @@
 import React from "react";
-import Select from "react-select";
-import "../../styles/components/ui/sort-select.scss";
+import CustomSelect from "./CustomSelect";
 
-// 1. Opcje dla publicznego sklepu (ceny itp.)
+// 1. Opcje dla publicznego sklepu
 export const storeSortOptions = [
   { value: "default", label: "Sortuj: Domyślnie" },
   { value: "price_asc", label: "Cena: od najniższej" },
@@ -10,7 +9,7 @@ export const storeSortOptions = [
   { value: "newest", label: "Najnowsze" },
 ];
 
-// 2. Opcje dla panelu admina (bez cen, z alfabetycznym)
+// 2. Opcje dla panelu admina
 export const adminSortOptions = [
   { value: "newest", label: "Najnowsze" },
   { value: "oldest", label: "Najstarsze" },
@@ -18,19 +17,19 @@ export const adminSortOptions = [
   { value: "alpha_desc", label: "Alfabetycznie (Z-A)" },
 ];
 
-// Dodaliśmy prop "options", który jeśli nie zostanie podany, użyje storeSortOptions
 const SortSelect = ({ value, onChange, options = storeSortOptions }) => {
-  const selectedOption =
-    options.find((opt) => opt.value === value) || options[0];
-
   return (
-    <Select
+    <CustomSelect
       options={options}
-      value={selectedOption}
-      isSearchable={false}
-      onChange={onChange}
-      className="sort-select-wrapper"
-      classNamePrefix="react-select"
+      value={value}
+      onChange={(selectedOption) => {
+        // Sklep publiczny oczekuje pełnego obiektu {value: '...', label: '...'} z onChange
+        // Admin oczekuje samego stringa '...'
+        // Aby zadowolić oba, przekazujemy obiekt, ale jeśli chcesz używać tego w Adminie,
+        // to w AdminProductList.jsx w wywołaniu po prostu użyj: onChange={(opt) => setSortOption(opt.value)}
+        onChange(selectedOption);
+      }}
+      variant="sort"
     />
   );
 };

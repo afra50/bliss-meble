@@ -19,19 +19,26 @@
     font-family: $font-body;
     font-size: 1rem;
     border: 1px solid rgba($color-brown, 0.2);
-    background-color: $color-white;
-    border-radius: 0; // Styl minimalistyczny, bez zaokrągleń
+    background-color: rgba($color-cream, 0.1); // Lekko stonowane tło od razu
+    border-radius: 4px; // Dodałem delikatne zaokrąglenie (jak w przyciskach)
     transition: all 0.3s ease;
 
     &:focus {
       outline: none;
       border-color: $color-slate;
-      background-color: rgba($color-cream, 0.1);
+      background-color: $color-white;
+      box-shadow: 0 0 0 3px rgba($color-slate, 0.1); // Subtelny pierścień focusu
     }
 
     &::placeholder {
       color: rgba($color-black, 0.3);
     }
+  }
+
+  // BLOKADA ROZMIARU TEXTAREA
+  textarea.form-group__input {
+    resize: none;
+    line-height: 1.5;
   }
 }
 
@@ -97,18 +104,23 @@
     &--beige {
       background-color: #ede1d1;
     }
+
     &--brown {
       background-color: #564333;
     }
+
     &--slate {
       background-color: #64757d;
     }
+
     &--olive {
       background-color: #505443;
     }
+
     &--grey {
       background-color: #d1d1d1;
     }
+
     &--black {
       background-color: #1d1d1b;
     }

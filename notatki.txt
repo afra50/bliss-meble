@@ -2,7 +2,6 @@
 - linki do fb i insta w stopce i headerze
 - polityka prywatności
 - regulamin
-- baner ciasteczek?
 - filtry
 - errorstate, alert i loader wszedzie
 - defaultowe zdjecie dla produktu wszedzie dac
@@ -30,6 +29,16 @@ DLA KRZYŚKA:
 
 ===== ADMIN =====
 1. PRODUKTY
-    - edycja produktu + alert
-    - dodawanie produktu + alert
-    - filtr do kategorii
+    - dodawanie/edycja produktu:
+        * alert 
+        * buttony moje
+        * loader
+        * wybor zdjecia miniatury
+        * reactdropzone wydzielic osobno
+        * usuwanie pojedynczych zdjec dopiero po zapisz
+        * wybór kategorii, dopiero potem podkategorii na jej podstawie
+        * wybór atrybutów
+        * responsywność
+        * testy
+        * usunac stare style select
+    - filtr do kategorii (customselect) w productlist

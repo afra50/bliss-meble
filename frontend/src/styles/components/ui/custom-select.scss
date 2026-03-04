@@ -1,0 +1,136 @@
+@use "../../variables" as *;
+@use "sass:color";
+
+.custom-select-wrapper {
+    font-family: $font-body;
+
+    // --- WARIANT 1: SORTOWANIE (Przezroczysty, bez ramki) ---
+    &--sort {
+        min-width: 220px;
+
+        .react-select__control {
+            background-color: transparent;
+            border: 1px solid transparent !important;
+            min-height: unset;
+            padding: 4px 8px;
+
+            &:hover {
+                background-color: color.change($color-slate, $alpha: 0.05);
+                border-color: color.change($color-slate, $alpha: 0.5) !important;
+            }
+
+            &--is-focused {
+                border-color: color.change($color-slate, $alpha: 0.5) !important;
+                box-shadow: none !important;
+            }
+        }
+    }
+
+    // --- WARIANT 2: FORMULARZ ADMINA (Tło i ramka) ---
+    &--form {
+        width: 100%;
+
+        .react-select__control {
+            background-color: rgba($color-cream, 0.1);
+            border: 1px solid rgba($color-brown, 0.2) !important;
+            border-radius: 4px;
+            min-height: 46px;
+            padding: 0 8px;
+
+            &:hover {
+                border-color: $color-slate !important;
+                background-color: color.change($color-slate, $alpha: 0.02);
+            }
+
+            &--is-focused {
+                background-color: $color-white;
+                border-color: $color-slate !important;
+                box-shadow: 0 0 0 3px rgba($color-slate, 0.1) !important;
+            }
+        }
+    }
+
+    // --- WSPÓLNE REGUŁY (Dotyczą obu wariantów) ---
+    .react-select__control {
+        box-shadow: none !important;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .react-select__single-value {
+        color: $color-black;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
+    .react-select__placeholder {
+        color: rgba($color-black, 0.4);
+        font-size: 0.95rem;
+    }
+
+    .react-select__indicator-separator {
+        display: none;
+    }
+
+    .react-select__dropdown-indicator {
+        color: $color-black;
+        padding: 5px;
+
+        &:hover {
+            color: inherit;
+        }
+    }
+
+    .react-select__menu {
+        background-color: $color-white;
+        border-radius: 4px;
+        box-shadow: 0 10px 30px color.change($color-black, $alpha: 0.1);
+        border: 1px solid color.change($color-slate, $alpha: 0.15);
+        margin-top: 5px;
+        z-index: 100;
+        animation: selectMenuFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .react-select__menu-list {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
+    .react-select__option {
+        cursor: pointer;
+        padding: 12px 15px;
+        font-size: 0.9rem;
+        color: $color-black;
+        transition: background-color 0.2s ease, color 0.2s ease;
+
+        &--is-focused {
+            background-color: color.change($color-slate, $alpha: 0.05);
+        }
+
+        &--is-selected {
+            background-color: $color-olive;
+            color: $color-white;
+
+            &:hover {
+                background-color: color.scale($color-olive, $lightness: -5%);
+            }
+        }
+
+        &:active {
+            background-color: $color-olive;
+            color: $color-white;
+        }
+    }
+}
+
+@keyframes selectMenuFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
