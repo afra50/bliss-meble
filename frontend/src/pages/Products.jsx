@@ -35,7 +35,9 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortOption, setSortOption] = useState("default");
+
+  // ZMIANA: Stan inicjalny to "newest"
+  const [sortOption, setSortOption] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
 
   const isProductNew = (createdAt) => {
@@ -51,6 +53,7 @@ const Products = () => {
     setError(null);
     try {
       let response;
+
       if (isSearch && searchQuery) {
         response = await productApi.search(searchQuery);
       } else {
@@ -70,7 +73,8 @@ const Products = () => {
 
   useEffect(() => {
     fetchProducts();
-    setSortOption("default");
+    // ZMIANA: Zawsze resetuj do "newest"
+    setSortOption("newest");
     setCurrentPage(1);
   }, [category, subcategory, isSearch, searchQuery]);
 
@@ -84,9 +88,16 @@ const Products = () => {
         sorted.sort((a, b) => Number(b.price_brut) - Number(a.price_brut));
         break;
       case "newest":
+        // Od najwyższego (najnowszego) ID do najniższego
         sorted.sort((a, b) => b.id - a.id);
         break;
+      case "oldest":
+        // NOWE: Od najniższego (najstarszego) ID do najwyższego
+        sorted.sort((a, b) => a.id - b.id);
+        break;
       default:
+        // Zabezpieczenie (wpadnie tu jeśli z jakiegoś powodu będzie 'newest')
+        sorted.sort((a, b) => b.id - a.id);
         break;
     }
     return sorted;

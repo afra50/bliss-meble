@@ -24,7 +24,21 @@ DLA KRZYŚKA:
 
 ===== PRODUKTY =====
 - filtry komponent? + ma dzialac
-- sortowanie opcje poprawic - usunac domyslnie, dac w zamian najstarsze; czy dac tez alfabetycznie?
+
+===== SZCZEGÓŁY PRODUKTU =====
+- alert przy dodawaniu do koszyka
+- darmowa dostawa z bazy
+- kolory sie nie pobieraja
+- liczba sztuk nie jest wysrodkowana mimo ze jest
+- ile gwarancji?
+- kolory tekstu dziwne?
+- przyblizanie zdjec
+- przewijanie zdjec
+- dodawanie do koszyka
+- not found jak dziwny produktow
+- animacje przy przewijaniu/zmianie zdjec, zmianie ilosci produktu/ceny
+- maksymalna ilosc?
+- wydzielic na mniejsze komponenty - galeria, dodaj do koszyka, ilosc, kolory itp?
 
 ===== ADMIN =====
 1. PRODUKTY
