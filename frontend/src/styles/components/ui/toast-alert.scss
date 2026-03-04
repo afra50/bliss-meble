@@ -1,0 +1,57 @@
+@use "../../variables" as *;
+
+.toast-alert {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba($color-black, 0.15);
+    z-index: 10000;
+    animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    color: $color-white;
+
+    &--success {
+        background-color: $color-green;
+    }
+
+    &--error {
+        background-color: $color-red;
+    }
+
+    &__message {
+        font-family: $font-body;
+        font-size: 0.95rem;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    &__close {
+        background: none;
+        border: none;
+        color: rgba($color-white, 0.7);
+        cursor: pointer;
+        display: flex;
+        padding: 0;
+        margin-left: 10px;
+
+        &:hover {
+            color: $color-white;
+        }
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

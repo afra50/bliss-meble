@@ -1,0 +1,52 @@
+@use "../../variables" as *;
+
+// 1. Duży przycisk "Dodaj" (z headera)
+.admin-add-btn {
+    background-color: $color-black;
+    color: $color-white;
+    padding: 12px 24px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.3s;
+    border-radius: 4px;
+    font-family: $font-body;
+    font-size: 0.95rem;
+    font-weight: 500;
+
+    &:hover {
+        background-color: $color-slate;
+    }
+}
+
+// 2. Małe przyciski akcji z tabeli (Edytuj / Usuń)
+.admin-action-btn {
+    background: none;
+    border: 1px solid rgba($color-brown, 0.2);
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &.edit {
+        color: $color-slate;
+
+        &:hover {
+            background: $color-slate;
+            color: $color-white;
+        }
+    }
+
+    &.delete {
+        color: $color-red;
+
+        &:hover {
+            background: $color-red;
+            color: $color-white;
+        }
+    }
+}

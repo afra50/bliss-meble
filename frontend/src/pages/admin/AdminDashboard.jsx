@@ -8,7 +8,7 @@ import {
   Truck,
   Layers, // Ikona dla atrybutów
 } from "lucide-react";
-import "../../styles/components/admin/admin-dashboard.scss";
+import "../../styles/pages/admin/admin-dashboard.scss";
 
 const AdminDashboard = () => {
   const sections = [

@@ -1,0 +1,122 @@
+@use "../../variables" as *;
+
+// Uniwersalny kontener na tabelę (z białym tłem i przewijaniem na mobile)
+.admin-table-wrapper {
+    background: $color-white;
+    border: 1px solid rgba($color-brown, 0.1);
+    overflow-x: auto;
+    width: 100%;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px; // Zapewnia czytelność na małych ekranach
+
+    th {
+        background: rgba($color-brown, 0.9);
+        text-align: left;
+        padding: 15px 20px;
+        font-family: $font-body;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: $color-white;
+    }
+
+    td {
+        padding: 15px 20px;
+        border-bottom: 1px solid rgba($color-slate, 0.1);
+        vertical-align: middle;
+        background-color: $color-white;
+    }
+
+    // --- WSPÓLNE KLASY DLA KOMÓREK ---
+
+    // Miniatury (zdjęcia produktów, awatary użytkowników)
+    .td-img {
+        width: 80px;
+
+        img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            display: block;
+            border-radius: 4px;
+        }
+    }
+
+    // Główne nazwy (Product Name, Customer Name)
+    .td-main {
+        strong {
+            font-weight: 600;
+            display: block;
+            color: $color-black;
+            font-size: 1rem;
+        }
+
+        .sub-info {
+            font-size: 0.75rem;
+            color: $color-slate;
+        }
+    }
+
+    // --- STATUSY (Uniwersalne) ---
+    .status-badge {
+        padding: 4px 12px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        border-radius: 20px;
+        display: inline-block;
+
+        &.available,
+        &.success,
+        &.paid {
+            background: rgba($color-green, 0.1);
+            color: $color-green;
+        }
+
+        &.unavailable,
+        &.danger,
+        &.cancelled {
+            background: rgba($color-red, 0.1);
+            color: $color-red;
+        }
+
+        &.pending,
+        &.warning {
+            background: rgba($color-brown, 0.1);
+            color: $color-brown;
+        }
+    }
+
+    // --- AKCJE (Przyciski Edytuj/Usuń) ---
+    .td-actions {
+        width: 120px;
+
+        .actions-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            height: 100%;
+        }
+    }
+
+    // Stan braku wyników
+    .no-results {
+        text-align: center;
+        padding: 80px 0;
+        color: $color-slate;
+
+        svg {
+            margin-bottom: 15px;
+            opacity: 0.4;
+        }
+
+        p {
+            font-size: 1rem;
+        }
+    }
+}

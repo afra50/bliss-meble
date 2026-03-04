@@ -1,0 +1,69 @@
+@use "../../variables" as *;
+@use "../../components/admin/tables"; // Wspólne style tabel
+
+.admin-products {
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 30px;
+
+        @media (max-width: 768px) {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        h1 {
+            font-family: $font-heading;
+            font-size: 2rem;
+            color: $color-black;
+            margin-bottom: 5px;
+        }
+
+        p {
+            color: $color-slate;
+            font-size: 0.9rem;
+        }
+    }
+
+    // ZMIENIONO: Flexbox dla paska z narzędziami
+    &__controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        gap: 20px;
+        flex-wrap: wrap; // Przenosi sortowanie pod spód na telefonach
+
+        .controls-search {
+            flex: 1; // Wyszukiwarka zajmuje dostępne miejsce...
+            max-width: 400px; // ...ale nie więcej niż 400px
+        }
+
+        .controls-sort {
+            width: 250px; // Stała szerokość dla dropdownu SortSelect
+        }
+
+        @media (max-width: 768px) {
+
+            .controls-search,
+            .controls-sort {
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+    }
+
+    // Klasa importowana z tables.scss
+    &__table-wrapper {
+        @extend .admin-table-wrapper;
+    }
+
+    // Styl dla kontenera paginacji (odsunięcie od tabeli)
+    &__pagination {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+    }
+}

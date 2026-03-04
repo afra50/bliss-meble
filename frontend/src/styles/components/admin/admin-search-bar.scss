@@ -1,0 +1,28 @@
+@use "../../variables" as *;
+
+.admin-search-bar {
+    position: relative;
+    max-width: 400px;
+    width: 100%; // Zapewnia responsywność
+
+    .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: $color-slate;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px 15px 12px 45px;
+        border: 1px solid rgba($color-brown, 0.2);
+        background: $color-white;
+        font-family: $font-body;
+        outline: none;
+
+        &:focus {
+            border-color: $color-slate;
+        }
+    }
+}

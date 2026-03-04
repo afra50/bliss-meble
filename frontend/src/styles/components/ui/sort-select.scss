@@ -32,7 +32,7 @@
 
   // --- TEKST W KONTROLCE ---
   .react-select__single-value {
-    color: inherit;
+    color: $color-black;
     font-size: 0.95rem;
     font-weight: 500;
   }
@@ -44,8 +44,9 @@
 
   // --- STRZAŁKA ---
   .react-select__dropdown-indicator {
-    color: inherit;
+    color: $color-black;
     padding: 5px;
+
     &:hover {
       color: inherit;
     }
@@ -108,6 +109,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

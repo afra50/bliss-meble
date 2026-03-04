@@ -1,0 +1,156 @@
+@use "../../variables" as *;
+
+.confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba($color-black, 0.6);
+    backdrop-filter: blur(2px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.confirm-dialog {
+    background: $color-white;
+    width: 100%;
+    max-width: 400px;
+    padding: 30px;
+    border-radius: 8px;
+    position: relative;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba($color-black, 0.1);
+    animation: slideUp 0.3s ease-out;
+
+    &__close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: none;
+        border: none;
+        color: $color-slate;
+        cursor: pointer;
+
+        &:hover:not(:disabled) {
+            color: $color-black;
+        }
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    }
+
+    &__icon {
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: center;
+
+        &.danger {
+            color: $color-red;
+        }
+
+        &.primary {
+            color: $color-black;
+        }
+    }
+
+    &__title {
+        font-family: $font-heading;
+        font-size: 1.5rem;
+        color: $color-black;
+        margin-bottom: 10px;
+    }
+
+    &__message {
+        color: $color-black;
+        font-family: $font-body;
+        font-size: 0.95rem;
+        margin-bottom: 25px;
+        line-height: 1.5;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+
+        button {
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-family: $font-body;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.3s;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px; // Odstęp między spinnerem a tekstem
+
+            &:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+        }
+
+        .btn-cancel {
+            background: rgba($color-slate, 0.1);
+            color: $color-black;
+
+            &:hover:not(:disabled) {
+                background: rgba($color-slate, 0.2);
+            }
+        }
+
+        .btn-confirm {
+            color: $color-white;
+            min-width: 140px; // Zapobiega skakaniu szerokości, gdy pojawi się dłuższy tekst
+
+            &--danger {
+                background: $color-red;
+
+                &:hover:not(:disabled) {
+                    background: darken($color-red, 10%);
+                }
+            }
+
+            &--primary {
+                background: $color-black;
+
+                &:hover:not(:disabled) {
+                    background: $color-slate;
+                }
+            }
+        }
+    }
+}
+
+// Animacja modala
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Animacja kręcącego się loadera
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+}

@@ -2,11 +2,9 @@
 - linki do fb i insta w stopce i headerze
 - polityka prywatności
 - regulamin
-- wstecz?
-- alert + confirmdialog
 - baner ciasteczek?
 - filtry
-- errorstate i loader wszedzie
+- errorstate, alert i loader wszedzie
 - defaultowe zdjecie dla produktu wszedzie dac
 - minheight wszedzie
 
@@ -18,11 +16,20 @@ BACKEND + INTEGRACJA
 
 DLA KRZYŚKA:
 - kontakt
+- admin (mocki):
+    * koszty wysylek
+    * bestsellery
+    * recenzje
 
 ===== HOME =====
 - przyciski powinny kierowac na pewno w dobre miejsce/zakladke
 
 ===== PRODUKTY =====
 - filtry komponent? + ma dzialac
+- sortowanie opcje poprawic - usunac domyslnie, dac w zamian najstarsze; czy dac tez alfabetycznie?
 
 ===== ADMIN =====
+1. PRODUKTY
+    - edycja produktu + alert
+    - dodawanie produktu + alert
+    - filtr do kategorii

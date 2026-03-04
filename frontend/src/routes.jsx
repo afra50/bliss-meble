@@ -12,8 +12,8 @@ import Products from "./pages/Products";
 // Importy Admina
 import LoginPage from "./pages/admin/Login";
 import AdminLayout from "./components/admin/AdminLayout";
-import AdminDashboard from "./components/admin/AdminDashboard";
-// import AdminProductsList from "./components/admin/AdminProductsList";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminProductsList from "./pages/admin/AdminProductList";
 // import AdminOrders from "./components/admin/AdminOrders";
 
 // Import ochrony
@@ -47,7 +47,7 @@ const routes = [
     ),
     children: [
       { index: true, element: <AdminDashboard /> },
-      //   { path: "produkty", element: <AdminProductsList /> },
+      { path: "produkty", element: <AdminProductsList /> },
       //   { path: "zamowienia", element: <AdminOrders /> },
       { path: "*", element: <NotFound /> },
     ],
