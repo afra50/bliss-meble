@@ -11,6 +11,7 @@
         .react-select__control {
             background-color: transparent;
             border: 1px solid transparent !important;
+            border-radius: 0;
             min-height: unset;
             padding: 4px 8px;
 
@@ -28,12 +29,12 @@
 
     // --- WARIANT 2: FORMULARZ ADMINA (Tło i ramka) ---
     &--form {
-        width: 100%;
+        min-width: 220px;
 
         .react-select__control {
             background-color: rgba($color-cream, 0.1);
             border: 1px solid rgba($color-brown, 0.2) !important;
-            border-radius: 4px;
+            border-radius: 0;
             min-height: 46px;
             padding: 0 8px;
 
@@ -83,7 +84,7 @@
 
     .react-select__menu {
         background-color: $color-white;
-        border-radius: 4px;
+        border-radius: 0;
         box-shadow: 0 10px 30px color.change($color-black, $alpha: 0.1);
         border: 1px solid color.change($color-slate, $alpha: 0.15);
         margin-top: 5px;

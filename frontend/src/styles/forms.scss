@@ -1,10 +1,15 @@
 @use "variables" as *;
 
+// --- PODSTAWOWE ELEMENTY FORMULARZA ---
 .form-group {
   margin-bottom: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 8px;
+
+  &--margin-top {
+    margin-top: 15px;
+  }
 
   &__label {
     font-family: $font-body;
@@ -19,15 +24,14 @@
     font-family: $font-body;
     font-size: 1rem;
     border: 1px solid rgba($color-brown, 0.2);
-    background-color: rgba($color-cream, 0.1); // Lekko stonowane tło od razu
-    border-radius: 4px; // Dodałem delikatne zaokrąglenie (jak w przyciskach)
+    background-color: rgba($color-cream, 0.1);
     transition: all 0.3s ease;
 
     &:focus {
       outline: none;
       border-color: $color-slate;
       background-color: $color-white;
-      box-shadow: 0 0 0 3px rgba($color-slate, 0.1); // Subtelny pierścień focusu
+      box-shadow: 0 0 0 3px rgba($color-slate, 0.1);
     }
 
     &::placeholder {
@@ -35,11 +39,51 @@
     }
   }
 
-  // BLOKADA ROZMIARU TEXTAREA
   textarea.form-group__input {
     resize: none;
     line-height: 1.5;
   }
+}
+
+// --- UKŁAD FORMULARZY ---
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-section {
+  background: $color-white;
+  border: 1px solid rgba($color-slate, 0.15);
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+
+  h3 {
+    font-family: $font-heading;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: $color-black;
+    border-bottom: 2px solid $color-olive;
+    padding-bottom: 8px;
+    display: inline-block;
+  }
+
+  &__desc {
+    color: $color-slate;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+}
+
+// --- BŁĘDY ---
+.form-error-wrapper {
+  margin-bottom: 20px;
 }
 
 .form-error {
@@ -57,7 +101,11 @@
   gap: 12px;
   font-size: 0.9rem;
   color: rgba($color-black, 0.8);
-  font-family: $font-body; // Dodane dla spójności, żeby czcionka zawsze była poprawna
+  font-family: $font-body;
+
+  &--no-margin {
+    margin-bottom: 0 !important;
+  }
 
   input[type="checkbox"] {
     accent-color: $color-olive;
@@ -88,12 +136,8 @@
     border-radius: 50%;
     border: 1px solid rgba($color-black, 0.1);
     cursor: pointer;
-    transition:
-      transform 0.3s ease,
-      border-color 0.3s ease,
-      box-shadow 0.3s ease;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 
-    // Hover lub dodana klasa --active (przyda się na karcie produktu)
     &:hover,
     &--active {
       transform: scale(1.1) translateY(-2px);

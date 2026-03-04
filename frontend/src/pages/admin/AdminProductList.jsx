@@ -9,6 +9,7 @@ import AdminEditButton from "../../components/admin/AdminEditButton";
 import AdminDeleteButton from "../../components/admin/AdminDeleteButton";
 import Pagination from "../../components/ui/Pagination";
 import SortSelect, { adminSortOptions } from "../../components/ui/SortSelect";
+import CustomSelect from "../../components/ui/CustomSelect";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import ToastAlert from "../../components/ui/ToastAlert";
 import AdminProductModal from "../../components/admin/AdminProductModal";
@@ -20,18 +21,16 @@ const BACKEND_URL = import.meta.env.VITE_API_URL
   : "http://localhost:5000";
 
 const AdminProductList = () => {
-  // --- STANY BAZOWE ---
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // --- STANY LISTY (Filtry, Sortowanie, Paginacja) ---
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("newest");
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // --- STANY MODALI I POWIADOMIEŃ ---
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState(null);
 
@@ -48,7 +47,6 @@ const AdminProductList = () => {
     type: "success",
   });
 
-  // --- FUNKCJE POMOCNICZE ---
   const showToast = (message, type = "success") => {
     setToast({ isOpen: true, message, type });
   };
@@ -59,7 +57,6 @@ const AdminProductList = () => {
     return `${BACKEND_URL}/uploads/products/${imagePath}`;
   };
 
-  // --- POBIERANIE DANYCH ---
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -67,7 +64,7 @@ const AdminProductList = () => {
       const response = await productApi.getAdminAll();
       setProducts(response.data);
     } catch (error) {
-      console.error("Błąd podczas pobierania produktów:", error);
+      console.error("Błąd pobierania:", error);
       setError("Nie udało się pobrać listy produktów.");
     } finally {
       setLoading(false);
@@ -78,12 +75,17 @@ const AdminProductList = () => {
     fetchProducts();
   }, []);
 
-  // Reset strony do 1 przy wyszukiwaniu/sortowaniu
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, sortOption]);
+  }, [searchTerm, sortOption, selectedCategoryFilter]);
 
-  // --- OBSŁUGA USUWANIA ---
+  const categoryOptions = [
+    { value: "all", label: "Wszystkie kategorie" },
+    ...Array.from(new Set(products.map((p) => p.subcategory_name)))
+      .filter(Boolean)
+      .map((catName) => ({ value: catName, label: catName })),
+  ];
+
   const handleDeleteClick = (id, name) => {
     setConfirmDialog({
       isOpen: true,
@@ -114,7 +116,6 @@ const AdminProductList = () => {
     }
   };
 
-  // --- OBSŁUGA MODALA DODAWANIA/EDYCJI ---
   const handleAddNew = () => {
     setProductToEdit(null);
     setIsModalOpen(true);
@@ -127,22 +128,32 @@ const AdminProductList = () => {
 
   const handleModalSuccess = () => {
     setIsModalOpen(false);
-    showToast(
-      productToEdit
-        ? "Produkt został zaktualizowany."
-        : "Nowy produkt został dodany.",
-      "success",
-    );
+    showToast(productToEdit ? "Zaktualizowano." : "Dodano produkt.", "success");
     fetchProducts();
   };
 
-  // --- PRZETWARZANIE DANYCH (Client-side) ---
   let processedProducts = [...products];
 
   if (searchTerm) {
     processedProducts = processedProducts.filter((p) =>
       p.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
+  }
+
+  // NAPRAWIONE FILTROWANIE - Niezależnie od tego, czy to obiekt czy string
+  if (selectedCategoryFilter && selectedCategoryFilter !== "all") {
+    // Wyciągamy czysty string nazwy kategorii
+    const categoryString =
+      typeof selectedCategoryFilter === "object"
+        ? selectedCategoryFilter.value
+        : selectedCategoryFilter;
+
+    // Ponowny warunek 'all' na wypadek gdyby z obiektu wyciągnięto "all"
+    if (categoryString !== "all") {
+      processedProducts = processedProducts.filter(
+        (p) => p.subcategory_name === categoryString,
+      );
+    }
   }
 
   processedProducts.sort((a, b) => {
@@ -172,17 +183,14 @@ const AdminProductList = () => {
     currentPage * itemsPerPage,
   );
 
-  // --- RENDEROWANIE STANU ŁADOWANIA / BŁĘDU ---
   if (loading) return <Loader message="Ładowanie listy produktów..." />;
-  if (error) {
+  if (error)
     return (
       <div className="admin-products admin-products--error">
         <ErrorState message={error} onRetry={fetchProducts} />
       </div>
     );
-  }
 
-  // --- GŁÓWNY RENDER ---
   return (
     <div className="admin-products">
       <header className="admin-products__header">
@@ -204,7 +212,16 @@ const AdminProductList = () => {
             placeholder="Szukaj produktu po nazwie..."
           />
         </div>
-        <div className="controls-sort">
+
+        {/* Zmienione na "sort", żeby tło było przezroczyste i ułożone obok siebie */}
+        <div className="controls-filters">
+          <CustomSelect
+            variant="form"
+            options={categoryOptions}
+            value={selectedCategoryFilter}
+            onChange={(val) => setSelectedCategoryFilter(val)}
+          />
+
           <SortSelect
             options={adminSortOptions}
             value={sortOption}
@@ -287,18 +304,16 @@ const AdminProductList = () => {
         </div>
       )}
 
-      {/* --- KOMPONENTY GLOBALNE (MODALE I TOASTY) --- */}
       <AdminProductModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         productToEdit={productToEdit}
         onSuccess={handleModalSuccess}
       />
-
       <ConfirmDialog
         isOpen={confirmDialog.isOpen}
         title="Usuwanie produktu"
-        message={`Czy na pewno chcesz usunąć "${confirmDialog.productName}"? Operacja jest nieodwracalna.`}
+        message={`Czy na pewno chcesz usunąć "${confirmDialog.productName}"?`}
         confirmText="Tak, usuń"
         cancelText="Wróć"
         variant="danger"
@@ -306,7 +321,6 @@ const AdminProductList = () => {
         onConfirm={confirmDelete}
         onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
       />
-
       <ToastAlert
         isOpen={toast.isOpen}
         message={toast.message}

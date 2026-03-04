@@ -3,27 +3,27 @@
 .admin-modal-overlay {
     position: fixed;
     inset: 0;
-    background-color: rgba(29, 29, 27, 0.85); // Ciemniejszy, elegancki overlay
+    background-color: rgba(29, 29, 27, 0.85);
     backdrop-filter: blur(5px);
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px; // Większy odstęp od krawędzi
+    padding: 40px 20px;
     animation: fadeIn 0.2s ease-out;
 }
 
 .admin-modal {
     background: $color-white;
     width: 100%;
-    max-width: 900px; // Szerszy modal
+    max-width: 900px;
     max-height: calc(100vh - 80px);
-    border-radius: 12px; // Nowoczesne zaokrąglenie
     display: flex;
     flex-direction: column;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     position: relative;
     animation: slideUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden; // Zabezpieczenie przed wylewaniem formy
 
     &__header {
         padding: 25px 40px;
@@ -31,6 +31,8 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        background: $color-white; // Wymuszone tło
+        z-index: 2; // Żeby cień/border spadał na scrollowane tło
 
         h2 {
             font-family: $font-heading;
@@ -59,12 +61,27 @@
         }
     }
 
+    &__body-loader {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+        min-height: 300px;
+    }
+
+    // NOWOŚĆ: Form wrapper zarządza wysokością i scrollem
+    &__form-wrapper {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        overflow: hidden;
+    }
+
     &__body {
         padding: 40px;
         overflow-y: auto;
         flex: 1;
 
-        // Customowy pasek przewijania dla modala
         &::-webkit-scrollbar {
             width: 8px;
         }
@@ -81,25 +98,6 @@
         &::-webkit-scrollbar-thumb:hover {
             background: $color-slate;
         }
-
-        .form-section {
-            background: $color-white;
-            border: 1px solid rgba($color-slate, 0.15);
-            padding: 30px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-
-            h3 {
-                font-family: $font-heading;
-                font-size: 1.3rem;
-                margin-bottom: 20px;
-                color: $color-black;
-                border-bottom: 2px solid $color-olive; // Kolor marki
-                padding-bottom: 8px;
-                display: inline-block;
-            }
-        }
     }
 
     &__footer {
@@ -108,51 +106,12 @@
         display: flex;
         justify-content: flex-end;
         gap: 15px;
-        background: rgba($color-cream, 0.3); // Jasny dół z Twojej bazy kolorów
-        border-radius: 0 0 12px 12px;
-
-        button {
-            padding: 12px 30px;
-            font-family: $font-body;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: 0.3s;
-            border: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1rem;
-
-            &:disabled {
-                opacity: 0.6;
-                cursor: not-allowed;
-            }
-        }
-
-        .btn-cancel {
-            background: $color-white;
-            border: 1px solid rgba($color-slate, 0.3);
-            color: $color-slate;
-
-            &:hover:not(:disabled) {
-                border-color: $color-black;
-                color: $color-black;
-            }
-        }
-
-        .btn-save {
-            background: $color-black;
-            color: $color-white;
-
-            &:hover:not(:disabled) {
-                background: $color-olive;
-            }
-        }
+        background: rgba($color-olive, 0.9);
+        z-index: 2;
     }
 }
 
-// --- STREFA DRAG & DROP I ZDJĘCIA ---
+// --- WIDŻET ZDJĘĆ DLA ADMINA ---
 .image-upload-zone {
     border: 2px dashed rgba($color-slate, 0.4);
     border-radius: 8px;
@@ -199,7 +158,6 @@
         overflow: hidden;
         border: 1px solid rgba($color-slate, 0.2);
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        group: img-wrap;
 
         img {
             width: 100%;
@@ -228,7 +186,6 @@
             }
         }
 
-        // Etykieta zdjęcia głównego
         &.is-main::after {
             content: "Główne";
             position: absolute;
@@ -246,6 +203,64 @@
     }
 }
 
+// --- WIDŻET ATRYBUTÓW DLA ADMINA ---
+.attribute-group {
+    margin-bottom: 25px;
+
+    &__title {
+        border-bottom: 1px solid rgba($color-slate, 0.1);
+        padding-bottom: 8px;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+}
+
+.attribute-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 15px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+
+    &--selected {
+        background-color: rgba($color-olive, 0.05);
+        border: 1px solid rgba($color-olive, 0.1);
+    }
+
+    &:hover {
+        background-color: rgba($color-slate, 0.02);
+    }
+}
+
+.price-modifier-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: $color-slate;
+
+    &__input {
+        width: 100px !important;
+        padding: 6px 10px !important;
+        min-height: unset !important;
+        height: 34px;
+        text-align: right;
+    }
+
+    &__currency {
+        font-weight: bold;
+        color: $color-black;
+    }
+}
+
+// --- ANIMACJE ---
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -265,25 +280,5 @@
     to {
         opacity: 1;
         transform: translateY(0);
-    }
-}
-
-// Sub-style dla atrybutów w modalu
-.attribute-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 10px;
-
-    .price-modifier-input {
-        width: 100px;
-        padding: 6px 10px;
-        border: 1px solid rgba($color-brown, 0.2);
-        font-size: 0.85rem;
-
-        &:focus {
-            outline: none;
-            border-color: $color-slate;
-        }
     }
 }

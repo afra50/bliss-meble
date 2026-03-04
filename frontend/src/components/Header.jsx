@@ -13,32 +13,25 @@ import logo from "../assets/logos/bliss_logo_Black_Bliss_poziom.svg";
 import "../styles/components/header.scss";
 import SearchBar from "./ui/search/SearchBar";
 
+// NOWOŚĆ: Importujemy nasze dane
+import { CATEGORIES, SUBCATEGORIES } from "../utils/categories";
+
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const menuData = [
-    { title: "Zestawy", path: "/zestawy", sub: [] },
-    {
-      title: "Kolekcja SNU",
-      path: "/kolekcja-snu",
-      sub: [
-        "Materace",
-        "Materace nawierzchniowe",
-        "Łóżka kontynentalne",
-        "Łóżka tapicerowane",
-      ],
-    },
-    {
-      title: "Strefa KOMFORTU",
-      path: "/strefa-komfortu",
-      sub: ["Narożniki", "Narożniki U", "Sofy", "Fotele"],
-    },
-    {
-      title: "Dodatki",
-      path: "/dodatki",
-      sub: ["Kołdry", "Poduszki", "Inne akcesoria"],
-    },
-  ];
+  // NOWOŚĆ: Dynamiczne budowanie menu
+  const menuData = CATEGORIES.map((category) => {
+    // Szukamy tylko tych podkategorii, których category_id pasuje do aktualnej kategorii
+    const categorySubs = SUBCATEGORIES.filter(
+      (sub) => sub.category_id === category.id,
+    );
+
+    return {
+      title: category.name,
+      path: `/${category.slug}`, // np. "/kolekcja-snu"
+      sub: categorySubs, // Zapisujemy całą tablicę znalezionych podkategorii
+    };
+  });
 
   useEffect(() => {
     if (isMobileMenuOpen) {
@@ -65,7 +58,6 @@ const Header = () => {
           <ul className="header__menu">
             {menuData.map((item, index) => (
               <li key={index} className="header__menu-item">
-                {/* ZMIANA: Używamy NavLink i dynamicznej klasy */}
                 <NavLink
                   to={item.path}
                   className={({ isActive }) =>
@@ -73,7 +65,6 @@ const Header = () => {
                   }
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  {/* DODAJEMY SPAN WOKÓŁ SAMEGO TEKSTU */}
                   <span className="header__menu-text">{item.title}</span>
 
                   {item.sub.length > 0 && (
@@ -84,13 +75,14 @@ const Header = () => {
                 {/* KLASYCZNE PODMENU */}
                 {item.sub.length > 0 && (
                   <ul className="header__dropdown">
-                    {item.sub.map((subItem, subIndex) => (
-                      <li key={subIndex}>
+                    {/* Tutaj mapujemy po naszych obiektach z utils/categories.js */}
+                    {item.sub.map((subItem) => (
+                      <li key={subItem.id}>
                         <NavLink
-                          to={`${item.path}/${subItem.toLowerCase().replace(/ /g, "-")}`}
+                          to={`${item.path}/${subItem.slug}`} // O wiele bezpieczniejsze niż .replace() !
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          {subItem}
+                          {subItem.name}
                         </NavLink>
                       </li>
                     ))}

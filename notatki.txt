@@ -2,7 +2,6 @@
 - linki do fb i insta w stopce i headerze
 - polityka prywatności
 - regulamin
-- filtry
 - errorstate, alert i loader wszedzie
 - defaultowe zdjecie dla produktu wszedzie dac
 - minheight wszedzie
@@ -30,15 +29,10 @@ DLA KRZYŚKA:
 ===== ADMIN =====
 1. PRODUKTY
     - dodawanie/edycja produktu:
-        * alert 
-        * buttony moje
-        * loader
         * wybor zdjecia miniatury
         * reactdropzone wydzielic osobno
+        * ujemne kwoty nie pozwolic
         * usuwanie pojedynczych zdjec dopiero po zapisz
-        * wybór kategorii, dopiero potem podkategorii na jej podstawie
-        * wybór atrybutów
+        * dla kategorii zestawy nie mozna zostawic pustej podkategorii bo narzeka
         * responsywność
         * testy
-        * usunac stare style select
-    - filtr do kategorii (customselect) w productlist
