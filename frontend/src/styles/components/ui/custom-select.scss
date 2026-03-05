@@ -58,7 +58,7 @@
         .react-select__control {
             background-color: $color-white;
             border: 1px solid rgba($color-slate, 0.3) !important;
-            border-radius: 4px;
+            border-radius: 0;
             min-height: 32px; // ZMIANA: Niższy pasek
             padding: 0 4px;
 
