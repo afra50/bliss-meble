@@ -107,11 +107,9 @@ exports.createProduct = async (req, res, next) => {
       const count = await Product.countBestsellers();
       if (count >= 3) {
         connection.release();
-        return res
-          .status(400)
-          .json({
-            error: "Osiągnięto limit 3 bestsellerów dla widocznych produktów.",
-          });
+        return res.status(400).json({
+          error: "Osiągnięto limit 3 bestsellerów dla widocznych produktów.",
+        });
       }
     }
 
@@ -138,19 +136,37 @@ exports.createProduct = async (req, res, next) => {
       if (!fs.existsSync(productFolder))
         fs.mkdirSync(productFolder, { recursive: true });
 
+      // NOWOŚĆ: Dekodowanie powiązań zdjęć z kolorami
+      let parsedImageAttributes = [];
+      if (req.body.imageAttributes) {
+        try {
+          parsedImageAttributes = JSON.parse(req.body.imageAttributes);
+        } catch (e) {
+          console.log("Błąd parsowania imageAttributes", e);
+        }
+      }
+
       for (let i = 0; i < files.length; i++) {
         const fileName = `bliss-${Date.now()}-${i}.webp`;
         const relativePath = `${productId}/${fileName}`;
+
+        // Wyciągamy przypisany kolor dla danego pliku (jeśli nie wybrano, zostaje null)
+        const attrValueId = parsedImageAttributes[i]
+          ? Number(parsedImageAttributes[i])
+          : null;
 
         await sharp(files[i].buffer)
           .resize(1200)
           .toFormat("webp")
           .toFile(path.join(productFolder, fileName));
+
+        // ZMIANA: Przekazujemy attrValueId do bazy
         await Product.addImage(
           connection,
           productId,
           relativePath,
           i === 0 ? 1 : 0,
+          attrValueId, // <--- DODANO
         );
       }
     }
@@ -225,6 +241,7 @@ exports.updateProduct = async (req, res, next) => {
     });
 
     // 4. Obsługa nowych zdjęć
+    // 4. Obsługa nowych zdjęć
     if (files && files.length > 0) {
       const productFolder = path.join(
         __dirname,
@@ -234,15 +251,36 @@ exports.updateProduct = async (req, res, next) => {
       if (!fs.existsSync(productFolder))
         fs.mkdirSync(productFolder, { recursive: true });
 
-      for (const file of files) {
+      let parsedNewImageAttributes = [];
+      if (req.body.newImageAttributes) {
+        // Używamy innej zmiennej, aby odróżnić nowe od edytowanych
+        try {
+          parsedNewImageAttributes = JSON.parse(req.body.newImageAttributes);
+        } catch (e) {
+          console.log("Błąd parsowania newImageAttributes", e);
+        }
+      }
+
+      for (let i = 0; i < files.length; i++) {
         const fileName = `bliss-upd-${Date.now()}-${Math.round(Math.random() * 100)}.webp`;
         const relativePath = `${id}/${fileName}`;
 
-        await sharp(file.buffer)
+        const attrValueId = parsedNewImageAttributes[i]
+          ? Number(parsedNewImageAttributes[i])
+          : null;
+
+        await sharp(files[i].buffer)
           .resize(1200)
           .toFormat("webp")
           .toFile(path.join(productFolder, fileName));
-        await Product.addImage(connection, id, relativePath, 0);
+
+        await Product.addImage(
+          connection,
+          id,
+          relativePath,
+          0,
+          attrValueId, // <--- DODANO
+        );
       }
     }
 

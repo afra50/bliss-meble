@@ -44,7 +44,7 @@ const Product = {
     const product = productRows[0];
 
     const [images] = await pool.execute(
-      "SELECT id, url, is_main FROM product_images WHERE product_id = ?",
+      "SELECT id, url, is_main, attribute_value_id FROM product_images WHERE product_id = ?",
       [product.id],
     );
 
@@ -74,7 +74,7 @@ const Product = {
 
     // 2. Pobieramy wszystkie zdjęcia
     const [images] = await pool.execute(
-      "SELECT id, url, is_main FROM product_images WHERE product_id = ?",
+      "SELECT id, url, is_main, attribute_value_id FROM product_images WHERE product_id = ?",
       [product.id],
     );
 
@@ -214,10 +214,16 @@ const Product = {
     );
   },
 
-  addImage: async (connection, productId, url, isMain) => {
+  addImage: async (
+    connection,
+    productId,
+    url,
+    isMain,
+    attributeValueId = null,
+  ) => {
     await connection.execute(
-      "INSERT INTO product_images (product_id, url, is_main) VALUES (?, ?, ?)",
-      [productId, url, isMain],
+      "INSERT INTO product_images (product_id, url, is_main, attribute_value_id) VALUES (?, ?, ?, ?)",
+      [productId, url, isMain, attributeValueId],
     );
   },
 
