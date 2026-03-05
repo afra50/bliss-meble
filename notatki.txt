@@ -26,8 +26,7 @@ DLA KRZYŚKA:
 
 ===== SZCZEGÓŁY PRODUKTU =====
 - darmowa dostawa z bazy
-- kolory/tkaniny poprawic + zdjecia do nich
-- posortowac tkaniny/kolory od najtanszych, domyslne pierwsze
+- kolory/tkaniny poprawic
 - dodawanie do koszyka
 - wydzielic na mniejsze komponenty - galeria, dodaj do koszyka, ilosc, kolory itp?
 
