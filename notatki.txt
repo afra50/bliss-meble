@@ -34,6 +34,6 @@ DLA KRZYŚKA:
 ===== ADMIN =====
 1. PRODUKTY
     - dodawanie/edycja produktu:
+        * maks ilosc zdjec, walidacje
         * wybor zdjecia miniatury
-        * responsywność
         * testy

@@ -13,6 +13,23 @@
     transition: all 0.3s ease;
     margin-bottom: 20px;
 
+    @media (max-width: 576px) {
+        padding: 25px 15px; // Na telefonie strefa "przeciągnij" jest mniejsza
+
+        .upload-icon {
+            transform: scale(0.8);
+            margin-bottom: 5px;
+        }
+
+        p {
+            font-size: 0.95rem;
+        }
+
+        small {
+            font-size: 0.75rem;
+        }
+    }
+
     &:hover,
     &.is-dragover {
         background: rgba($color-olive, 0.05);
@@ -42,6 +59,11 @@
     gap: 15px;
     margin-top: 20px;
 
+    @media (max-width: 576px) {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); // Na smartfonie wejdą min. 2 zdjęcia obok siebie
+        gap: 10px;
+    }
+
     &__item {
         display: flex;
         flex-direction: column;
@@ -49,6 +71,20 @@
         box-shadow: none;
         overflow: visible;
         background: transparent;
+        transition: opacity 0.3s;
+
+        &.is-deleted {
+            opacity: 0.7;
+
+            img {
+                filter: grayscale(100%);
+            }
+
+            .image-gallery__select-wrapper {
+                pointer-events: none;
+                opacity: 0.5;
+            }
+        }
     }
 
     &__img-wrap {
@@ -77,12 +113,44 @@
             transition: opacity 0.3s;
             cursor: pointer;
 
+            // Na mobile overlay nie potrzebuje hovera żeby było go widać, ale dla UX zostawiamy na kliknięcie
             &:hover {
                 opacity: 1;
             }
 
             svg {
                 color: $color-white;
+            }
+        }
+
+        .restore-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba($color-black, 0.65);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 1;
+            z-index: 2;
+            transition: background 0.3s;
+
+            &:hover {
+                background: rgba($color-black, 0.85);
+            }
+
+            svg {
+                color: $color-white;
+                margin-bottom: 5px;
+            }
+
+            span {
+                color: $color-white;
+                font-size: 0.75rem;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: 1px;
             }
         }
 
@@ -107,8 +175,6 @@
         margin-top: 8px;
         width: 100%;
 
-        // Zmniejszamy bazowy rozmiar czcionki wewnatrz tego kontenera
-        // by długa nazwa np. "Jasny Szary" lepiej miescila sie w malym kaflu
         .custom-select-wrapper {
             font-size: 0.8rem;
         }
@@ -126,50 +192,5 @@
         font-weight: bold;
         z-index: 1;
         pointer-events: none;
-    }
-
-    .restore-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba($color-black, 0.65);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        opacity: 1; // Zawsze widoczne gdy obrazek ma status isDeleted
-        z-index: 2;
-        transition: background 0.3s;
-
-        &:hover {
-            background: rgba($color-black, 0.85);
-        }
-
-        svg {
-            color: $color-white;
-            margin-bottom: 5px;
-        }
-
-        span {
-            color: $color-white;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-    }
-
-    // NOWOŚĆ: Stan kafelka dla usuniętych plików
-    &.is-deleted {
-        opacity: 0.7; // Lekko prześwitujące
-
-        img {
-            filter: grayscale(100%); // Czarnobiałe
-        }
-
-        .image-gallery__select-wrapper {
-            pointer-events: none; // Blokuje możliwość rozwijania i klikania w Selecta!
-            opacity: 0.5;
-        }
     }
 }
