@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import ReactDOM from "react-dom";
 import { productApi, attributeApi } from "../../utils/api";
 import { X } from "lucide-react";
@@ -6,7 +6,7 @@ import CustomSelect from "../ui/CustomSelect";
 import Button from "../ui/Button";
 import Loader from "../ui/Loader";
 import ToastAlert from "../ui/ToastAlert";
-import ImageUploadZone from "../ui/ImageUploadZone"; // NOWOŚĆ: Import naszego komponentu
+import ImageUploadZone from "../ui/ImageUploadZone";
 import "../../styles/components/admin/admin-modal.scss";
 import { CATEGORIES, SUBCATEGORIES } from "../../utils/categories";
 
@@ -89,7 +89,7 @@ const AdminProductModal = ({
           if (p.attributes) {
             setSelectedAttributes(
               p.attributes.map((attr) => ({
-                id: attr.attribute_value_id,
+                id: attr.value_id, // POPRAWIONE: value_id zamiast attribute_value_id
                 price: attr.price_modifier,
               })),
             );
@@ -126,6 +126,21 @@ const AdminProductModal = ({
     setNewFiles((prev) => prev.filter((file) => file !== fileToRemove));
   };
 
+  const handleNewFileAttributeChange = (fileToUpdate, attrId) => {
+    Object.assign(fileToUpdate, { attribute_value_id: attrId });
+    setNewFiles((prev) => [...prev]);
+  };
+
+  const handleExistingFileAttributeChange = (imageId, attrId) => {
+    setExistingImages((prev) =>
+      prev.map((img) =>
+        img.id === imageId
+          ? { ...img, attribute_value_id: attrId ? Number(attrId) : null }
+          : img,
+      ),
+    );
+  };
+
   const handleExistingImageRemove = async (imageId) => {
     if (!window.confirm("Czy na pewno chcesz usunąć to zdjęcie z serwera?"))
       return;
@@ -157,8 +172,6 @@ const AdminProductModal = ({
           value = `${integerPart}.${decimalPart.slice(0, 2)}`;
         }
       }
-
-      // NOWOŚĆ: Usuwa wiodące zera (np. 012 -> 12), ale zostawia "0." (np. 0.50)
       value = value.replace(/^0+(?=\d)/, "");
     }
 
@@ -194,8 +207,6 @@ const AdminProductModal = ({
         validPrice = `${integerPart}.${decimalPart.slice(0, 2)}`;
       }
     }
-
-    // NOWOŚĆ: Usuwa wiodące zera
     validPrice = validPrice.replace(/^0+(?=\d)/, "");
 
     setSelectedAttributes((prev) =>
@@ -206,16 +217,12 @@ const AdminProductModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // NOWOŚĆ: Sprawdzamy, czy wybrana kategoria główna MA w ogóle jakieś podkategorie
     const categoryHasSubcategories = subcategoryOptions.length > 0;
-
-    // Blokujemy zapis TYLKO wtedy, gdy podkategorie istnieją, a użytkownik żadnej nie wybrał
     if (categoryHasSubcategories && !formData.subcategory_id) {
       showToast("Wybierz podkategorię z listy!", "error");
       return;
     }
 
-    // Dodatkowe zabezpieczenie: jeśli nie ma głównej kategorii
     if (!categoryId) {
       showToast("Wybierz kategorię główną!", "error");
       return;
@@ -228,21 +235,33 @@ const AdminProductModal = ({
       submitData.append("short_description", formData.short_description);
       submitData.append("description", formData.description);
       submitData.append("price_brut", formData.price_brut);
-
-      // Zabezpieczenie na wypadek, gdyby formularz wysyłał puste id
       submitData.append("subcategory_id", formData.subcategory_id || "");
-
       submitData.append("is_available", formData.is_available);
       submitData.append("is_bestseller", formData.is_bestseller);
       submitData.append("attributes", JSON.stringify(selectedAttributes));
+
+      // Wysyłamy stan starych zdjęć
+      submitData.append("existingImages", JSON.stringify(existingImages));
+
+      const newImageAttributes = newFiles.map(
+        (file) => file.attribute_value_id || null,
+      );
 
       newFiles.forEach((file) => {
         submitData.append("images", file);
       });
 
       if (isEditMode) {
+        submitData.append(
+          "newImageAttributes",
+          JSON.stringify(newImageAttributes),
+        );
         await productApi.update(productToEdit.id, submitData);
       } else {
+        submitData.append(
+          "imageAttributes",
+          JSON.stringify(newImageAttributes),
+        );
         await productApi.create(submitData);
       }
       onSuccess();
@@ -276,6 +295,13 @@ const AdminProductModal = ({
     value: sub.id,
     label: sub.name,
   }));
+
+  // Opcje kolorów przekazywane do selektów w obrazkach
+  const colorGroup = attributeGroups.find((g) => g.name === "Tkanina i Kolor");
+  const colorOptions =
+    colorGroup?.values
+      ?.filter((val) => selectedAttributes.some((a) => a.id === val.id))
+      .map((val) => ({ id: val.id, name: val.value })) || [];
 
   const modalContent = (
     <>
@@ -371,8 +397,8 @@ const AdminProductModal = ({
                       Cena Brutto (zł) *
                     </label>
                     <input
-                      type="text" // ZMIANA Z NUMBER
-                      inputMode="decimal" // POKAZUJE KLAWIATURĘ NUMERYCZNĄ NA TELEFONACH
+                      type="text"
+                      inputMode="decimal"
                       required
                       className="form-group__input"
                       name="price_brut"
@@ -412,7 +438,6 @@ const AdminProductModal = ({
 
                 <div className="form-section">
                   <h3>Galeria Zdjęć</h3>
-                  {/* ZMIANA: Wywołanie wyizolowanego komponentu */}
                   <ImageUploadZone
                     existingImages={existingImages}
                     newFiles={newFiles}
@@ -420,6 +445,11 @@ const AdminProductModal = ({
                     onExistingImageRemove={handleExistingImageRemove}
                     onNewFileRemove={handleNewFileRemove}
                     backendUrl={BACKEND_URL}
+                    colorOptions={colorOptions}
+                    onNewFileAttributeChange={handleNewFileAttributeChange}
+                    onExistingFileAttributeChange={
+                      handleExistingFileAttributeChange
+                    }
                   />
                 </div>
 
@@ -427,8 +457,8 @@ const AdminProductModal = ({
                   <h3>Warianty i Dopłaty</h3>
                   <p className="form-section__desc">
                     Zaznacz opcje dostępne dla tego produktu. Jeśli dany wariant
-                    (np. większy rozmiar) zwiększa cenę bazową produktu, wpisz
-                    kwotę <strong>dopłaty</strong> (np. 250.00).
+                    zwiększa cenę bazową produktu, wpisz kwotę{" "}
+                    <strong>dopłaty</strong>.
                   </p>
                   {attributeGroups.map((group) => (
                     <div key={group.id} className="attribute-group">
@@ -467,10 +497,10 @@ const AdminProductModal = ({
                               </div>
                               {isSelected && (
                                 <div className="price-modifier-wrap">
-                                  <span>Dopłata do ceny bazowej:</span>
+                                  <span>Dopłata:</span>
                                   <input
-                                    type="text" // ZMIANA Z NUMBER
-                                    inputMode="decimal" // POKAZUJE KLAWIATURĘ NUMERYCZNĄ NA TELEFONACH
+                                    type="text"
+                                    inputMode="decimal"
                                     className="form-group__input price-modifier-wrap__input"
                                     value={currentPrice}
                                     onChange={(e) =>

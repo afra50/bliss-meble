@@ -16,7 +16,6 @@ DLA KRZYŚKA:
 - kontakt
 - admin (mocki):
     * koszty wysylek
-    * bestsellery
     * recenzje
 
 ===== HOME =====

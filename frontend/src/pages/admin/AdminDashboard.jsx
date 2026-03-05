@@ -41,13 +41,6 @@ const AdminDashboard = () => {
       link: "/admin/recenzje",
     },
     {
-      id: "bestsellers",
-      title: "Bestsellery",
-      desc: "Wybieraj produkty, które pojawią się w sekcji wyróżnionej.",
-      icon: <Star size={32} />,
-      link: "/admin/bestsellery",
-    },
-    {
       id: "shipping",
       title: "Koszty wysyłek",
       desc: "Konfiguruj stawki dostawy dla różnych metod transportu.",

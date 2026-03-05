@@ -293,6 +293,17 @@ exports.updateProduct = async (req, res, next) => {
       }
     }
 
+    // 6. Aktualizacja kolorów na JUŻ ISTNIEJĄCYCH zdjęciach
+    if (req.body.existingImages) {
+      const existingImagesArr = JSON.parse(req.body.existingImages);
+      for (const img of existingImagesArr) {
+        await connection.execute(
+          "UPDATE product_images SET attribute_value_id = ? WHERE id = ?",
+          [img.attribute_value_id || null, img.id],
+        );
+      }
+    }
+
     await connection.commit();
     res.json({ success: true, message: "Produkt zaktualizowany" });
   } catch (error) {
