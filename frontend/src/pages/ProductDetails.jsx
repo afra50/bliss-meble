@@ -5,12 +5,23 @@ import { formatPrice } from "../utils/formatPrice";
 import Breadcrumbs from "../components/ui/Breadcrumbs";
 import Button from "../components/ui/Button";
 import Loader from "../components/ui/Loader";
-import ErrorState from "../components/ui/ErrorState";
-import { FaShoppingCart, FaTruck, FaShieldAlt } from "react-icons/fa";
+import ToastAlert from "../components/ui/ToastAlert";
+import NotFound from "./NotFound";
+import {
+  FaShoppingCart,
+  FaTruck,
+  FaShieldAlt,
+  FaChevronLeft,
+  FaChevronRight,
+} from "react-icons/fa"; // Usunięto FaExpandArrowsAlt
 import defaultImg from "../assets/default-product.jpg";
+
+import Lightbox from "yet-another-react-lightbox";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import "yet-another-react-lightbox/styles.css";
+
 import "../styles/pages/product-details.scss";
 
-// Pomocnicza stała do budowania URL zdjęć z bazy
 const BACKEND_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL.replace("/api", "")
   : "http://localhost:5000";
@@ -23,13 +34,16 @@ const ProductDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Stany komponentu
-  const [mainImage, setMainImage] = useState("");
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedFabric, setSelectedFabric] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
-  // ---> NOWA FUNKCJA DO SPRAWDZANIA DATY <---
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
   const isProductNew = (createdAt) => {
     if (!createdAt) return false;
     const addedDate = new Date(createdAt);
@@ -38,31 +52,23 @@ const ProductDetails = () => {
     return addedDate >= thirtyDaysAgo;
   };
 
-  // Pobieranie produktu
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setIsLoading(true);
+        setError(null);
         const response = await productApi.getBySlug(slug);
         setProduct(response.data);
 
-        // Ustawiamy zdjęcie główne (szukamy tego z flagą is_main lub bierzemy pierwsze z brzegu)
-        // Jeśli obiekt NIE MA żadnych zdjęć w ogóle, wrzucamy domyślne od razu.
         if (response.data.images && response.data.images.length > 0) {
-          const mainImgObj =
-            response.data.images.find((img) => img.is_main === 1) ||
-            response.data.images[0];
-          setMainImage(`${BACKEND_URL}/uploads/products/${mainImgObj.url}`);
-        } else {
-          setMainImage(defaultImg);
+          const mainIndex = response.data.images.findIndex(
+            (img) => img.is_main === 1,
+          );
+          setActiveImageIndex(mainIndex !== -1 ? mainIndex : 0);
         }
       } catch (err) {
         console.error("Błąd ładowania produktu:", err);
-        setError(
-          err.response?.status === 404
-            ? "Nie znaleziono takiego produktu."
-            : "Wystąpił błąd serwera.",
-        );
+        setError(err.response?.status === 404 ? 404 : 500);
       } finally {
         setIsLoading(false);
       }
@@ -71,14 +77,12 @@ const ProductDetails = () => {
     fetchProduct();
   }, [slug]);
 
-  // Pomocnicza funkcja do wyświetlania bezpiecznego URL zdjęcia
   const getImageUrl = (url) => {
-    if (!url) return defaultImg; // Jeśli url pusty - wrzuć domyślne
+    if (!url) return defaultImg;
     if (url.startsWith("http")) return url;
     return `${BACKEND_URL}/uploads/products/${url}`;
   };
 
-  // Grupowanie atrybutów pobranych z bazy
   const sizes =
     product?.attributes?.filter((a) =>
       a.group_name.toLowerCase().includes("rozmiar"),
@@ -90,18 +94,15 @@ const ProductDetails = () => {
         a.group_name.toLowerCase().includes("materiał"),
     ) || [];
 
-  // Automatyczne zaznaczanie pierwszych atrybutów po pobraniu danych
   useEffect(() => {
     if (sizes.length > 0 && !selectedSize) setSelectedSize(sizes[0]);
     if (fabrics.length > 0 && !selectedFabric) setSelectedFabric(fabrics[0]);
   }, [sizes, fabrics, selectedSize, selectedFabric]);
 
-  // Obliczanie finalnej ceny na podstawie wariantu
   const finalPrice = useMemo(() => {
     if (!product) return 0;
     let price = Number(product.price_brut);
 
-    // Dodajemy ewentualne modyfikatory ceny z wybranego rozmiaru i tkaniny
     if (selectedSize?.price_modifier)
       price += Number(selectedSize.price_modifier);
     if (selectedFabric?.price_modifier)
@@ -110,41 +111,56 @@ const ProductDetails = () => {
     return price * quantity;
   }, [product, selectedSize, selectedFabric, quantity]);
 
-  // Obsługa dodawania do koszyka
   const handleAddToCart = () => {
     const itemToAdd = {
       id: product.id,
       name: product.name,
-      price: finalPrice / quantity, // Cena za sztukę w danym wariancie
+      price: finalPrice / quantity,
       quantity,
       size: selectedSize?.value || null,
       fabric: selectedFabric?.value || null,
-      image: mainImage,
+      image: product.images?.length
+        ? getImageUrl(product.images[activeImageIndex].url)
+        : defaultImg,
     };
-    console.log("Dodano do koszyka:", itemToAdd);
-    // Tutaj w przyszłości wywołasz funkcję z CartContext np. addToCart(itemToAdd)
+
+    setAlertMessage(`Dodano ${quantity}x "${product.name}" do koszyka.`);
+    setIsAlertOpen(true);
   };
 
-  // EKRANY ŁADOWANIA I BŁĘDU
-  if (isLoading)
-    return <Loader fullPage message="Trwa przygotowywanie produktu..." />;
-  if (error || !product) {
-    return (
-      <div style={{ marginTop: "100px" }}>
-        <ErrorState
-          message={error || "Nie znaleziono produktu"}
-          onRetry={() => navigate("/sklep")}
-        />
-      </div>
+  const handlePrevImage = (e) => {
+    e.stopPropagation();
+    setActiveImageIndex((prev) =>
+      prev === 0 ? product.images.length - 1 : prev - 1,
     );
-  }
+  };
 
-  // --- RENDEROWANIE ---
+  const handleNextImage = (e) => {
+    e.stopPropagation();
+    setActiveImageIndex((prev) =>
+      prev === product.images.length - 1 ? 0 : prev + 1,
+    );
+  };
+
+  if (isLoading)
+    return <Loader fullPage message="Trwa ładowanie produktu..." />;
+  if (error || !product) return <NotFound />;
+
+  const lightboxSlides = product.images?.length
+    ? product.images.map((img) => ({ src: getImageUrl(img.url) }))
+    : [{ src: defaultImg }];
+
   return (
     <main className="product-details">
       <div className="product-details__container">
+        <ToastAlert
+          isOpen={isAlertOpen}
+          message={alertMessage}
+          type="success"
+          onClose={() => setIsAlertOpen(false)}
+        />
+
         <div className="product-details__breadcrumbs">
-          {/* Dynamiczna ścieżka do produktu */}
           <Breadcrumbs
             theme="dark"
             paths={[{ label: "Sklep", to: "/sklep" }, { label: product.name }]}
@@ -152,10 +168,12 @@ const ProductDetails = () => {
         </div>
 
         <div className="product-details__grid">
-          {/* LEWA STRONA: GALERIA ZDJĘĆ */}
+          {/* GALERIA ZDJĘĆ */}
           <section className="product-gallery">
-            <div className="product-gallery__main">
-              {/* KONTENER NA PLAKIETKI, ŻEBY SIĘ NIE NAKŁADAŁY */}
+            <div
+              className="product-gallery__main"
+              onClick={() => setIsLightboxOpen(true)}
+            >
               <div className="product-gallery__badges">
                 {isProductNew(product.created_at) && (
                   <span className="badge badge--new">Nowość</span>
@@ -163,33 +181,50 @@ const ProductDetails = () => {
                 {product.is_bestseller === 1 && (
                   <span className="badge badge--bestseller">Bestseller</span>
                 )}
-                {!product.is_available && (
-                  <span className="badge badge--unavailable">Niedostępny</span>
-                )}
               </div>
+
               <img
-                src={mainImage}
+                key={activeImageIndex}
+                src={
+                  product.images?.length
+                    ? getImageUrl(product.images[activeImageIndex].url)
+                    : defaultImg
+                }
                 alt={product.name}
-                // ZMIANA: Obsługa bledu ładowania głownego obrazka
                 onError={(e) => {
                   e.target.src = defaultImg;
                 }}
               />
+
+              {product.images?.length > 1 && (
+                <>
+                  <button
+                    className="gallery-arrow gallery-arrow--left"
+                    onClick={handlePrevImage}
+                  >
+                    <FaChevronLeft />
+                  </button>
+                  <button
+                    className="gallery-arrow gallery-arrow--right"
+                    onClick={handleNextImage}
+                  >
+                    <FaChevronRight />
+                  </button>
+                </>
+              )}
             </div>
 
-            {/* Miniaturki generowane tylko jeśli produkt ma więcej niż 1 zdjęcie */}
             {product.images && product.images.length > 1 && (
               <div className="product-gallery__thumbnails">
-                {product.images.map((img) => (
+                {product.images.map((img, index) => (
                   <button
                     key={img.id}
-                    className={`thumbnail-btn ${mainImage === getImageUrl(img.url) ? "active" : ""}`}
-                    onClick={() => setMainImage(getImageUrl(img.url))}
+                    className={`thumbnail-btn ${activeImageIndex === index ? "active" : ""}`}
+                    onClick={() => setActiveImageIndex(index)}
                   >
                     <img
                       src={getImageUrl(img.url)}
                       alt={`${product.name} - miniatura`}
-                      // ZMIANA: Obsługa bledu ładowania miniatury
                       onError={(e) => {
                         e.target.src = defaultImg;
                       }}
@@ -200,15 +235,20 @@ const ProductDetails = () => {
             )}
           </section>
 
-          {/* PRAWA STRONA: INFORMACJE O PRODUKCIE */}
+          {/* INFORMACJE O PRODUKCIE */}
           <section className="product-info">
             <h1 className="product-info__title">{product.name}</h1>
-            <p className="product-info__price">{formatPrice(finalPrice)} zł</p>
+
+            <div className="product-info__price-wrapper">
+              <p className="product-info__price" key={finalPrice}>
+                {formatPrice(finalPrice)} zł
+              </p>
+            </div>
+
             <p className="product-info__short-desc">
               {product.short_description}
             </p>
 
-            {/* WYBÓR ROZMIARU (Jeśli istnieje) */}
             {sizes.length > 0 && (
               <div className="product-options">
                 <h3 className="product-options__title">Wybierz rozmiar:</h3>
@@ -231,7 +271,6 @@ const ProductDetails = () => {
               </div>
             )}
 
-            {/* WYBÓR MATERIAŁU/TKANINY (Jeśli istnieje) */}
             {fabrics.length > 0 && (
               <div className="product-options">
                 <h3 className="product-options__title">Wybierz tkaninę:</h3>
@@ -254,13 +293,14 @@ const ProductDetails = () => {
               </div>
             )}
 
-            {/* AKCJE: ILOŚĆ + DO KOSZYKA */}
             <div className="product-actions">
               <div className="quantity-selector">
                 <button onClick={() => setQuantity((q) => Math.max(1, q - 1))}>
                   -
                 </button>
-                <input type="number" value={quantity} readOnly />
+                <span key={quantity} className="quantity-display">
+                  {quantity}
+                </span>
                 <button onClick={() => setQuantity((q) => q + 1)}>+</button>
               </div>
 
@@ -268,16 +308,12 @@ const ProductDetails = () => {
                 variant="primary"
                 className="add-to-cart-btn"
                 onClick={handleAddToCart}
-                disabled={!product.is_available}
               >
-                <FaShoppingCart style={{ marginRight: "8px" }} />
-                {product.is_available
-                  ? "Dodaj do koszyka"
-                  : "Produkt niedostępny"}
+                <FaShoppingCart style={{ marginRight: "8px" }} /> Dodaj do
+                koszyka
               </Button>
             </div>
 
-            {/* ZAUFANIE (Trust badges) */}
             <div className="product-trust">
               <div className="trust-item">
                 <FaTruck /> <span>Darmowa dostawa od 3000 zł</span>
@@ -287,15 +323,22 @@ const ProductDetails = () => {
               </div>
             </div>
 
-            {/* DŁUGI OPIS (z bazy z tagami HTML) */}
             <div className="product-description">
               <h3>Opis produktu</h3>
-              {/* Używamy dangerouslySetInnerHTML bo letni edytor Admina może zapisywać np. pogrubienia <p><b>... */}
               <div dangerouslySetInnerHTML={{ __html: product.description }} />
             </div>
           </section>
         </div>
       </div>
+
+      <Lightbox
+        open={isLightboxOpen}
+        close={() => setIsLightboxOpen(false)}
+        index={activeImageIndex}
+        slides={lightboxSlides}
+        plugins={[Zoom]}
+        zoom={{ maxZoomPixelRatio: 3 }}
+      />
     </main>
   );
 };
