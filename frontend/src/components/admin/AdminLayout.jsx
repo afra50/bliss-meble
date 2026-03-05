@@ -33,7 +33,6 @@ const AdminLayout = () => {
     { path: "/admin/zamowienia", Icon: ShoppingCart, label: "Zamówienia" },
     { path: "/admin/atrybuty", Icon: Layers, label: "Atrybuty" }, // NOWA POZYCJA
     { path: "/admin/recenzje", Icon: MessageSquare, label: "Recenzje" },
-    { path: "/admin/bestsellery", Icon: Star, label: "Bestsellery" },
     { path: "/admin/wysylki", Icon: Truck, label: "Koszty wysyłek" },
   ];
 
