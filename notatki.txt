@@ -31,10 +31,8 @@ DLA KRZYŚKA:
 - wydzielic na mniejsze komponenty - galeria, dodaj do koszyka, ilosc, kolory itp?
 
 ===== ADMIN =====
-- wyrzucic zakladke bestsellery i dodac info na kaflu produkty o bestsellerach
 1. PRODUKTY
     - dodawanie/edycja produktu:
+        * maks ilosc zdjec, walidacje
         * wybor zdjecia miniatury
-        * usuwanie pojedynczych zdjec dopiero po zapisz
-        * responsywność
         * testy

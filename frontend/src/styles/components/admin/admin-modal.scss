@@ -11,6 +11,10 @@
     justify-content: center;
     padding: 40px 20px;
     animation: fadeIn 0.2s ease-out;
+
+    @media (max-width: 768px) {
+        padding: 15px 10px; // Mniejszy odstęp od krawędzi ekranu na telefonie
+    }
 }
 
 .admin-modal {
@@ -23,7 +27,11 @@
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     position: relative;
     animation: slideUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    overflow: hidden; // Zabezpieczenie przed wylewaniem formy
+    overflow: hidden;
+
+    @media (max-width: 768px) {
+        max-height: calc(100vh - 30px); // Więcej miejsca w pionie na telefonie
+    }
 
     &__header {
         padding: 25px 40px;
@@ -31,8 +39,16 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: $color-white; // Wymuszone tło
-        z-index: 2; // Żeby cień/border spadał na scrollowane tło
+        background: $color-white;
+        z-index: 2;
+
+        @media (max-width: 768px) {
+            padding: 15px 20px; // Kompaktowy nagłówek
+
+            h2 {
+                font-size: 1.4rem;
+            }
+        }
 
         h2 {
             font-family: $font-heading;
@@ -69,7 +85,6 @@
         min-height: 300px;
     }
 
-    // NOWOŚĆ: Form wrapper zarządza wysokością i scrollem
     &__form-wrapper {
         display: flex;
         flex-direction: column;
@@ -81,6 +96,10 @@
         padding: 40px;
         overflow-y: auto;
         flex: 1;
+
+        @media (max-width: 768px) {
+            padding: 10px; // Kompaktowe body na telefonach
+        }
 
         &::-webkit-scrollbar {
             width: 8px;
@@ -108,6 +127,31 @@
         gap: 15px;
         background: rgba($color-olive, 0.9);
         z-index: 2;
+
+        @media (max-width: 768px) {
+            padding: 15px 20px;
+            flex-direction: column-reverse; // Zapisz na górze, Anuluj na dole
+            gap: 10px;
+
+            button {
+                width: 100%; // Pełna szerokość przycisków
+            }
+        }
+    }
+}
+
+// NOWOŚĆ: Kontrolowanie form-row żeby na telefonach Kategoria i Podkategoria były jedna pod drugą
+.form-row {
+    display: flex;
+    gap: 20px;
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-group {
+        flex: 1;
     }
 }
 
@@ -134,8 +178,14 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px 15px;
-    border-radius: 4px;
     transition: background-color 0.2s ease;
+    gap: 10px;
+
+    @media (max-width: 576px) {
+        flex-direction: column; // Na małym ekranie cena ląduje pod checkboxem
+        align-items: flex-start;
+        padding: 12px;
+    }
 
     &--selected {
         background-color: rgba($color-olive, 0.05);
@@ -153,6 +203,13 @@
     gap: 10px;
     font-size: 0.85rem;
     color: $color-slate;
+
+    @media (max-width: 576px) {
+        width: 100%;
+        justify-content: space-between; // Tekst "dopłata" na lewo, input na prawo
+        margin-top: 5px;
+        padding-left: 32px; // Wyrównanie do tekstu checkboxa
+    }
 
     &__input {
         width: 100px !important;

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { UploadCloud, Trash2, X } from "lucide-react";
+import { UploadCloud, Trash2, X, RotateCcw } from "lucide-react"; // DODAJ RotateCcw
 import CustomSelect from "./CustomSelect"; // NOWOŚĆ: Import CustomSelect
 import "../../styles/components/ui/image-upload-zone.scss";
 
@@ -9,6 +9,7 @@ const ImageUploadZone = ({
   newFiles = [],
   onFilesSelected,
   onExistingImageRemove,
+  onRestoreExistingImage, // <--- ODBIERZ TEN PROP
   onNewFileRemove,
   backendUrl,
   maxFiles = 10,
@@ -61,7 +62,11 @@ const ImageUploadZone = ({
         <div className="image-gallery">
           {/* STARE ZDJĘCIA */}
           {existingImages.map((img) => (
-            <div key={img.id} className="image-gallery__item">
+            // ZMIANA: Klasa is-deleted wpływająca na cały kafelek
+            <div
+              key={img.id}
+              className={`image-gallery__item ${img.isDeleted ? "is-deleted" : ""}`}
+            >
               <div
                 className={`image-gallery__img-wrap ${img.is_main ? "is-main" : ""}`}
               >
@@ -69,18 +74,30 @@ const ImageUploadZone = ({
                   src={`${backendUrl}/uploads/products/${img.url}`}
                   alt="Zapisane"
                 />
-                <div
-                  className="delete-overlay"
-                  onClick={() => onExistingImageRemove(img.id)}
-                >
-                  <Trash2 size={24} />
-                </div>
-                {img.attribute_value_id && (
+
+                {/* ZMIANA: Warunkowe wyświetlanie Kosza lub Przycisku Przywróć */}
+                {!img.isDeleted ? (
+                  <div
+                    className="delete-overlay"
+                    onClick={() => onExistingImageRemove(img.id)}
+                  >
+                    <Trash2 size={24} />
+                  </div>
+                ) : (
+                  <div
+                    className="restore-overlay"
+                    onClick={() => onRestoreExistingImage(img.id)}
+                  >
+                    <RotateCcw size={24} />
+                    <span>Przywróć</span>
+                  </div>
+                )}
+
+                {img.attribute_value_id && !img.isDeleted && (
                   <div className="image-gallery__badge">Przypisano kolor</div>
                 )}
               </div>
 
-              {/* ZMIANA NA CustomSelect */}
               {colorOptions.length > 0 && (
                 <div className="image-gallery__select-wrapper">
                   <CustomSelect
@@ -99,7 +116,6 @@ const ImageUploadZone = ({
               )}
             </div>
           ))}
-
           {/* NOWE ZDJĘCIA */}
           {newFiles.map((file, index) => (
             <div key={index} className="image-gallery__item">

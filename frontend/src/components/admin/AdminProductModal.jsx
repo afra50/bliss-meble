@@ -141,16 +141,21 @@ const AdminProductModal = ({
     );
   };
 
-  const handleExistingImageRemove = async (imageId) => {
-    if (!window.confirm("Czy na pewno chcesz usunąć to zdjęcie z serwera?"))
-      return;
-    try {
-      await productApi.deleteImage(imageId);
-      setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
-      showToast("Pomyślnie usunięto zdjęcie z serwera.", "success");
-    } catch (err) {
-      showToast("Błąd podczas usuwania zdjęcia.", "error");
-    }
+  const handleExistingImageRemove = (imageId) => {
+    setExistingImages((prev) =>
+      prev.map((img) =>
+        img.id === imageId ? { ...img, isDeleted: true } : img,
+      ),
+    );
+  };
+
+  // NOWOŚĆ: Funkcja do przywracania omyłkowo usuniętego zdjęcia
+  const handleRestoreExistingImage = (imageId) => {
+    setExistingImages((prev) =>
+      prev.map((img) =>
+        img.id === imageId ? { ...img, isDeleted: false } : img,
+      ),
+    );
   };
 
   // --- OBSŁUGA DANYCH FORMULARZA ---
@@ -230,6 +235,14 @@ const AdminProductModal = ({
 
     setIsSubmitting(true);
     try {
+      // NOWOŚĆ: Fizyczne usuwanie zdjęć odbywa się DOPIERO po kliknięciu Zapisz
+      const imagesToDelete = existingImages.filter((img) => img.isDeleted);
+      if (imagesToDelete.length > 0) {
+        await Promise.all(
+          imagesToDelete.map((img) => productApi.deleteImage(img.id)),
+        );
+      }
+
       const submitData = new FormData();
       submitData.append("name", formData.name);
       submitData.append("short_description", formData.short_description);
@@ -240,8 +253,14 @@ const AdminProductModal = ({
       submitData.append("is_bestseller", formData.is_bestseller);
       submitData.append("attributes", JSON.stringify(selectedAttributes));
 
-      // Wysyłamy stan starych zdjęć
-      submitData.append("existingImages", JSON.stringify(existingImages));
+      // ZMIANA: Odfiltrowujemy usunięte zdjęcia, by nie przekazywać ich w aktualizacji
+      const remainingExistingImages = existingImages.filter(
+        (img) => !img.isDeleted,
+      );
+      submitData.append(
+        "existingImages",
+        JSON.stringify(remainingExistingImages),
+      );
 
       const newImageAttributes = newFiles.map(
         (file) => file.attribute_value_id || null,
@@ -443,6 +462,7 @@ const AdminProductModal = ({
                     newFiles={newFiles}
                     onFilesSelected={handleFilesSelected}
                     onExistingImageRemove={handleExistingImageRemove}
+                    onRestoreExistingImage={handleRestoreExistingImage} // <--- DODAJ TO
                     onNewFileRemove={handleNewFileRemove}
                     backendUrl={BACKEND_URL}
                     colorOptions={colorOptions}
