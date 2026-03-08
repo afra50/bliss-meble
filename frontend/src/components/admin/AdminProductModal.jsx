@@ -89,7 +89,7 @@ const AdminProductModal = ({
           if (p.attributes) {
             setSelectedAttributes(
               p.attributes.map((attr) => ({
-                id: attr.value_id, // POPRAWIONE: value_id zamiast attribute_value_id
+                id: attr.value_id,
                 price: attr.price_modifier,
               })),
             );
@@ -117,13 +117,48 @@ const AdminProductModal = ({
     initData();
   }, [isOpen, isEditMode, productToEdit]);
 
-  // --- FUNKCJE DLA IMAGE UPLOAD ZONE ---
+  // --- FUNKCJE DLA IMAGE UPLOAD ZONE (Z LOGIKĄ MINIATUR) ---
+  const handleSetMainImage = (type, identifier) => {
+    setExistingImages((prev) =>
+      prev.map((img) => ({
+        ...img,
+        is_main: type === "existing" && img.id === identifier ? 1 : 0,
+      })),
+    );
+    setNewFiles((prev) =>
+      prev.map((file) =>
+        Object.assign(file, {
+          is_main: type === "new" && file.preview === identifier ? 1 : 0,
+        }),
+      ),
+    );
+  };
+
   const handleFilesSelected = (files) => {
+    const isFirstUpload =
+      existingImages.filter((img) => !img.isDeleted).length === 0 &&
+      newFiles.length === 0;
+    if (isFirstUpload && files.length > 0) {
+      Object.assign(files[0], { is_main: 1 });
+    } else {
+      files.forEach((f) => Object.assign(f, { is_main: 0 }));
+    }
     setNewFiles((prev) => [...prev, ...files]);
   };
 
   const handleNewFileRemove = (fileToRemove) => {
+    const wasMain = fileToRemove.is_main === 1 || fileToRemove.is_main === true;
     setNewFiles((prev) => prev.filter((file) => file !== fileToRemove));
+
+    if (wasMain) {
+      const nextExisting = existingImages.find((img) => !img.isDeleted);
+      if (nextExisting) {
+        handleSetMainImage("existing", nextExisting.id);
+      } else {
+        const nextNew = newFiles.find((file) => file !== fileToRemove);
+        if (nextNew) handleSetMainImage("new", nextNew.preview);
+      }
+    }
   };
 
   const handleNewFileAttributeChange = (fileToUpdate, attrId) => {
@@ -142,18 +177,40 @@ const AdminProductModal = ({
   };
 
   const handleExistingImageRemove = (imageId) => {
+    const imgToRemove = existingImages.find((img) => img.id === imageId);
+    const wasMain = imgToRemove?.is_main === 1 || imgToRemove?.is_main === true;
+
     setExistingImages((prev) =>
       prev.map((img) =>
-        img.id === imageId ? { ...img, isDeleted: true } : img,
+        img.id === imageId ? { ...img, isDeleted: true, is_main: 0 } : img,
       ),
     );
+
+    if (wasMain) {
+      const nextExisting = existingImages.find(
+        (img) => img.id !== imageId && !img.isDeleted,
+      );
+      if (nextExisting) {
+        handleSetMainImage("existing", nextExisting.id);
+      } else {
+        const nextNew = newFiles.length > 0 ? newFiles[0] : null;
+        if (nextNew) handleSetMainImage("new", nextNew.preview);
+      }
+    }
   };
 
-  // NOWOŚĆ: Funkcja do przywracania omyłkowo usuniętego zdjęcia
   const handleRestoreExistingImage = (imageId) => {
+    let needsMain = false;
+    const hasMain =
+      existingImages.some((img) => img.is_main && !img.isDeleted) ||
+      newFiles.some((f) => f.is_main);
+    if (!hasMain) needsMain = true;
+
     setExistingImages((prev) =>
       prev.map((img) =>
-        img.id === imageId ? { ...img, isDeleted: false } : img,
+        img.id === imageId
+          ? { ...img, isDeleted: false, is_main: needsMain ? 1 : 0 }
+          : img,
       ),
     );
   };
@@ -235,7 +292,6 @@ const AdminProductModal = ({
 
     setIsSubmitting(true);
     try {
-      // NOWOŚĆ: Fizyczne usuwanie zdjęć odbywa się DOPIERO po kliknięciu Zapisz
       const imagesToDelete = existingImages.filter((img) => img.isDeleted);
       if (imagesToDelete.length > 0) {
         await Promise.all(
@@ -253,7 +309,6 @@ const AdminProductModal = ({
       submitData.append("is_bestseller", formData.is_bestseller);
       submitData.append("attributes", JSON.stringify(selectedAttributes));
 
-      // ZMIANA: Odfiltrowujemy usunięte zdjęcia, by nie przekazywać ich w aktualizacji
       const remainingExistingImages = existingImages.filter(
         (img) => !img.isDeleted,
       );
@@ -262,9 +317,11 @@ const AdminProductModal = ({
         JSON.stringify(remainingExistingImages),
       );
 
-      const newImageAttributes = newFiles.map(
-        (file) => file.attribute_value_id || null,
-      );
+      // ZMIANA: Wysyłamy jako obiekty (kolor ORAZ czy jest miniaturą)
+      const newImageAttributes = newFiles.map((file) => ({
+        attribute_value_id: file.attribute_value_id || null,
+        is_main: file.is_main === 1 || file.is_main === true ? 1 : 0,
+      }));
 
       newFiles.forEach((file) => {
         submitData.append("images", file);
@@ -315,7 +372,6 @@ const AdminProductModal = ({
     label: sub.name,
   }));
 
-  // Opcje kolorów przekazywane do selektów w obrazkach
   const colorGroup = attributeGroups.find((g) => g.name === "Tkanina i Kolor");
   const colorOptions =
     colorGroup?.values
@@ -462,10 +518,11 @@ const AdminProductModal = ({
                     newFiles={newFiles}
                     onFilesSelected={handleFilesSelected}
                     onExistingImageRemove={handleExistingImageRemove}
-                    onRestoreExistingImage={handleRestoreExistingImage} // <--- DODAJ TO
+                    onRestoreExistingImage={handleRestoreExistingImage}
                     onNewFileRemove={handleNewFileRemove}
                     backendUrl={BACKEND_URL}
                     colorOptions={colorOptions}
+                    onSetMainImage={handleSetMainImage} // <--- PRZEKAZUJEMY FUNKCJĘ
                     onNewFileAttributeChange={handleNewFileAttributeChange}
                     onExistingFileAttributeChange={
                       handleExistingFileAttributeChange

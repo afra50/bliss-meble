@@ -8,8 +8,7 @@
 
 BACKEND + INTEGRACJA
 - wykorzystywać api.js, tam robić helpery do integracji
-- mozlwiosc wyboru zdjecia glownego
-- Joi do walidacji requestow
+- zod do walidacji requestow
 - jakie crony? usuwanie zamowien, order_items, shipping deatils, review tokens? produktow usunietych i ich zdjec?
 
 DLA KRZYŚKA:
@@ -35,5 +34,4 @@ DLA KRZYŚKA:
 1. PRODUKTY
     - dodawanie/edycja produktu:
         * maks ilosc zdjec, walidacje
-        * wybor zdjecia miniatury
         * testy

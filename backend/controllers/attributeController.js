@@ -1,4 +1,5 @@
 const Attribute = require("../models/attributeModel");
+const { z } = require("zod");
 
 const logError = (method, error) => {
   console.error(`--- BŁĄD W ATTR:${method} ---`);
@@ -6,8 +7,24 @@ const logError = (method, error) => {
   console.error("--------------------------");
 };
 
+// --- SCHEMATY ZOD ---
+const createValueSchema = z.object({
+  // coerce.number wymusi zamianę na liczbę, positive() upewni się, że to nie jest np. -5
+  group_id: z.coerce
+    .number({ invalid_type_error: "ID grupy musi być liczbą." })
+    .positive("ID grupy jest nieprawidłowe."),
+  value: z
+    .string()
+    .min(1, "Wartość atrybutu jest wymagana (nie może być pusta)."),
+});
+
+const deleteValueSchema = z.object({
+  id: z.coerce.number().positive("ID usuwanego atrybutu musi być liczbą."),
+});
+
 exports.getAttributes = async (req, res, next) => {
   try {
+    // Tutaj nie ma czego walidować, bo to prosty GET
     const attributes = await Attribute.findAllGroupsWithValues();
     res.json(attributes);
   } catch (error) {
@@ -18,9 +35,18 @@ exports.getAttributes = async (req, res, next) => {
 
 exports.createValue = async (req, res, next) => {
   try {
-    const { group_id, value } = req.body;
-    if (!group_id || !value)
-      return res.status(400).json({ error: "ID grupy i wartość są wymagane." });
+    // 1. Walidacja Zod
+    const parsedData = createValueSchema.safeParse(req.body);
+
+    if (!parsedData.success) {
+      return res
+        .status(400)
+        .json({ error: parsedData.error.errors[0].message });
+    }
+
+    // 2. Wyciągnięcie bezpiecznych i zrzutowanych danych
+    const { group_id, value } = parsedData.data;
+
     const id = await Attribute.createValue(group_id, value);
     res.status(201).json({ id, group_id, value });
   } catch (error) {
@@ -31,8 +57,16 @@ exports.createValue = async (req, res, next) => {
 
 exports.deleteValue = async (req, res, next) => {
   try {
-    // Pobieramy ID wartości z parametrów URL
-    const { id } = req.params;
+    // Walidujemy parametry z URL (req.params)
+    const parsedParams = deleteValueSchema.safeParse(req.params);
+
+    if (!parsedParams.success) {
+      return res
+        .status(400)
+        .json({ error: parsedParams.error.errors[0].message });
+    }
+
+    const { id } = parsedParams.data;
 
     await Attribute.deleteValue(id);
 

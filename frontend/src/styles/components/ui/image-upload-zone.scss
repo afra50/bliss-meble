@@ -91,6 +91,7 @@
         position: relative;
         aspect-ratio: 1;
         overflow: hidden;
+        border-radius: 8px;
         border: 1px solid rgba($color-slate, 0.2);
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         width: 100%;
@@ -102,24 +103,60 @@
             display: block;
         }
 
-        .delete-overlay {
+        // ZMIANA: Zgrupowane ikony akcji (Kosz i Gwiazdka)
+        .image-action-buttons {
             position: absolute;
-            inset: 0;
-            background: rgba($color-red, 0.8);
+            top: 6px;
+            right: 6px;
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 3;
+        }
+
+        // Pokazuje się po najechaniu na obrazek
+        &:hover .image-action-buttons {
+            opacity: 1;
+        }
+
+        // Aktywna gwiazdka (miniatura) jest widoczna zawsze
+        .star-btn.is-active {
+            opacity: 1 !important;
+            display: flex !important;
+        }
+
+        .action-btn {
+            background: rgba($color-black, 0.5);
+            border-radius: 4px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s;
             cursor: pointer;
+            color: $color-white;
+            transition: background 0.2s, transform 0.1s;
 
-            // Na mobile overlay nie potrzebuje hovera żeby było go widać, ale dla UX zostawiamy na kliknięcie
             &:hover {
-                opacity: 1;
+                transform: scale(1.05);
             }
 
-            svg {
-                color: $color-white;
+            &.delete-btn:hover {
+                background: $color-red;
+            }
+
+            &.star-btn {
+                background: rgba($color-black, 0.4);
+
+                &:hover {
+                    background: rgba($color-black, 0.8);
+                }
+
+                &.is-active {
+                    background: #f59e0b; // Złoty kolor miniatury
+                    color: $color-white;
+                }
             }
         }
 

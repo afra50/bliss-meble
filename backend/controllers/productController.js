@@ -4,6 +4,46 @@ const sharp = require("sharp");
 const slugify = require("slugify");
 const path = require("path");
 const fs = require("fs");
+const { z } = require("zod");
+
+// Schemat walidacji dla produktu
+const productSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Nazwa musi mieć co najmniej 2 znaki.")
+    .max(150, "Nazwa jest za długa."),
+  short_description: z.string().min(1, "Krótki opis jest wymagany."),
+  description: z.string().min(1, "Pełny opis jest wymagany."),
+
+  // Zod automatycznie zamieni string "1200.50" na liczbę
+  price_brut: z.coerce
+    .number({ invalid_type_error: "Cena musi być poprawną liczbą." })
+    .min(0, "Cena nie może być ujemna."),
+
+  // Jeśli kategoria jest pusta (""), zamień na null, w przeciwnym razie na liczbę
+  subcategory_id: z
+    .string()
+    .optional()
+    .transform((val) => (val ? Number(val) : null)),
+
+  // FormData wysyła booleany jako stringi "true"/"false". Zod od razu zamieni je nam na 1 i 0 do bazy!
+  is_available: z
+    .any()
+    .transform((val) =>
+      val === "true" || val === "1" || val === 1 || val === true ? 1 : 0,
+    ),
+  is_bestseller: z
+    .any()
+    .transform((val) =>
+      val === "true" || val === "1" || val === 1 || val === true ? 1 : 0,
+    ),
+
+  // Pola ukryte (tablice JSON)
+  attributes: z.string().optional(),
+  imageAttributes: z.string().optional(),
+  newImageAttributes: z.string().optional(),
+  existingImages: z.string().optional(),
+});
 
 const logError = (method, error) => {
   console.error(`--- BŁĄD W ${method} ---`);
@@ -72,6 +112,15 @@ exports.getBestsellers = async (req, res, next) => {
 };
 
 exports.createProduct = async (req, res, next) => {
+  // 1. BEZPIECZNE PARSOWANIE ZOD (Nie przerywa działania aplikacji w razie błędu)
+  const parsedData = productSchema.safeParse(req.body);
+
+  if (!parsedData.success) {
+    // Jeśli walidacja oblała, wyciągamy pierwszą wiadomość błędu i wysyłamy na front
+    return res.status(400).json({ error: parsedData.error.errors[0].message });
+  }
+
+  // Wyciągamy czyste i gotowe do bazy dane z parsedData.data!
   const {
     name,
     short_description,
@@ -79,30 +128,21 @@ exports.createProduct = async (req, res, next) => {
     description,
     price_brut,
     is_bestseller,
-    is_available, // WYCIĄGNIJ Z BODY
+    is_available,
     attributes,
-  } = req.body;
-  const files = req.files;
+    imageAttributes,
+  } = parsedData.data;
 
-  if (!name || !short_description || !description || !price_brut) {
-    return res
-      .status(400)
-      .json({ error: "Nazwa, opis krótki, opis długi i cena są wymagane." });
-  }
+  const files = req.files;
 
   const connection = await pool.getConnection();
   await connection.beginTransaction();
 
   try {
-    // 1. RZUTOWANIE I LOGIKA BEZPIECZEŃSTWA (analogicznie do update)
-    const availableVal = is_available === "false" || is_available == 0 ? 0 : 1;
-    const bestsellerVal =
-      is_bestseller === "true" || is_bestseller == 1 ? 1 : 0;
+    // AUTOMATYCZNE ZEROWANIE: niedostępny produkt nie może być bestsellerem
+    const finalBestseller = is_available === 0 ? 0 : is_bestseller;
 
-    // Automatyczne zerowanie: niedostępny produkt nie może być bestsellerem
-    const finalBestseller = availableVal === 0 ? 0 : bestsellerVal;
-
-    // 2. WALIDACJA LIMITU
+    // 2. WALIDACJA LIMITU BESTSELLERÓW
     if (finalBestseller === 1) {
       const count = await Product.countBestsellers();
       if (count >= 3) {
@@ -124,9 +164,10 @@ exports.createProduct = async (req, res, next) => {
       description,
       price_brut,
       is_bestseller: finalBestseller,
-      is_available: availableVal, // PRZEKAŻ WARTOŚĆ
+      is_available,
     });
 
+    // ... I TUTAJ LECI DALEJ TWÓJ KOD OBSŁUGUJĄCY ZDJĘCIA ...
     if (files && files.length > 0) {
       const productFolder = path.join(
         __dirname,
@@ -150,23 +191,25 @@ exports.createProduct = async (req, res, next) => {
         const fileName = `bliss-${Date.now()}-${i}.webp`;
         const relativePath = `${productId}/${fileName}`;
 
-        // Wyciągamy przypisany kolor dla danego pliku (jeśli nie wybrano, zostaje null)
-        const attrValueId = parsedImageAttributes[i]
-          ? Number(parsedImageAttributes[i])
+        // NOWOŚĆ: Wyciągamy kolor ORAZ flagę miniatury
+        const imgData = parsedImageAttributes[i] || {};
+        const attrValueId = imgData.attribute_value_id
+          ? Number(imgData.attribute_value_id)
           : null;
+        const isMain = imgData.is_main ? 1 : 0;
 
         await sharp(files[i].buffer)
           .resize(1200)
           .toFormat("webp")
           .toFile(path.join(productFolder, fileName));
 
-        // ZMIANA: Przekazujemy attrValueId do bazy
+        // ZMIANA: Przekazujemy isMain zamiast sztywnego i === 0
         await Product.addImage(
           connection,
           productId,
           relativePath,
-          i === 0 ? 1 : 0,
-          attrValueId, // <--- DODANO
+          isMain,
+          attrValueId,
         );
       }
     }
@@ -191,6 +234,15 @@ exports.createProduct = async (req, res, next) => {
 
 exports.updateProduct = async (req, res, next) => {
   const { id } = req.params;
+
+  // 1. BEZPIECZNE PARSOWANIE ZOD (tak samo jak w create)
+  const parsedData = productSchema.safeParse(req.body);
+
+  if (!parsedData.success) {
+    return res.status(400).json({ error: parsedData.error.errors[0].message });
+  }
+
+  // Wyciągamy zwalidowane, czyste dane z parsedData.data!
   const {
     name,
     short_description,
@@ -200,22 +252,21 @@ exports.updateProduct = async (req, res, next) => {
     is_bestseller,
     is_available,
     attributes,
-  } = req.body;
+    newImageAttributes,
+    existingImages, // Zod wyciąga to automatycznie
+  } = parsedData.data;
+
   const files = req.files;
 
   const connection = await pool.getConnection();
   await connection.beginTransaction();
 
   try {
-    // 1. Rzutowanie wartości
-    const availableVal = is_available === "true" || is_available == 1 ? 1 : 0;
-    const bestsellerVal =
-      is_bestseller === "true" || is_bestseller == 1 ? 1 : 0;
-
     // AUTOMATYCZNE WYŁĄCZENIE: Jeśli produkt jest niedostępny, nie może być bestsellerem
-    const finalBestseller = availableVal === 0 ? 0 : bestsellerVal;
+    // (Zod już zamienił "true" na 1, więc operujemy czysto na liczbach)
+    const finalBestseller = is_available === 0 ? 0 : is_bestseller;
 
-    // 2. Walidacja bestsellerów (używamy finalBestseller zamiast bestsellerVal)
+    // 2. Walidacja bestsellerów
     if (finalBestseller === 1) {
       const count = await Product.countBestsellers();
       const current = await Product.getBestsellerStatus(connection, id);
@@ -229,18 +280,17 @@ exports.updateProduct = async (req, res, next) => {
       }
     }
 
-    // 3. Wywołanie modelu (przekazujemy finalBestseller)
+    // 3. Wywołanie modelu (przekazujemy zwalidowane dane)
     await Product.update(connection, id, {
       subcategory_id: subcategory_id || null,
       name: name || null,
       short_description: short_description || null,
       description: description || null,
       price_brut: price_brut || null,
-      is_bestseller: finalBestseller, // Używamy przeliczonej wartości
-      is_available: availableVal,
+      is_bestseller: finalBestseller,
+      is_available: is_available,
     });
 
-    // 4. Obsługa nowych zdjęć
     // 4. Obsługa nowych zdjęć
     if (files && files.length > 0) {
       const productFolder = path.join(
@@ -252,12 +302,11 @@ exports.updateProduct = async (req, res, next) => {
         fs.mkdirSync(productFolder, { recursive: true });
 
       let parsedNewImageAttributes = [];
-      if (req.body.newImageAttributes) {
-        // Używamy innej zmiennej, aby odróżnić nowe od edytowanych
+      if (newImageAttributes) {
         try {
-          parsedNewImageAttributes = JSON.parse(req.body.newImageAttributes);
+          parsedNewImageAttributes = JSON.parse(newImageAttributes);
         } catch (e) {
-          console.log("Błąd parsowania newImageAttributes", e);
+          console.log("Błąd parsowania", e);
         }
       }
 
@@ -265,9 +314,11 @@ exports.updateProduct = async (req, res, next) => {
         const fileName = `bliss-upd-${Date.now()}-${Math.round(Math.random() * 100)}.webp`;
         const relativePath = `${id}/${fileName}`;
 
-        const attrValueId = parsedNewImageAttributes[i]
-          ? Number(parsedNewImageAttributes[i])
+        const imgData = parsedNewImageAttributes[i] || {};
+        const attrValueId = imgData.attribute_value_id
+          ? Number(imgData.attribute_value_id)
           : null;
+        const isMain = imgData.is_main ? 1 : 0;
 
         await sharp(files[i].buffer)
           .resize(1200)
@@ -278,8 +329,8 @@ exports.updateProduct = async (req, res, next) => {
           connection,
           id,
           relativePath,
-          0,
-          attrValueId, // <--- DODANO
+          isMain,
+          attrValueId,
         );
       }
     }
@@ -294,12 +345,13 @@ exports.updateProduct = async (req, res, next) => {
     }
 
     // 6. Aktualizacja kolorów na JUŻ ISTNIEJĄCYCH zdjęciach
-    if (req.body.existingImages) {
-      const existingImagesArr = JSON.parse(req.body.existingImages);
+    if (existingImages) {
+      const existingImagesArr = JSON.parse(existingImages);
       for (const img of existingImagesArr) {
+        // ZMIANA: Aktualizujemy też kolumnę is_main!
         await connection.execute(
-          "UPDATE product_images SET attribute_value_id = ? WHERE id = ?",
-          [img.attribute_value_id || null, img.id],
+          "UPDATE product_images SET attribute_value_id = ?, is_main = ? WHERE id = ?",
+          [img.attribute_value_id || null, img.is_main ? 1 : 0, img.id],
         );
       }
     }

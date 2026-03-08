@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { UploadCloud, Trash2, X, RotateCcw } from "lucide-react"; // DODAJ RotateCcw
-import CustomSelect from "./CustomSelect"; // NOWOŚĆ: Import CustomSelect
+import { UploadCloud, Trash2, X, RotateCcw, Star } from "lucide-react"; // ZMIANA IMPORTU
+import CustomSelect from "./CustomSelect";
 import "../../styles/components/ui/image-upload-zone.scss";
 
 const ImageUploadZone = ({
@@ -9,7 +9,8 @@ const ImageUploadZone = ({
   newFiles = [],
   onFilesSelected,
   onExistingImageRemove,
-  onRestoreExistingImage, // <--- ODBIERZ TEN PROP
+  onRestoreExistingImage,
+  onSetMainImage, // <--- NOWY PROP
   onNewFileRemove,
   backendUrl,
   maxFiles = 10,
@@ -40,7 +41,6 @@ const ImageUploadZone = ({
     return () => newFiles.forEach((file) => URL.revokeObjectURL(file.preview));
   }, [newFiles]);
 
-  // NOWOŚĆ: Formatowanie opcji dla CustomSelect
   const formattedColorOptions = [
     { value: "", label: "Zdjęcie ogólne" },
     ...colorOptions.map((opt) => ({ value: opt.id, label: opt.name })),
@@ -62,7 +62,6 @@ const ImageUploadZone = ({
         <div className="image-gallery">
           {/* STARE ZDJĘCIA */}
           {existingImages.map((img) => (
-            // ZMIANA: Klasa is-deleted wpływająca na cały kafelek
             <div
               key={img.id}
               className={`image-gallery__item ${img.isDeleted ? "is-deleted" : ""}`}
@@ -75,13 +74,32 @@ const ImageUploadZone = ({
                   alt="Zapisane"
                 />
 
-                {/* ZMIANA: Warunkowe wyświetlanie Kosza lub Przycisku Przywróć */}
+                {/* ZMIANA: Panel z ikonami Kosza i Gwiazdki */}
                 {!img.isDeleted ? (
-                  <div
-                    className="delete-overlay"
-                    onClick={() => onExistingImageRemove(img.id)}
-                  >
-                    <Trash2 size={24} />
+                  <div className="image-action-buttons">
+                    <div
+                      className={`action-btn star-btn ${img.is_main ? "is-active" : ""}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSetMainImage("existing", img.id);
+                      }}
+                      title="Ustaw jako główne"
+                    >
+                      <Star
+                        size={18}
+                        fill={img.is_main ? "currentColor" : "none"}
+                      />
+                    </div>
+                    <div
+                      className="action-btn delete-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onExistingImageRemove(img.id);
+                      }}
+                      title="Usuń zdjęcie"
+                    >
+                      <Trash2 size={18} />
+                    </div>
                   </div>
                 ) : (
                   <div
@@ -116,20 +134,43 @@ const ImageUploadZone = ({
               )}
             </div>
           ))}
+
           {/* NOWE ZDJĘCIA */}
           {newFiles.map((file, index) => (
             <div key={index} className="image-gallery__item">
-              <div className="image-gallery__img-wrap">
+              <div
+                className={`image-gallery__img-wrap ${file.is_main ? "is-main" : ""}`}
+              >
                 <img src={file.preview} alt="Podgląd" />
-                <div
-                  className="delete-overlay"
-                  onClick={() => onNewFileRemove(file)}
-                >
-                  <X size={24} />
+
+                {/* ZMIANA: Panel z ikonami Kosza i Gwiazdki */}
+                <div className="image-action-buttons">
+                  <div
+                    className={`action-btn star-btn ${file.is_main ? "is-active" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSetMainImage("new", file.preview);
+                    }}
+                    title="Ustaw jako główne"
+                  >
+                    <Star
+                      size={18}
+                      fill={file.is_main ? "currentColor" : "none"}
+                    />
+                  </div>
+                  <div
+                    className="action-btn delete-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onNewFileRemove(file);
+                    }}
+                    title="Usuń zdjęcie"
+                  >
+                    <X size={18} />
+                  </div>
                 </div>
               </div>
 
-              {/* ZMIANA NA CustomSelect */}
               {colorOptions.length > 0 && (
                 <div className="image-gallery__select-wrapper">
                   <CustomSelect
