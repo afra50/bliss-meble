@@ -13,7 +13,7 @@ import {
   FaShieldAlt,
   FaChevronLeft,
   FaChevronRight,
-} from "react-icons/fa"; // Usunięto FaExpandArrowsAlt
+} from "react-icons/fa";
 import defaultImg from "../assets/default-product.jpg";
 
 import Lightbox from "yet-another-react-lightbox";
@@ -59,13 +59,6 @@ const ProductDetails = () => {
         setError(null);
         const response = await productApi.getBySlug(slug);
         setProduct(response.data);
-
-        if (response.data.images && response.data.images.length > 0) {
-          const mainIndex = response.data.images.findIndex(
-            (img) => img.is_main === 1,
-          );
-          setActiveImageIndex(mainIndex !== -1 ? mainIndex : 0);
-        }
       } catch (err) {
         console.error("Błąd ładowania produktu:", err);
         setError(err.response?.status === 404 ? 404 : 500);
@@ -83,21 +76,47 @@ const ProductDetails = () => {
     return `${BACKEND_URL}/uploads/products/${url}`;
   };
 
+  // ZMIANA: Sortujemy atrybuty rosnąco po cenie dopłaty (price_modifier)
   const sizes =
-    product?.attributes?.filter((a) =>
-      a.group_name.toLowerCase().includes("rozmiar"),
-    ) || [];
+    product?.attributes
+      ?.filter((a) => a.group_name.toLowerCase().includes("rozmiar"))
+      .sort((a, b) => Number(a.price_modifier) - Number(b.price_modifier)) ||
+    [];
+
   const fabrics =
-    product?.attributes?.filter(
-      (a) =>
-        a.group_name.toLowerCase().includes("tkanina") ||
-        a.group_name.toLowerCase().includes("materiał"),
-    ) || [];
+    product?.attributes
+      ?.filter(
+        (a) =>
+          a.group_name.toLowerCase().includes("tkanina") ||
+          a.group_name.toLowerCase().includes("materiał"),
+      )
+      .sort((a, b) => Number(a.price_modifier) - Number(b.price_modifier)) ||
+    [];
 
   useEffect(() => {
     if (sizes.length > 0 && !selectedSize) setSelectedSize(sizes[0]);
     if (fabrics.length > 0 && !selectedFabric) setSelectedFabric(fabrics[0]);
   }, [sizes, fabrics, selectedSize, selectedFabric]);
+
+  const filteredImages = useMemo(() => {
+    if (!product?.images) return [];
+
+    if (selectedFabric) {
+      const filtered = product.images.filter(
+        (img) =>
+          img.attribute_value_id === selectedFabric.value_id ||
+          img.attribute_value_id === null,
+      );
+
+      if (filtered.length > 0) return filtered;
+    }
+
+    return product.images;
+  }, [product?.images, selectedFabric]);
+
+  useEffect(() => {
+    setActiveImageIndex(0);
+  }, [filteredImages]);
 
   const finalPrice = useMemo(() => {
     if (!product) return 0;
@@ -119,9 +138,10 @@ const ProductDetails = () => {
       quantity,
       size: selectedSize?.value || null,
       fabric: selectedFabric?.value || null,
-      image: product.images?.length
-        ? getImageUrl(product.images[activeImageIndex].url)
-        : defaultImg,
+      image:
+        filteredImages.length > 0
+          ? getImageUrl(filteredImages[activeImageIndex].url)
+          : defaultImg,
     };
 
     setAlertMessage(`Dodano ${quantity}x "${product.name}" do koszyka.`);
@@ -131,14 +151,14 @@ const ProductDetails = () => {
   const handlePrevImage = (e) => {
     e.stopPropagation();
     setActiveImageIndex((prev) =>
-      prev === 0 ? product.images.length - 1 : prev - 1,
+      prev === 0 ? filteredImages.length - 1 : prev - 1,
     );
   };
 
   const handleNextImage = (e) => {
     e.stopPropagation();
     setActiveImageIndex((prev) =>
-      prev === product.images.length - 1 ? 0 : prev + 1,
+      prev === filteredImages.length - 1 ? 0 : prev + 1,
     );
   };
 
@@ -146,9 +166,10 @@ const ProductDetails = () => {
     return <Loader fullPage message="Trwa ładowanie produktu..." />;
   if (error || !product) return <NotFound />;
 
-  const lightboxSlides = product.images?.length
-    ? product.images.map((img) => ({ src: getImageUrl(img.url) }))
-    : [{ src: defaultImg }];
+  const lightboxSlides =
+    filteredImages.length > 0
+      ? filteredImages.map((img) => ({ src: getImageUrl(img.url) }))
+      : [{ src: defaultImg }];
 
   return (
     <main className="product-details">
@@ -186,8 +207,8 @@ const ProductDetails = () => {
               <img
                 key={activeImageIndex}
                 src={
-                  product.images?.length
-                    ? getImageUrl(product.images[activeImageIndex].url)
+                  filteredImages.length > 0
+                    ? getImageUrl(filteredImages[activeImageIndex].url)
                     : defaultImg
                 }
                 alt={product.name}
@@ -196,7 +217,7 @@ const ProductDetails = () => {
                 }}
               />
 
-              {product.images?.length > 1 && (
+              {filteredImages.length > 1 && (
                 <>
                   <button
                     className="gallery-arrow gallery-arrow--left"
@@ -214,9 +235,9 @@ const ProductDetails = () => {
               )}
             </div>
 
-            {product.images && product.images.length > 1 && (
+            {filteredImages.length > 1 && (
               <div className="product-gallery__thumbnails">
-                {product.images.map((img, index) => (
+                {filteredImages.map((img, index) => (
                   <button
                     key={img.id}
                     className={`thumbnail-btn ${activeImageIndex === index ? "active" : ""}`}
