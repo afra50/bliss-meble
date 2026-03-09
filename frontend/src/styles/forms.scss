@@ -39,6 +39,13 @@
     }
   }
 
+  &__help-text {
+    color: $color-slate;
+    margin-top: 5px;
+    display: block;
+    font-size: 0.8rem;
+  }
+
   textarea.form-group__input {
     resize: none;
     line-height: 1.5;

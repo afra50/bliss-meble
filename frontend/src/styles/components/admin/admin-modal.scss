@@ -140,21 +140,6 @@
     }
 }
 
-// NOWOŚĆ: Kontrolowanie form-row żeby na telefonach Kategoria i Podkategoria były jedna pod drugą
-.form-row {
-    display: flex;
-    gap: 20px;
-
-    @media (max-width: 768px) {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .form-group {
-        flex: 1;
-    }
-}
-
 // --- WIDŻET ATRYBUTÓW DLA ADMINA ---
 .attribute-group {
     margin-bottom: 25px;
@@ -222,6 +207,17 @@
     &__currency {
         font-weight: bold;
         color: $color-black;
+    }
+}
+
+// Modyfikator dla mniejszego modala (np. do atrybutów, żeby nie był ogromny na cały ekran)
+.admin-modal--small {
+    max-width: 500px;
+    min-height: auto;
+
+    // Zmniejszamy nieco paddingi wewnątrz, bo formularz jest krótki
+    .admin-modal__body {
+        padding: 30px;
     }
 }
 
