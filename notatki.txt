@@ -22,12 +22,12 @@ DLA KRZYŚKA:
 
 ===== PRODUKTY =====
 - filtry komponent? + ma dzialac
+- wydzielic na mniejsze
 
 ===== SZCZEGÓŁY PRODUKTU =====
 - darmowa dostawa z bazy
 - kolory/tkaniny poprawic
 - dodawanie do koszyka
-- wydzielic na mniejsze komponenty - galeria, dodaj do koszyka, ilosc, kolory itp?
 
 ===== ADMIN =====
 1. PRODUKTY

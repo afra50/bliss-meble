@@ -1,0 +1,52 @@
+@use "../../variables" as *;
+@use "sass:color";
+
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  border: 1px solid color.change($color-black, $alpha: 0.2);
+  height: 50px;
+  min-width: 140px;
+  background-color: $color-white;
+
+  button {
+    background: transparent;
+    border: none;
+    width: 45px;
+    height: 100%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    color: $color-black;
+
+    &:hover:not(:disabled) {
+      background: color.change($color-black, $alpha: 0.05);
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+  }
+
+  &__display {
+    flex-grow: 1;
+    text-align: center;
+    font-family: $font-body;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: $color-black;
+    animation: quantityPopIn 0.2s ease-out;
+  }
+}
+
+@keyframes quantityPopIn {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
