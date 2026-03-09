@@ -9,13 +9,14 @@ const logError = (method, error) => {
 
 // --- SCHEMATY ZOD ---
 const createValueSchema = z.object({
-  // coerce.number wymusi zamianę na liczbę, positive() upewni się, że to nie jest np. -5
   group_id: z.coerce
     .number({ invalid_type_error: "ID grupy musi być liczbą." })
     .positive("ID grupy jest nieprawidłowe."),
   value: z
     .string()
     .min(1, "Wartość atrybutu jest wymagana (nie może być pusta)."),
+  // NOWOŚĆ: Opcjonalny kod HEX
+  color_hex: z.string().nullable().optional(),
 });
 
 const deleteValueSchema = z.object({
@@ -35,20 +36,19 @@ exports.getAttributes = async (req, res, next) => {
 
 exports.createValue = async (req, res, next) => {
   try {
-    // 1. Walidacja Zod
     const parsedData = createValueSchema.safeParse(req.body);
-
     if (!parsedData.success) {
       return res
         .status(400)
         .json({ error: parsedData.error.errors[0].message });
     }
 
-    // 2. Wyciągnięcie bezpiecznych i zrzutowanych danych
-    const { group_id, value } = parsedData.data;
+    // NOWOŚĆ: Wyciągamy też color_hex
+    const { group_id, value, color_hex } = parsedData.data;
 
-    const id = await Attribute.createValue(group_id, value);
-    res.status(201).json({ id, group_id, value });
+    // Przekazujemy color_hex do modelu
+    const id = await Attribute.createValue(group_id, value, color_hex || null);
+    res.status(201).json({ id, group_id, value, color_hex });
   } catch (error) {
     logError("createValue", error);
     next(error);

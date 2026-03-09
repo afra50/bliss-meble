@@ -1,26 +1,34 @@
 const pool = require("../config/db");
 
 const Attribute = {
-  // Pobiera wszystkie grupy wraz z ich wartościami (np. do formularza produktu)
   findAllGroupsWithValues: async () => {
-    const queryGroups = "SELECT * FROM attribute_groups ORDER BY name ASC";
-    const [groups] = await pool.execute(queryGroups);
+    const [groups] = await pool.execute(
+      "SELECT * FROM attribute_groups ORDER BY name ASC",
+    );
 
-    for (let group of groups) {
-      const [values] = await pool.execute(
-        "SELECT id, value FROM attribute_values WHERE group_id = ? ORDER BY value ASC",
-        [group.id],
-      );
-      group.values = values;
-    }
+    // ZMIANA: Pobieramy też color_hex z bazy
+    const [allValues] = await pool.execute(
+      "SELECT id, group_id, value, color_hex FROM attribute_values ORDER BY value ASC",
+    );
 
-    return groups;
+    const formattedGroups = groups.map((group) => {
+      return {
+        ...group,
+        values: allValues
+          .filter((v) => v.group_id === group.id)
+          // ZMIANA: Zwracamy color_hex w obiekcie
+          .map((v) => ({ id: v.id, value: v.value, color_hex: v.color_hex })),
+      };
+    });
+
+    return formattedGroups;
   },
 
-  createValue: async (groupId, value) => {
+  // ZMIANA: Dodajemy trzeci parametr (colorHex) do zapytania INSERT
+  createValue: async (groupId, value, colorHex) => {
     const [result] = await pool.execute(
-      "INSERT INTO attribute_values (group_id, value) VALUES (?, ?)",
-      [groupId, value],
+      "INSERT INTO attribute_values (group_id, value, color_hex) VALUES (?, ?, ?)",
+      [groupId, value, colorHex],
     );
     return result.insertId;
   },
