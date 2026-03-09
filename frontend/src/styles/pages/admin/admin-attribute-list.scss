@@ -68,6 +68,15 @@
     &__table-wrapper {
         @extend .admin-table-wrapper;
 
+        .th-id {
+            width: 80px;
+        }
+
+        .th-actions {
+            width: 120px;
+            text-align: right;
+        }
+
         .td-id {
             color: rgba($color-black, 0.5);
             font-size: 0.85rem;
@@ -89,6 +98,37 @@
             color: $color-black;
             font-weight: 600;
             font-size: 0.95rem;
+        }
+
+        // --- STYLE DLA KOLORÓW (Tego brakowało!) ---
+        .actions-container {
+            justify-content: flex-end;
+        }
+
+        .color-preview-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-preview-circle {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0; // Gwarantuje, że kółko się nie spłaszczy
+        }
+
+        .color-preview-label {
+            font-size: 0.85rem;
+            color: $color-black;
+        }
+
+        .color-preview-empty {
+            color: $color-black;
+            font-size: 0.85rem;
         }
     }
 

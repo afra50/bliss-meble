@@ -7,7 +7,7 @@ export const COLOR_FAMILIES = [
   { label: "Beżowy", value: "#F5F5DC" },
   { label: "Brązowy", value: "#8B4513" },
   { label: "Niebieski", value: "#2196F3" },
-  { label: "Granatowy", value: "#0F172A" },
+  { label: "Granatowy", value: "#000080" },
   { label: "Czerwony", value: "#B91C1C" },
   { label: "Różowy", value: "#E91E63" },
   { label: "Zielony", value: "#4CAF50" },
