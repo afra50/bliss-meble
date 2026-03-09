@@ -11,6 +11,7 @@ import AddToCartButton from "../components/ui/AddToCartButton";
 import ProductGallery from "../components/product/ProductGallery";
 import ProductInfo from "../components/product/ProductInfo";
 import ProductOptions from "../components/product/ProductOptions";
+import ProductReviews from "../components/product/ProductReviews";
 
 import defaultImg from "../assets/default-product.jpg";
 import "../styles/pages/product-details.scss";
@@ -162,6 +163,8 @@ const ProductDetails = () => {
             </div>
           </ProductInfo>
         </div>
+
+        <ProductReviews productId={product.id} />
       </div>
     </main>
   );

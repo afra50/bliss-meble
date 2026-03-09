@@ -6,8 +6,43 @@
     font-family: $font-heading;
     font-size: clamp(2rem, 3vw, 3rem);
     color: $color-black;
-    margin-bottom: 15px;
+    margin-bottom: 10px; // Trochę zmniejszyłem, żeby gwiazdki były bliżej tytułu
     font-weight: 400;
+  }
+
+  // --- NOWOŚĆ: GWIAZDKI I OCENA ---
+  &__rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-family: $font-body;
+
+    .stars {
+      color: #f5c518; // Klasyczny e-commerce'owy złoty kolor
+      display: flex;
+      gap: 2px;
+      font-size: 1.1rem;
+    }
+
+    .score {
+      font-weight: 700;
+      color: $color-black;
+    }
+
+    .count {
+      color: color.change($color-black, $alpha: 0.6);
+      font-size: 0.95rem;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: all 0.3s ease;
+      margin-left: 5px;
+
+      &:hover {
+        color: $color-olive;
+        border-bottom-color: color.change($color-olive, $alpha: 0.5);
+      }
+    }
   }
 
   &__price-wrapper {

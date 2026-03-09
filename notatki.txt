@@ -12,6 +12,7 @@ BACKEND + INTEGRACJA
 - jakie crony? usuwanie zamowien, order_items, shipping deatils, review tokens? produktow usunietych i ich zdjec?
 
 DLA KRZYŚKA:
+- o nas
 - kontakt
 - admin (mocki):
     * koszty wysylek
@@ -23,6 +24,12 @@ DLA KRZYŚKA:
 ===== PRODUKTY =====
 - filtry komponent? + ma dzialac
 - wydzielic na mniejsze
+- co ma sie dziac po kliknieciu "Kup teraz"?
+- recenzje bez mockow
+- wiecej gwiazdek na karcie a nie jedna?
+- sortowanie od najwyzej ocenianych?
+- komponent z gwiazdkami i iloscia opini?
+- gwiazdki w innym kolorze?
 
 ===== SZCZEGÓŁY PRODUKTU =====
 - darmowa dostawa z bazy

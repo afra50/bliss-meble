@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import Button from "./Button";
-// 1. IMPORTUJEMY DOMYŚLNY OBRAZEK
 import defaultImg from "../../assets/default-product.jpg";
-import "../../styles/components/ui/product-card.scss";
 import { formatPrice } from "../../utils/formatPrice";
+import { FaStar } from "react-icons/fa"; // NOWOŚĆ: Ikonka gwiazdki
+import "../../styles/components/ui/product-card.scss";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL.replace("/api", "")
@@ -14,12 +14,15 @@ const ProductCard = ({ product, isNew = false }) => {
     return `${BACKEND_URL}/uploads/products/${imagePath}`;
   };
 
-  // 2. LOGIKA WYBORU: Jeśli brak main_image, używamy defaultImg
   const imageUrl = product.main_image
     ? getImageUrl(product.main_image)
     : defaultImg;
 
   const productLink = `/sklep/${product.slug}`;
+
+  // TYMCZASOWE DANE DO TESTÓW (Później weźmiemy to z obiektu product, np. product.avg_rating)
+  const mockedRating = 4.3;
+  const mockedReviewsCount = 19;
 
   return (
     <article className="product-card">
@@ -30,7 +33,6 @@ const ProductCard = ({ product, isNew = false }) => {
           </div>
         )}
         <div className="product-card__img">
-          {/* 3. DODAJEMY onError DLA ZABEZPIECZENIA PRZED BŁĘDNYMI ŚCIEŻKAMI */}
           <img
             src={imageUrl}
             alt={product.name}
@@ -48,6 +50,13 @@ const ProductCard = ({ product, isNew = false }) => {
         <h4>
           <Link to={productLink}>{product.name}</Link>
         </h4>
+
+        {/* NOWOŚĆ: Gwiazdki i ocena */}
+        <div className="product-card__rating">
+          <FaStar className="star-icon" />
+          <span className="rating-score">{mockedRating}</span>
+          <span className="rating-count">({mockedReviewsCount})</span>
+        </div>
 
         <p className="product-card__price">
           od {formatPrice(product.price_brut)} zł
