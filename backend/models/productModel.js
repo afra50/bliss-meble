@@ -6,29 +6,50 @@ const Product = {
     subcategorySlug,
     categorySlug,
     isBestseller,
+    colorHex, // <--- DODAJEMY TEN PARAMETR
     isAdmin = false,
   }) => {
+    // ZMIANA: Dodajemy DISTINCT p.* i JOINY do atrybutów, aby móc filtrować po color_hex
     let query = `
-      SELECT p.id, p.name, p.short_description, p.slug, p.price_brut, p.is_bestseller, p.is_available, p.created_at,
+      SELECT DISTINCT p.id, p.name, p.short_description, p.slug, p.price_brut, p.is_bestseller, p.is_available, p.created_at,
              pi.url as main_image, s.name as subcategory_name, c.name as category_name 
       FROM products p
       LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
       LEFT JOIN subcategories s ON p.subcategory_id = s.id
       LEFT JOIN categories c ON s.category_id = c.id
+      LEFT JOIN product_attributes pa ON p.id = pa.product_id
+      LEFT JOIN attribute_values av ON pa.attribute_value_id = av.id
       WHERE p.is_deleted = 0
-    `; // Dodano p.created_at
+    `;
     const params = [];
 
     if (!isAdmin) query += " AND p.is_available = 1";
+
     if (subcategorySlug) {
       query += " AND s.slug = ?";
       params.push(subcategorySlug);
     }
+
     if (categorySlug) {
       query += " AND c.slug = ?";
       params.push(categorySlug);
     }
-    if (isBestseller) query += " AND p.is_bestseller = 1 LIMIT 3";
+
+    // NOWOŚĆ: Filtrowanie po kodzie HEX koloru
+    if (colorHex) {
+      query += " AND av.color_hex = ?";
+      params.push(colorHex);
+    }
+
+    if (isBestseller) {
+      query += " AND p.is_bestseller = 1";
+    }
+
+    // Sortowanie od najnowszych
+    query += " ORDER BY p.created_at DESC";
+
+    // Limit dla bestsellerów (opcjonalnie, zależy od UX)
+    if (isBestseller) query += " LIMIT 3";
 
     const [rows] = await pool.execute(query, params);
     return rows;

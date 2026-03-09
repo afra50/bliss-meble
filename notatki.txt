@@ -38,6 +38,11 @@ DLA KRZYŚKA:
 
 ===== ADMIN =====
 1. ATRYBUTY
+    - czy wszytkie koomponenty moje uzyte?
+    - wydzielic modal osobno
+    - style inline wywalic
+    - wydzielic kolory do pliku
+
 
 2. PRODUKTY
-- nie da sie wklejac do tytulu tekstu (gdzies jeszcze?)
+    - nie da sie wklejac do tytulu tekstu (gdzies jeszcze?)

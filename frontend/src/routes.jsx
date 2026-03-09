@@ -15,7 +15,7 @@ import LoginPage from "./pages/admin/Login";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminProductsList from "./pages/admin/AdminProductList";
-// import AdminOrders from "./components/admin/AdminOrders";
+import AdminAttributeList from "./pages/admin/AdminAttributeList";
 
 // Import ochrony
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -50,7 +50,7 @@ const routes = [
     children: [
       { index: true, element: <AdminDashboard /> },
       { path: "produkty", element: <AdminProductsList /> },
-      //   { path: "zamowienia", element: <AdminOrders /> },
+      { path: "atrybuty", element: <AdminAttributeList /> },
       { path: "*", element: <NotFound /> },
     ],
   },

@@ -53,10 +53,13 @@ const logError = (method, error) => {
 
 exports.getProducts = async (req, res, next) => {
   try {
-    const { subcategory, category } = req.query;
+    // Wyciągamy 'color' z query params (?color=#FFFFFF)
+    const { subcategory, category, color } = req.query;
+
     const products = await Product.findAll({
       subcategorySlug: subcategory,
       categorySlug: category,
+      colorHex: color, // <--- PRZEKAZUJEMY DO MODELU
       isAdmin: false,
     });
     res.json(products);
