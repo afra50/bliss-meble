@@ -84,15 +84,29 @@ const AdminProductModal = ({
             }
           }
 
-          if (p.images) setExistingImages(p.images);
-
+          // 1. Najpierw pobieramy atrybuty
+          let loadedAttributes = [];
           if (p.attributes) {
-            setSelectedAttributes(
-              p.attributes.map((attr) => ({
-                id: attr.value_id,
-                price: attr.price_modifier,
-              })),
-            );
+            loadedAttributes = p.attributes.map((attr) => ({
+              id: attr.value_id,
+              price: attr.price_modifier,
+            }));
+            setSelectedAttributes(loadedAttributes);
+          }
+
+          // 2. Następnie pobieramy zdjęcia, sprawdzając czy nie mają "osieroconych" kolorów
+          if (p.images) {
+            const validAttrIds = loadedAttributes.map((a) => a.id);
+            const cleanedImages = p.images.map((img) => {
+              if (
+                img.attribute_value_id &&
+                !validAttrIds.includes(img.attribute_value_id)
+              ) {
+                return { ...img, attribute_value_id: null };
+              }
+              return img;
+            });
+            setExistingImages(cleanedImages);
           }
         } else {
           setFormData({
@@ -117,7 +131,9 @@ const AdminProductModal = ({
     initData();
   }, [isOpen, isEditMode, productToEdit]);
 
-  // --- FUNKCJE DLA IMAGE UPLOAD ZONE (Z LOGIKĄ MINIATUR) ---
+  // --- FUNKCJE DLA IMAGE UPLOAD ZONE ---
+  const MAX_IMAGES = 10; // Globalny limit ilości zdjęć dla produktu
+
   const handleSetMainImage = (type, identifier) => {
     setExistingImages((prev) =>
       prev.map((img) => ({
@@ -135,15 +151,30 @@ const AdminProductModal = ({
   };
 
   const handleFilesSelected = (files) => {
+    const currentActive =
+      existingImages.filter((img) => !img.isDeleted).length + newFiles.length;
+
+    // Zabezpieczenie przed przepchnięciem za dużej liczby plików naraz
+    if (currentActive + files.length > MAX_IMAGES) {
+      showToast(`Możesz dodać maksymalnie ${MAX_IMAGES} zdjęć!`, "error");
+      return;
+    }
+
     const isFirstUpload =
       existingImages.filter((img) => !img.isDeleted).length === 0 &&
       newFiles.length === 0;
+
     if (isFirstUpload && files.length > 0) {
       Object.assign(files[0], { is_main: 1 });
     } else {
       files.forEach((f) => Object.assign(f, { is_main: 0 }));
     }
     setNewFiles((prev) => [...prev, ...files]);
+  };
+
+  // NOWOŚĆ: Funkcja odbierająca błędy z Dropzone'a (np. plik > 5MB)
+  const handleFilesRejected = (errorMessage) => {
+    showToast(errorMessage, "error");
   };
 
   const handleNewFileRemove = (fileToRemove) => {
@@ -237,10 +268,19 @@ const AdminProductModal = ({
       value = value.replace(/^0+(?=\d)/, "");
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    setFormData((prev) => {
+      const updatedData = {
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      };
+
+      // NOWOŚĆ: Automatyczne odznaczanie bestsellera, gdy wyłączamy dostępność
+      if (name === "is_available" && !checked) {
+        updatedData.is_bestseller = false;
+      }
+
+      return updatedData;
+    });
   };
 
   const handleAttributeChange = (attrId, isChecked, priceModifier = "") => {
@@ -251,6 +291,24 @@ const AdminProductModal = ({
       ]);
     } else {
       setSelectedAttributes((prev) => prev.filter((a) => a.id !== attrId));
+
+      // NOWOŚĆ: Automatycznie czyści przypisany kolor ze wszystkich zdjęć (starych i nowych)
+      setExistingImages((prev) =>
+        prev.map((img) =>
+          img.attribute_value_id === attrId
+            ? { ...img, attribute_value_id: null }
+            : img,
+        ),
+      );
+
+      setNewFiles((prev) =>
+        prev.map((file) => {
+          if (file.attribute_value_id === attrId) {
+            return Object.assign(file, { attribute_value_id: null });
+          }
+          return file;
+        }),
+      );
     }
   };
 
@@ -317,7 +375,6 @@ const AdminProductModal = ({
         JSON.stringify(remainingExistingImages),
       );
 
-      // ZMIANA: Wysyłamy jako obiekty (kolor ORAZ czy jest miniaturą)
       const newImageAttributes = newFiles.map((file) => ({
         attribute_value_id: file.attribute_value_id || null,
         is_main: file.is_main === 1 || file.is_main === true ? 1 : 0,
@@ -408,6 +465,7 @@ const AdminProductModal = ({
               onSubmit={handleSubmit}
             >
               <div className="admin-modal__body">
+                {/* ... (sekcje formularza bez zmian) ... */}
                 <div className="form-section">
                   <h3>Podstawowe Informacje</h3>
                   <div className="form-group">
@@ -416,6 +474,8 @@ const AdminProductModal = ({
                     </label>
                     <input
                       required
+                      minLength={2} // <--- DODANO
+                      maxLength={150} // <--- DODANO
                       className="form-group__input"
                       name="name"
                       value={formData.name}
@@ -460,7 +520,7 @@ const AdminProductModal = ({
                         onChange={(val) =>
                           setFormData((prev) => ({
                             ...prev,
-                            subcategory_id: val,
+                            subcategory_id: val ? val.value : "", // <--- ZMIANA: Wyciągamy samą liczbę (ID)
                           }))
                         }
                       />
@@ -491,6 +551,7 @@ const AdminProductModal = ({
                     </label>
                     <textarea
                       required
+                      maxLength={255}
                       className="form-group__input"
                       name="short_description"
                       rows="2"
@@ -516,13 +577,15 @@ const AdminProductModal = ({
                   <ImageUploadZone
                     existingImages={existingImages}
                     newFiles={newFiles}
+                    maxFiles={MAX_IMAGES} // <--- PRZEKAZUJEMY LIMIT ZMIENNEJ
                     onFilesSelected={handleFilesSelected}
+                    onFilesRejected={handleFilesRejected} // <--- ODBIERAMY BŁĘDY
                     onExistingImageRemove={handleExistingImageRemove}
                     onRestoreExistingImage={handleRestoreExistingImage}
                     onNewFileRemove={handleNewFileRemove}
                     backendUrl={BACKEND_URL}
                     colorOptions={colorOptions}
-                    onSetMainImage={handleSetMainImage} // <--- PRZEKAZUJEMY FUNKCJĘ
+                    onSetMainImage={handleSetMainImage}
                     onNewFileAttributeChange={handleNewFileAttributeChange}
                     onExistingFileAttributeChange={
                       handleExistingFileAttributeChange
@@ -621,8 +684,22 @@ const AdminProductModal = ({
                       name="is_bestseller"
                       checked={formData.is_bestseller}
                       onChange={handleInputChange}
+                      disabled={!formData.is_available}
+                      style={{
+                        cursor: !formData.is_available
+                          ? "not-allowed"
+                          : "pointer",
+                      }}
                     />
-                    <label htmlFor="is_bestseller">
+                    <label
+                      htmlFor="is_bestseller"
+                      style={{
+                        opacity: formData.is_available ? 1 : 0.5,
+                        cursor: !formData.is_available
+                          ? "not-allowed"
+                          : "pointer",
+                      }}
+                    >
                       Oznacz jako Bestseller (Limit: 3)
                     </label>
                   </div>

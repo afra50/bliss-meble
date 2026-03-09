@@ -30,7 +30,7 @@ DLA KRZYŚKA:
 - dodawanie do koszyka
 
 ===== ADMIN =====
-1. PRODUKTY
-    - dodawanie/edycja produktu:
-        * maks ilosc zdjec, walidacje
-        * testy
+1. ATRYBUTY
+
+2. PRODUKTY
+- nie da sie wklejac do tytulu tekstu (gdzies jeszcze?)
