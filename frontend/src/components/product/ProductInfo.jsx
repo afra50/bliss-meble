@@ -1,11 +1,31 @@
 import { formatPrice } from "../../utils/formatPrice";
-import { FaTruck, FaShieldAlt } from "react-icons/fa";
+import { FaTruck, FaShieldAlt, FaStar, FaStarHalfAlt } from "react-icons/fa"; // DODAŁEM GWIAZDKI
 import "../../styles/components/product/product-info.scss";
 
 const ProductInfo = ({ product, finalPrice, children }) => {
+  // TYMCZASOWE DANE DO TESTÓW
+  const mockedRating = 4.8;
+  const mockedReviewsCount = 12;
+
   return (
     <section className="product-info">
       <h1 className="product-info__title">{product.name}</h1>
+
+      {/* NOWOŚĆ: Sekcja ocen pod tytułem */}
+      <div className="product-info__rating">
+        <div className="stars">
+          <FaStar />
+          <FaStar />
+          <FaStar />
+          <FaStar />
+          <FaStarHalfAlt />
+        </div>
+        <span className="score">{mockedRating}</span>
+        {/* Link, który w przyszłości przewinie stronę do sekcji #opinie */}
+        <a href="#opinie" className="count">
+          Czytaj opinie ({mockedReviewsCount})
+        </a>
+      </div>
 
       <div className="product-info__price-wrapper">
         <p className="product-info__price" key={finalPrice}>
