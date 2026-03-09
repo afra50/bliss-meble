@@ -1,0 +1,55 @@
+@use "../../variables" as *;
+@use "sass:color";
+
+.product-options {
+  margin-bottom: 30px;
+
+  &__title {
+    font-family: $font-body;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: $color-black;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+
+  &__group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    .option-btn {
+      background-color: $color-white;
+      border: 1px solid color.change($color-slate, $alpha: 0.3);
+      padding: 10px 20px;
+      font-family: $font-body;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: $color-black;
+
+      .modifier {
+        display: block;
+        font-size: 0.75rem;
+        color: color.change($color-black, $alpha: 0.5);
+        margin-top: 4px;
+      }
+
+      &:hover {
+        border-color: $color-slate;
+        background-color: color.change($color-slate, $alpha: 0.05);
+      }
+
+      &.active {
+        border-color: $color-olive;
+        background-color: $color-olive;
+        color: $color-white;
+
+        .modifier {
+          color: color.change($color-white, $alpha: 0.8);
+        }
+      }
+    }
+  }
+}
