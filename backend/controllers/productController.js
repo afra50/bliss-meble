@@ -214,10 +214,13 @@ exports.createProduct = async (req, res, next) => {
       }
     }
 
+    // 5. Atrybuty
     if (attributes && attributes !== "undefined") {
       const parsedAttrs = JSON.parse(attributes);
       for (const attr of parsedAttrs) {
-        await Product.addAttribute(connection, productId, attr.id, attr.price);
+        // ZMIANA: Zabezpieczenie przed pustym stringiem
+        const finalPrice = attr.price ? parseFloat(attr.price) : 0;
+        await Product.addAttribute(connection, productId, attr.id, finalPrice);
       }
     }
 
@@ -340,7 +343,9 @@ exports.updateProduct = async (req, res, next) => {
       await Product.clearAttributes(connection, id);
       const parsedAttrs = JSON.parse(attributes);
       for (const attr of parsedAttrs) {
-        await Product.addAttribute(connection, id, attr.id, attr.price);
+        // ZMIANA: Zabezpieczenie przed pustym stringiem
+        const finalPrice = attr.price ? parseFloat(attr.price) : 0;
+        await Product.addAttribute(connection, id, attr.id, finalPrice);
       }
     }
 
