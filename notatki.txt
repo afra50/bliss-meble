@@ -30,4 +30,7 @@ DLA KRZYŚKA:
 - wydzielic na mniejsze komponenty - galeria, dodaj do koszyka, ilosc, kolory itp?
 
 ===== ADMIN =====
+1. ATRYBUTY
 
+2. PRODUKTY
+- nie da sie wklejac do tytulu tekstu (gdzies jeszcze?)

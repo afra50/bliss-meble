@@ -520,7 +520,7 @@ const AdminProductModal = ({
                         onChange={(val) =>
                           setFormData((prev) => ({
                             ...prev,
-                            subcategory_id: val,
+                            subcategory_id: val ? val.value : "", // <--- ZMIANA: Wyciągamy samą liczbę (ID)
                           }))
                         }
                       />
