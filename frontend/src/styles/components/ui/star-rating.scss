@@ -1,0 +1,64 @@
+@use "../../variables" as *;
+@use "sass:color";
+
+.star-rating {
+  display: flex;
+  align-items: center;
+  font-family: $font-body;
+
+  .star-icon {
+    color: $color-star;
+    &.empty {
+      color: color.change($color-slate, $alpha: 0.2);
+    }
+  }
+
+  // --- WARIANT: MAŁY (1 gwiazdka) ---
+  &--small {
+    gap: 6px;
+    font-size: 0.9rem;
+    justify-content: center;
+    margin-bottom: 8px;
+
+    .rating-score {
+      font-weight: 600;
+      color: $color-black;
+    }
+
+    .rating-count {
+      color: color.change($color-black, $alpha: 0.5);
+      font-size: 0.85rem;
+    }
+
+    &.star-rating--empty {
+      opacity: 0.5;
+      .star-icon {
+        color: color.change($color-slate, $alpha: 0.4);
+      }
+    }
+  }
+
+  // --- WARIANT: ŚREDNI I DUŻY (5 gwiazdek) ---
+  &--medium,
+  &--large {
+    .stars-wrapper {
+      display: flex;
+      gap: 3px;
+    }
+  }
+
+  &--medium {
+    font-size: 1.1rem;
+  }
+
+  &--large {
+    font-size: 1.4rem;
+    justify-content: center;
+    gap: 15px;
+
+    .rating-score-text {
+      font-size: 1rem;
+      color: color.change($color-black, $alpha: 0.7);
+    }
+  }
+}

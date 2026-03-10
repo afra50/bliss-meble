@@ -1,70 +1,91 @@
 import { useState, useEffect, useMemo } from "react";
-import {
-  useParams,
-  Link,
-  useLocation,
-  useSearchParams,
-} from "react-router-dom";
+import { useParams, useLocation, useSearchParams } from "react-router-dom";
+
+// Komponenty układu
+import ShopHeader from "../components/shop/ShopHeader";
+import ShopSidebar from "../components/shop/ShopSidebar";
 import ProductCard from "../components/ui/ProductCard";
 import NotFound from "./NotFound";
 import Loader from "../components/ui/Loader";
 import ErrorState from "../components/ui/ErrorState";
-import Breadcrumbs from "../components/ui/Breadcrumbs";
 import SortSelect from "../components/ui/SortSelect";
 import Pagination from "../components/ui/Pagination";
+
+// Utils
 import { productApi } from "../utils/api";
 import { getPluralProductForm } from "../utils/grammar";
-import "../styles/pages/products.scss";
-
-// NOWOŚĆ: Importujemy scentralizowane dane kategorii
 import { CATEGORIES, SUBCATEGORIES } from "../utils/categories";
+import "../styles/pages/products.scss";
 
 const ITEMS_PER_PAGE = 9;
 
+// Definicja przedziałów cenowych
+export const PRICE_RANGES = [
+  { id: "under1000", label: "Poniżej 1000 zł", min: 0, max: 999.99 },
+  { id: "1000-3000", label: "1000 zł - 3000 zł", min: 1000, max: 3000 },
+  { id: "over3000", label: "Powyżej 3000 zł", min: 3000.01, max: Infinity },
+];
+
 const Products = () => {
-  // Odczyt parametrów z URL (już zdekodowanych automatycznie przez react-router)
   const { category, subcategory } = useParams();
   const location = useLocation();
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get("q") || "";
+  const colorQuery = searchParams.get("color") || "";
+  const pricesQuery = searchParams.get("prices") || "";
+
+  const activePriceRanges = useMemo(() => {
+    return pricesQuery ? pricesQuery.split(",") : [];
+  }, [pricesQuery]);
 
   const isAllProducts = location.pathname === "/sklep";
   const isSearch = location.pathname === "/szukaj";
 
+  // Weryfikacja kategorii URL z naszymi stałymi (ochrona przed błędem 404)
+  const currentCategoryObj = CATEGORIES.find((c) => c.slug === category);
+  const currentSubcategoryObj = SUBCATEGORIES.find(
+    (s) => s.slug === subcategory,
+  );
+  const isInvalidUrl =
+    (!isAllProducts && !isSearch && category && !currentCategoryObj) ||
+    (subcategory &&
+      (!currentSubcategoryObj ||
+        currentSubcategoryObj.category_id !== currentCategoryObj?.id));
+
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // ZMIANA: Stan inicjalny to "newest"
   const [sortOption, setSortOption] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
-
-  const isProductNew = (createdAt) => {
-    if (!createdAt) return false;
-    const addedDate = new Date(createdAt);
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    return addedDate >= thirtyDaysAgo;
-  };
 
   const fetchProducts = async () => {
     setIsLoading(true);
     setError(null);
     try {
       let response;
-
       if (isSearch && searchQuery) {
         response = await productApi.search(searchQuery);
       } else {
         const params = {};
         if (category) params.category = category;
         if (subcategory) params.subcategory = subcategory;
+        if (colorQuery) params.color = colorQuery;
+        if (pricesQuery) params.prices = pricesQuery;
         response = await productApi.getAll(params);
       }
-      setProducts(response.data);
+
+      // Mockowanie ocen do momentu gotowego backendu
+      const dataWithMockReviews = response.data.map((prod) => {
+        return {
+          ...prod,
+          mockRating: (3.5 + ((prod.id * 17) % 15) / 10).toFixed(1),
+          mockReviewsCount: (prod.id * 11) % 45,
+        };
+      });
+
+      setProducts(dataWithMockReviews);
     } catch (err) {
-      console.error("Błąd pobierania:", err);
       setError("Wystąpił błąd podczas ładowania produktów.");
     } finally {
       setIsLoading(false);
@@ -72,43 +93,48 @@ const Products = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
-    // ZMIANA: Zawsze resetuj do "newest"
-    setSortOption("newest");
-    setCurrentPage(1);
-  }, [category, subcategory, isSearch, searchQuery]);
-
-  const sortedProducts = useMemo(() => {
-    let sorted = [...products];
-    switch (sortOption) {
-      case "price_asc":
-        sorted.sort((a, b) => Number(a.price_brut) - Number(b.price_brut));
-        break;
-      case "price_desc":
-        sorted.sort((a, b) => Number(b.price_brut) - Number(a.price_brut));
-        break;
-      case "newest":
-        // Od najwyższego (najnowszego) ID do najniższego
-        sorted.sort((a, b) => b.id - a.id);
-        break;
-      case "oldest":
-        // NOWE: Od najniższego (najstarszego) ID do najwyższego
-        sorted.sort((a, b) => a.id - b.id);
-        break;
-      default:
-        // Zabezpieczenie (wpadnie tu jeśli z jakiegoś powodu będzie 'newest')
-        sorted.sort((a, b) => b.id - a.id);
-        break;
+    if (!isInvalidUrl) {
+      fetchProducts();
+      setSortOption("newest");
+      setCurrentPage(1);
     }
-    return sorted;
-  }, [products, sortOption]);
+  }, [
+    category,
+    subcategory,
+    isSearch,
+    searchQuery,
+    colorQuery,
+    pricesQuery,
+    isInvalidUrl,
+  ]);
 
-  const currentProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return sortedProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [sortedProducts, currentPage]);
+  // --- FUNKCJE OBSŁUGI ZDARZEŃ (SIDEBAR I NARZĘDZIA) ---
 
-  const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
+  const handleColorChange = (hexValue) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (colorQuery === hexValue) newParams.delete("color");
+    else newParams.set("color", hexValue);
+    setSearchParams(newParams);
+    setCurrentPage(1);
+  };
+
+  const handlePriceToggle = (rangeId) => {
+    const newParams = new URLSearchParams(searchParams);
+    let updatedRanges = [...activePriceRanges];
+
+    if (updatedRanges.includes(rangeId)) {
+      updatedRanges = updatedRanges.filter((id) => id !== rangeId);
+    } else {
+      updatedRanges.push(rangeId);
+    }
+
+    if (updatedRanges.length > 0)
+      newParams.set("prices", updatedRanges.join(","));
+    else newParams.delete("prices");
+
+    setSearchParams(newParams);
+    setCurrentPage(1);
+  };
 
   const handleSortChange = (selectedOption) => {
     setSortOption(selectedOption.value);
@@ -120,198 +146,81 @@ const Products = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // --- ZMIANA: Dynamiczna Walidacja Kategorii ---
-  // Sprawdzamy czy wpisany w URL /kategoria/podkategoria faktycznie istnieje
-  const currentCategoryObj = CATEGORIES.find((c) => c.slug === category);
-  const currentSubcategoryObj = SUBCATEGORIES.find(
-    (s) => s.slug === subcategory,
-  );
+  // --- LOGIKA FILTROWANIA I SORTOWANIA ---
 
-  if (!isAllProducts && !isSearch && category) {
-    if (!currentCategoryObj) {
-      return <NotFound />;
-    }
-    if (
-      subcategory &&
-      (!currentSubcategoryObj ||
-        currentSubcategoryObj.category_id !== currentCategoryObj.id)
-    ) {
-      return <NotFound />;
-    }
-  }
+  const filteredProducts = useMemo(() => {
+    if (activePriceRanges.length === 0) return products;
+    return products.filter((p) => {
+      const price = Number(p.price_brut);
+      return activePriceRanges.some((rangeId) => {
+        const rangeDef = PRICE_RANGES.find((r) => r.id === rangeId);
+        return rangeDef && price >= rangeDef.min && price <= rangeDef.max;
+      });
+    });
+  }, [products, activePriceRanges]);
 
-  // --- ZMIANA: Tytuł na podstawie naszych danych z utils ---
-  let pageTitle = "Wszystkie produkty";
-  if (isSearch) {
-    pageTitle = searchQuery
-      ? `Wyniki dla "${searchQuery}"`
-      : "Wyniki wyszukiwania";
-  } else if (subcategory) {
-    pageTitle = currentSubcategoryObj?.name;
-  } else if (category) {
-    pageTitle = currentCategoryObj?.name;
-  }
-
-  // --- ZMIANA: Breadcrumbs na podstawie naszych danych z utils ---
-  const buildBreadcrumbPaths = () => {
-    const paths = [];
-    if (isSearch) {
-      paths.push({ label: "Szukaj" });
-    } else if (isAllProducts) {
-      paths.push({ label: "Sklep" });
-    } else {
-      paths.push({ label: "Sklep", to: "/sklep" });
-      if (category && currentCategoryObj) {
-        paths.push({
-          label: currentCategoryObj.name,
-          to: subcategory ? `/${currentCategoryObj.slug}` : null,
-        });
-      }
-      if (subcategory && currentSubcategoryObj) {
-        paths.push({ label: currentSubcategoryObj.name });
-      }
+  const sortedProducts = useMemo(() => {
+    let sorted = [...filteredProducts];
+    switch (sortOption) {
+      case "price_asc":
+        return sorted.sort(
+          (a, b) => Number(a.price_brut) - Number(b.price_brut),
+        );
+      case "price_desc":
+        return sorted.sort(
+          (a, b) => Number(b.price_brut) - Number(a.price_brut),
+        );
+      case "rating_desc":
+        return sorted.sort(
+          (a, b) => Number(b.mockRating) - Number(a.mockRating),
+        );
+      case "newest":
+        return sorted.sort((a, b) => b.id - a.id);
+      case "oldest":
+        return sorted.sort((a, b) => a.id - b.id);
+      default:
+        return sorted.sort((a, b) => b.id - a.id);
     }
-    return paths;
-  };
+  }, [filteredProducts, sortOption]);
+
+  const currentProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return sortedProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [sortedProducts, currentPage]);
+
+  const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
+
+  // Wczesne wyjście w przypadku błędnego adresu url
+  if (isInvalidUrl) return <NotFound />;
+
+  // --- GŁÓWNY RENDER KONTROLERA ---
 
   return (
     <main className="products-page">
-      <section className="products-page__header">
-        <div className="products-page__container">
-          <Breadcrumbs paths={buildBreadcrumbPaths()} theme="light" />
-          <h1 className="products-page__title">{pageTitle}</h1>
-        </div>
-      </section>
+      <ShopHeader
+        isSearch={isSearch}
+        isAllProducts={isAllProducts}
+        searchQuery={searchQuery}
+        category={category}
+        subcategory={subcategory}
+      />
 
       <section className="products-page__content">
         <div className="products-page__container products-page__layout">
-          <aside className="products-page__sidebar">
-            <div className="filter-group">
-              <h3>Kategorie</h3>
-
-              {/* ZMIANA: DYNAMICZNIE RENDEROWANY AKORDION KATEGORII */}
-              <div className="filter-accordion">
-                {CATEGORIES.map((cat) => {
-                  // Szukamy podkategorii przypisanych do tej konkretnej kategorii głównej
-                  const catSubcategories = SUBCATEGORIES.filter(
-                    (sub) => sub.category_id === cat.id,
-                  );
-
-                  // Jeśli kategoria (np. "Zestawy") nie ma podkategorii, wyświetlamy zwykły link
-                  if (catSubcategories.length === 0) {
-                    return (
-                      <div key={cat.id} className="filter-accordion-item">
-                        <Link
-                          to={`/${cat.slug}`}
-                          className="filter-accordion-link"
-                        >
-                          {cat.name}
-                        </Link>
-                      </div>
-                    );
-                  }
-
-                  // Jeśli kategoria ma podkategorie, wyświetlamy rozwijany details (akordion)
-                  return (
-                    <details
-                      key={cat.id}
-                      className="filter-accordion-item"
-                      // Akordion będzie domyślnie rozwinięty, jeśli pasuje do aktualnego URL
-                      open={category === cat.slug}
-                    >
-                      <summary>{cat.name}</summary>
-                      <ul>
-                        <li className="view-all">
-                          <Link to={`/${cat.slug}`}>Pokaż wszystko</Link>
-                        </li>
-                        {catSubcategories.map((sub) => (
-                          <li key={sub.id}>
-                            {/* Tworzymy prawidłowy ścieżkę: /kategoria-glowna/podkategoria */}
-                            <Link to={`/${cat.slug}/${sub.slug}`}>
-                              {sub.name}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </details>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Reszta filtrów (Cena, Materiał, Kolor) pozostaje na razie statyczna */}
-            <div className="filter-group">
-              <h3>Filtruj</h3>
-
-              <div className="filter-subgroup">
-                <h4>Cena</h4>
-                <div className="custom-checkbox">
-                  <input type="checkbox" id="price1" />
-                  <label htmlFor="price1">Poniżej 1000 zł</label>
-                </div>
-                <div className="custom-checkbox">
-                  <input type="checkbox" id="price2" />
-                  <label htmlFor="price2">1000 zł - 3000 zł</label>
-                </div>
-                <div className="custom-checkbox">
-                  <input type="checkbox" id="price3" />
-                  <label htmlFor="price3">Powyżej 3000 zł</label>
-                </div>
-              </div>
-
-              <div className="filter-subgroup">
-                <h4>Materiał</h4>
-                <div className="custom-checkbox">
-                  <input type="checkbox" id="mat1" />
-                  <label htmlFor="mat1">Welur</label>
-                </div>
-                <div className="custom-checkbox">
-                  <input type="checkbox" id="mat2" />
-                  <label htmlFor="mat2">Boucle</label>
-                </div>
-                <div className="custom-checkbox">
-                  <input type="checkbox" id="mat3" />
-                  <label htmlFor="mat3">Tkanina strukturalna</label>
-                </div>
-              </div>
-
-              <div className="filter-subgroup">
-                <h4>Kolor</h4>
-                <div className="color-swatches">
-                  <button
-                    className="color-swatch color-swatch--beige"
-                    title="Beżowy"
-                  ></button>
-                  <button
-                    className="color-swatch color-swatch--brown"
-                    title="Brązowy"
-                  ></button>
-                  <button
-                    className="color-swatch color-swatch--slate"
-                    title="Zgaszony błękit"
-                  ></button>
-                  <button
-                    className="color-swatch color-swatch--olive"
-                    title="Oliwkowy"
-                  ></button>
-                  <button
-                    className="color-swatch color-swatch--grey"
-                    title="Szary"
-                  ></button>
-                  <button
-                    className="color-swatch color-swatch--black"
-                    title="Czarny"
-                  ></button>
-                </div>
-              </div>
-            </div>
-          </aside>
+          <ShopSidebar
+            currentCategorySlug={category}
+            colorQuery={colorQuery}
+            activePriceRanges={activePriceRanges}
+            priceRanges={PRICE_RANGES}
+            onColorChange={handleColorChange}
+            onPriceToggle={handlePriceToggle}
+          />
 
           <div className="products-page__main">
             <div className="products-page__toolbar">
               <span className="products-count">
-                Pokazano {products.length}{" "}
-                {getPluralProductForm(products.length)}
+                Pokazano {filteredProducts.length}{" "}
+                {getPluralProductForm(filteredProducts.length)}
               </span>
               <SortSelect value={sortOption} onChange={handleSortChange} />
             </div>
@@ -326,13 +235,20 @@ const Products = () => {
                   <ErrorState message={error} onRetry={fetchProducts} />
                 </div>
               ) : currentProducts.length > 0 ? (
-                currentProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    isNew={isProductNew(product.created_at)}
-                  />
-                ))
+                currentProducts.map((product) => {
+                  const isNew =
+                    product.created_at &&
+                    (new Date() - new Date(product.created_at)) /
+                      (1000 * 60 * 60 * 24 * 30) <=
+                      1; // szybkie sprawdzenie na "nowość" (30dni)
+                  return (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      isNew={isNew}
+                    />
+                  );
+                })
               ) : (
                 <p className="products-page__empty">
                   Brak produktów spełniających kryteria.

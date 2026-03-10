@@ -8,6 +8,7 @@ import AdminAddButton from "../../components/admin/AdminAddButton";
 import AdminDeleteButton from "../../components/admin/AdminDeleteButton";
 import Pagination from "../../components/ui/Pagination";
 import SortSelect from "../../components/ui/SortSelect";
+import { adminSortOptions } from "../../utils/sortOptions";
 import CustomSelect from "../../components/ui/CustomSelect";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import ToastAlert from "../../components/ui/ToastAlert";
@@ -19,13 +20,6 @@ import "../../styles/pages/admin/admin-attribute-list.scss";
 const BACKEND_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL.replace("/api", "")
   : "http://localhost:5000";
-
-const sortOptions = [
-  { value: "alpha_asc", label: "Alfabetycznie (A-Z)" },
-  { value: "alpha_desc", label: "Alfabetycznie (Z-A)" },
-  { value: "newest", label: "Od najnowszych (ID)" },
-  { value: "oldest", label: "Od najstarszych (ID)" },
-];
 
 const AdminAttributeList = () => {
   const [rawGroups, setRawGroups] = useState([]);
@@ -222,7 +216,7 @@ const AdminAttributeList = () => {
             onChange={(val) => setSelectedGroupFilter(val)}
           />
           <SortSelect
-            options={sortOptions}
+            options={adminSortOptions}
             value={sortOption}
             onChange={(selected) => setSortOption(selected.value)}
           />

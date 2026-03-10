@@ -20,6 +20,34 @@ const BACKEND_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL.replace("/api", "")
   : "http://localhost:5000";
 
+// TYMCZASOWE DANE (Mockup) - później to zniknie, a dane przyjdą z backendu (np. w product.reviews)
+const MOCK_REVIEWS = [
+  {
+    id: 1,
+    author: "Katarzyna W.",
+    date: "12 Marzec 2026",
+    rating: 5,
+    content:
+      "Łóżko jest przepiękne i bardzo solidnie wykonane. Materiał (welur) w rzeczywistości wygląda jeszcze lepiej niż na zdjęciach. Zdecydowanie polecam ten sklep!",
+  },
+  {
+    id: 2,
+    author: "Michał P.",
+    date: "05 Luty 2026",
+    rating: 4,
+    content:
+      "Bardzo wygodny materac. Jedyna uwaga to czas dostawy, który wydłużył się o 2 dni, ale kontakt ze sklepem był wzorowy. Sam produkt bez zarzutu.",
+  },
+  {
+    id: 3,
+    author: "Anna K.",
+    date: "28 Styczeń 2026",
+    rating: 5,
+    content:
+      "Świetny stosunek jakości do ceny. Montaż był całkiem prosty, a łóżko nie skrzypi i jest bardzo stabilne.",
+  },
+];
+
 const ProductDetails = () => {
   const { slug } = useParams();
 
@@ -109,6 +137,41 @@ const ProductDetails = () => {
     return price * quantity;
   }, [product, selectedSize, selectedFabric, quantity]);
 
+  // ==========================================
+  // NOWOŚĆ: LOGIKA OBLICZANIA OPINII
+  // ==========================================
+  const reviewsData = useMemo(() => {
+    // Kiedy będzie API, zamienisz MOCK_REVIEWS na product?.reviews || []
+    const reviews = MOCK_REVIEWS;
+    const totalReviews = reviews.length;
+
+    if (totalReviews === 0) {
+      return {
+        average: 0,
+        total: 0,
+        distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
+        list: [],
+      };
+    }
+
+    const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    let sum = 0;
+
+    reviews.forEach((r) => {
+      distribution[r.rating] += 1;
+      sum += r.rating;
+    });
+
+    const average = (sum / totalReviews).toFixed(1);
+
+    return {
+      average: Number(average),
+      total: totalReviews,
+      distribution,
+      list: reviews,
+    };
+  }, [product]);
+
   if (isLoading)
     return <Loader fullPage message="Trwa ładowanie produktu..." />;
   if (error || !product) return <NotFound />;
@@ -135,7 +198,13 @@ const ProductDetails = () => {
             getImageUrl={getImageUrl}
           />
 
-          <ProductInfo product={product} finalPrice={finalPrice}>
+          {/* NOWOŚĆ: Przekazujemy rating i reviewsCount w dół do ProductInfo */}
+          <ProductInfo
+            product={product}
+            finalPrice={finalPrice}
+            rating={reviewsData.average}
+            reviewsCount={reviewsData.total}
+          >
             <ProductOptions
               sizes={sizes}
               fabrics={fabrics}
@@ -164,7 +233,13 @@ const ProductDetails = () => {
           </ProductInfo>
         </div>
 
-        <ProductReviews productId={product.id} />
+        {/* NOWOŚĆ: Przekazujemy skompletowany pakiet opinii w dół do sekcji Reviews */}
+        <ProductReviews
+          reviews={reviewsData.list}
+          averageRating={reviewsData.average}
+          totalReviews={reviewsData.total}
+          ratingDistribution={reviewsData.distribution}
+        />
       </div>
     </main>
   );
