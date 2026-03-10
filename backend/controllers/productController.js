@@ -7,43 +7,78 @@ const fs = require("fs");
 const { z } = require("zod");
 
 // Schemat walidacji dla produktu
-const productSchema = z.object({
-  name: z
-    .string()
-    .min(2, "Nazwa musi mieć co najmniej 2 znaki.")
-    .max(150, "Nazwa jest za długa."),
-  short_description: z.string().min(1, "Krótki opis jest wymagany."),
-  description: z.string().min(1, "Pełny opis jest wymagany."),
+const productSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2, "Nazwa musi mieć co najmniej 2 znaki.")
+      .max(150, "Nazwa jest za długa."),
+    short_description: z.string().min(1, "Krótki opis jest wymagany."),
+    description: z.string().min(1, "Pełny opis jest wymagany."),
 
-  // Zod automatycznie zamieni string "1200.50" na liczbę
-  price_brut: z.coerce
-    .number({ invalid_type_error: "Cena musi być poprawną liczbą." })
-    .min(0, "Cena nie może być ujemna."),
+    price_brut: z.coerce
+      .number({ invalid_type_error: "Cena musi być poprawną liczbą." })
+      .min(0, "Cena nie może być ujemna."),
 
-  // Jeśli kategoria jest pusta (""), zamień na null, w przeciwnym razie na liczbę
-  subcategory_id: z
-    .string()
-    .optional()
-    .transform((val) => (val ? Number(val) : null)),
+    // NOWE POLA: Zamieniamy puste stringi z formularza na czysty null
+    promotional_price: z
+      .any()
+      .transform((val) =>
+        val === "" || val === "null" || val == null ? null : Number(val),
+      ),
+    lowest_price_30_days: z
+      .any()
+      .transform((val) =>
+        val === "" || val === "null" || val == null ? null : Number(val),
+      ),
 
-  // FormData wysyła booleany jako stringi "true"/"false". Zod od razu zamieni je nam na 1 i 0 do bazy!
-  is_available: z
-    .any()
-    .transform((val) =>
-      val === "true" || val === "1" || val === 1 || val === true ? 1 : 0,
-    ),
-  is_bestseller: z
-    .any()
-    .transform((val) =>
-      val === "true" || val === "1" || val === 1 || val === true ? 1 : 0,
-    ),
+    subcategory_id: z
+      .string()
+      .optional()
+      .transform((val) => (val ? Number(val) : null)),
+    is_available: z
+      .any()
+      .transform((val) =>
+        val === "true" || val === "1" || val === 1 || val === true ? 1 : 0,
+      ),
+    is_bestseller: z
+      .any()
+      .transform((val) =>
+        val === "true" || val === "1" || val === 1 || val === true ? 1 : 0,
+      ),
 
-  // Pola ukryte (tablice JSON)
-  attributes: z.string().optional(),
-  imageAttributes: z.string().optional(),
-  newImageAttributes: z.string().optional(),
-  existingImages: z.string().optional(),
-});
+    attributes: z.string().optional(),
+    imageAttributes: z.string().optional(),
+    newImageAttributes: z.string().optional(),
+    existingImages: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    // MAGICZNA WALIDACJA OMNIBUS:
+    // Jeśli podano cenę promocyjną (i jest większa od zera)...
+    if (data.promotional_price !== null && data.promotional_price > 0) {
+      // 1. Wymagaj podania najniższej ceny z 30 dni!
+      if (
+        data.lowest_price_30_days === null ||
+        isNaN(data.lowest_price_30_days)
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "Dyrektywa Omnibus: Musisz podać najniższą cenę z 30 dni przed obniżką!",
+          path: ["lowest_price_30_days"], // Zaznaczy to pole w przypadku błędu
+        });
+      }
+
+      // 2. Cena promocyjna nie może być wyższa lub równa normalnej cenie!
+      if (data.promotional_price >= data.price_brut) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Cena promocyjna musi być niższa niż cena regularna!",
+          path: ["promotional_price"],
+        });
+      }
+    }
+  });
 
 const logError = (method, error) => {
   console.error(`--- BŁĄD W ${method} ---`);
@@ -119,8 +154,10 @@ exports.createProduct = async (req, res, next) => {
   const parsedData = productSchema.safeParse(req.body);
 
   if (!parsedData.success) {
-    // Jeśli walidacja oblała, wyciągamy pierwszą wiadomość błędu i wysyłamy na front
-    return res.status(400).json({ error: parsedData.error.errors[0].message });
+    // ZMIANA: Bezpieczne wyciąganie błędu (używamy .issues zamiast .errors)
+    const errorMessage =
+      parsedData.error.issues?.[0]?.message || "Nieprawidłowe dane formularza.";
+    return res.status(400).json({ error: errorMessage });
   }
 
   // Wyciągamy czyste i gotowe do bazy dane z parsedData.data!
@@ -130,6 +167,8 @@ exports.createProduct = async (req, res, next) => {
     subcategory_id,
     description,
     price_brut,
+    promotional_price, // <--- DODANE
+    lowest_price_30_days, // <--- DODANE
     is_bestseller,
     is_available,
     attributes,
@@ -166,6 +205,8 @@ exports.createProduct = async (req, res, next) => {
       slug,
       description,
       price_brut,
+      promotional_price, // <--- DODANE
+      lowest_price_30_days, // <--- DODANE
       is_bestseller: finalBestseller,
       is_available,
     });
@@ -245,7 +286,10 @@ exports.updateProduct = async (req, res, next) => {
   const parsedData = productSchema.safeParse(req.body);
 
   if (!parsedData.success) {
-    return res.status(400).json({ error: parsedData.error.errors[0].message });
+    // ZMIANA: Bezpieczne wyciąganie błędu
+    const errorMessage =
+      parsedData.error.issues?.[0]?.message || "Nieprawidłowe dane formularza.";
+    return res.status(400).json({ error: errorMessage });
   }
 
   // Wyciągamy zwalidowane, czyste dane z parsedData.data!
@@ -255,11 +299,13 @@ exports.updateProduct = async (req, res, next) => {
     subcategory_id,
     description,
     price_brut,
+    promotional_price, // <--- DODANE
+    lowest_price_30_days, // <--- DODANE
     is_bestseller,
     is_available,
     attributes,
     newImageAttributes,
-    existingImages, // Zod wyciąga to automatycznie
+    existingImages,
   } = parsedData.data;
 
   const files = req.files;
@@ -293,6 +339,10 @@ exports.updateProduct = async (req, res, next) => {
       short_description: short_description || null,
       description: description || null,
       price_brut: price_brut || null,
+      promotional_price:
+        promotional_price !== undefined ? promotional_price : null, // <--- DODANE (zabezpieczenie na null)
+      lowest_price_30_days:
+        lowest_price_30_days !== undefined ? lowest_price_30_days : null, // <--- DODANE
       is_bestseller: finalBestseller,
       is_available: is_available,
     });

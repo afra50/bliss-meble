@@ -261,7 +261,23 @@ const AdminProductList = () => {
                     <span className="sub-info">ID: #{product.id}</span>
                   </td>
                   <td>{product.subcategory_name || "Brak"}</td>
-                  <td>{parseFloat(product.price_brut).toFixed(2)} zł</td>
+                  <td className="td-price">
+                    {product.promotional_price &&
+                    product.promotional_price > 0 ? (
+                      <>
+                        <span className="current-price">
+                          {parseFloat(product.promotional_price).toFixed(2)} zł
+                        </span>
+                        <span className="old-price">
+                          {parseFloat(product.price_brut).toFixed(2)} zł
+                        </span>
+                      </>
+                    ) : (
+                      <span>
+                        {parseFloat(product.price_brut).toFixed(2)} zł
+                      </span>
+                    )}
+                  </td>
                   <td>
                     <span
                       className={`status-badge ${product.is_available ? "available" : "unavailable"}`}

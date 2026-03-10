@@ -91,6 +91,26 @@
         }
     }
 
+    // Styl dla ceny promocyjnej w liście
+    .td-price {
+        // USUNĘLIŚMY: display: flex, flex-direction, gap i min-height!
+        // Tabela sama zadba o wyśrodkowanie dzięki vertical-align: middle
+
+        .current-price {
+            display: block; // Wymusza przejście do nowej linii
+            color: $color-red;
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .old-price {
+            display: block; // Wymusza przejście do nowej linii
+            color: $color-slate;
+            font-size: 0.8rem;
+            text-decoration: line-through;
+        }
+    }
+
     // --- AKCJE (Przyciski Edytuj/Usuń) ---
     .td-actions {
         width: 120px;

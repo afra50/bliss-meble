@@ -27,6 +27,8 @@ const AdminProductModal = ({
     short_description: "",
     description: "",
     price_brut: "",
+    promotional_price: "", // <--- DODANO
+    lowest_price_30_days: "", // <--- DODANO
     subcategory_id: "",
     is_available: true,
     is_bestseller: false,
@@ -70,6 +72,8 @@ const AdminProductModal = ({
             short_description: p.short_description,
             description: p.description,
             price_brut: p.price_brut,
+            promotional_price: p.promotional_price || "", // <--- DODANO
+            lowest_price_30_days: p.lowest_price_30_days || "", // <--- DODANO
             subcategory_id: productSubcatId,
             is_available: p.is_available === 1,
             is_bestseller: p.is_bestseller === 1,
@@ -250,7 +254,10 @@ const AdminProductModal = ({
   const handleInputChange = (e) => {
     let { name, value, type, checked } = e.target;
 
-    if (name === "price_brut") {
+    // ZMIANA: Używamy tablicy, aby formatowanie obejmowało wszystkie 3 pola cenowe!
+    if (
+      ["price_brut", "promotional_price", "lowest_price_30_days"].includes(name)
+    ) {
       value = value.replace(/,/g, ".");
       value = value.replace(/[^0-9.]/g, "");
 
@@ -274,9 +281,14 @@ const AdminProductModal = ({
         [name]: type === "checkbox" ? checked : value,
       };
 
-      // NOWOŚĆ: Automatyczne odznaczanie bestsellera, gdy wyłączamy dostępność
+      // Automatyczne odznaczanie bestsellera
       if (name === "is_available" && !checked) {
         updatedData.is_bestseller = false;
+      }
+
+      // NOWOŚĆ: Jeśli admin wyczyści pole ceny promocyjnej, czyścimy też Omnibusa
+      if (name === "promotional_price" && (!value || parseFloat(value) === 0)) {
+        updatedData.lowest_price_30_days = "";
       }
 
       return updatedData;
@@ -362,6 +374,11 @@ const AdminProductModal = ({
       submitData.append("short_description", formData.short_description);
       submitData.append("description", formData.description);
       submitData.append("price_brut", formData.price_brut);
+      submitData.append("promotional_price", formData.promotional_price || ""); // <--- DODANO
+      submitData.append(
+        "lowest_price_30_days",
+        formData.lowest_price_30_days || "",
+      ); // <--- DODANO
       submitData.append("subcategory_id", formData.subcategory_id || "");
       submitData.append("is_available", formData.is_available);
       submitData.append("is_bestseller", formData.is_bestseller);
@@ -434,6 +451,8 @@ const AdminProductModal = ({
     colorGroup?.values
       ?.filter((val) => selectedAttributes.some((a) => a.id === val.id))
       .map((val) => ({ id: val.id, name: val.value })) || [];
+
+  const isPromoActive = parseFloat(formData.promotional_price) > 0;
 
   const modalContent = (
     <>
@@ -527,19 +546,60 @@ const AdminProductModal = ({
                     </div>
                   </div>
 
-                  <div className="form-group form-group--margin-top">
-                    <label className="form-group__label">
-                      Cena Brutto (zł) *
-                    </label>
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      required
-                      className="form-group__input"
-                      name="price_brut"
-                      value={formData.price_brut}
-                      onChange={handleInputChange}
-                    />
+                  <div className="form-row form-group--margin-top">
+                    <div className="form-group">
+                      <label className="form-group__label">
+                        Cena Regularna (zł) *
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        required
+                        className="form-group__input"
+                        name="price_brut"
+                        value={formData.price_brut}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-group__label">
+                        Cena Promocyjna (zł) (opcjonalnie)
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        className="form-group__input"
+                        name="promotional_price"
+                        value={formData.promotional_price}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-group__label">
+                        Najniższa cena z 30 dni
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        className="form-group__input"
+                        name="lowest_price_30_days"
+                        value={formData.lowest_price_30_days}
+                        onChange={handleInputChange}
+                        disabled={!isPromoActive}
+                        required={isPromoActive} // Uruchamia przeglądarkową walidację, gdy promo jest włączone!
+                        style={{
+                          backgroundColor: !isPromoActive
+                            ? "rgba(0,0,0,0.05)"
+                            : "transparent",
+                          cursor: !isPromoActive ? "not-allowed" : "text",
+                        }}
+                      />
+                      {isPromoActive && (
+                        <small>Wymagane przez prawo (Omnibus).</small>
+                      )}
+                    </div>
                   </div>
                 </div>
 

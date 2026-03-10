@@ -15,7 +15,7 @@ const AdminDashboard = () => {
     {
       id: "products",
       title: "Produkty",
-      desc: "Zarządzaj asortymentem, dodawaj nowe meble i edytuj opisy produktów.",
+      desc: "Dodawaj i edytuj produkty. Tutaj także wybierzesz bestsellery, ustawisz promocje oraz przypiszesz zdjęcia do tkanin.",
       icon: <Package size={32} />,
       link: "/admin/produkty",
     },
@@ -29,7 +29,7 @@ const AdminDashboard = () => {
     {
       id: "attributes",
       title: "Atrybuty",
-      desc: "Dodawaj nowe kolory, rodzaje tkanin oraz dostępne rozmiary mebli.",
+      desc: "Dodawaj nowe tkaniny oraz dostępne rozmiary mebli.",
       icon: <Layers size={32} />,
       link: "/admin/atrybuty",
     },
