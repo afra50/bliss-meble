@@ -10,20 +10,27 @@ const CartItem = ({
   index,
   updateQuantity,
   removeFromCart,
-  isCompact = false, // Tryb dla bocznego panelu
+  isCompact = false,
 }) => {
   const handleQuantityChange = (newQty) => {
     if (updateQuantity) updateQuantity(index, newQty);
   };
 
+  const regularPrice = item.regular_price || item.price_brut;
+  const isPromo =
+    regularPrice && parseFloat(regularPrice) > parseFloat(item.price);
+
+  // Oszczędność na jednej sztuce
+  const savingsPerItem = isPromo
+    ? parseFloat(regularPrice) - parseFloat(item.price)
+    : 0;
+
   return (
     <div className={`cart-item ${isCompact ? "cart-item--compact" : ""}`}>
-      {/* ZDJĘCIE */}
       <div className="cart-item__image">
         <img src={item.image || defaultImg} alt={item.name} />
       </div>
 
-      {/* INFORMACJE O PRODUKCIE */}
       <div className="cart-item__info">
         <h4 className="cart-item__name">{item.name}</h4>
 
@@ -45,16 +52,57 @@ const CartItem = ({
           <div className="cart-item__compact-price">
             <span className="qty">{item.quantity}</span>
             <span className="times"> × </span>
-            <span className="price">{formatPrice(item.price)} zł</span>
+            {isPromo ? (
+              <div className="compact-price-wrap">
+                <span className="current-price promo">
+                  {formatPrice(item.price)} zł
+                </span>
+                <span className="old-price">
+                  {formatPrice(regularPrice)} zł
+                </span>
+              </div>
+            ) : (
+              <span className="current-price">
+                {formatPrice(item.price)} zł
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* ZMIANA: OMNIBUS ORAZ INFO O OSZCZĘDNOŚCI DLA WIDOKU PEŁNEGO */}
+        {!isCompact && isPromo && (
+          <div className="cart-item__promo-info">
+            <span className="save-badge">
+              Oszczędzasz łącznie {formatPrice(savingsPerItem * item.quantity)}{" "}
+              zł
+            </span>
+            {item.omnibusPrice && (
+              <small className="omnibus-text">
+                Najniższa cena z 30 dni: {formatPrice(item.omnibusPrice)} zł
+              </small>
+            )}
           </div>
         )}
       </div>
 
-      {/* KONTROLKI (Tylko dla dużego koszyka) */}
+      {/* KONTROLKI (Duży koszyk) */}
       {!isCompact && (
         <div className="cart-item__actions">
           <div className="cart-item__price-unit">
-            {formatPrice(item.price)} zł
+            {isPromo ? (
+              <div className="price-stack">
+                <span className="current-price promo">
+                  {formatPrice(item.price)} zł
+                </span>
+                <span className="old-price">
+                  {formatPrice(regularPrice)} zł
+                </span>
+              </div>
+            ) : (
+              <span className="current-price">
+                {formatPrice(item.price)} zł
+              </span>
+            )}
           </div>
           <div className="cart-item__qty">
             <QuantitySelector
@@ -69,7 +117,6 @@ const CartItem = ({
         </div>
       )}
 
-      {/* PRZYCISK USUWANIA (X w prawym górnym rogu) */}
       <button
         className="cart-item__remove"
         onClick={() => removeFromCart(index)}

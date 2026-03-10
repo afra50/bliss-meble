@@ -16,6 +16,7 @@
     .product-card__img img {
       transform: scale(1.05);
     }
+
     .product-card__img-overlay {
       transform: translateY(0);
     }
@@ -26,13 +27,22 @@
     text-decoration: none;
   }
 
-  &__badge {
+  // --- ZMIANA: SYSTEM PLAKIETEK ---
+  &__badges {
     position: absolute;
-    top: 30px;
-    left: 30px;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 2;
+  }
+
+  &__badge {
     color: $color-white;
-    padding: 5px 15px;
+    padding: 5px 12px;
     font-size: 0.75rem;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
     z-index: 2;
@@ -40,7 +50,13 @@
     &--new {
       background-color: $color-slate;
     }
+
+    &--promo {
+      background-color: $color-red; // Czerwony kolor dla promocji
+    }
   }
+
+  // --------------------------------
 
   &__img {
     aspect-ratio: 1/1;
@@ -103,13 +119,34 @@
     }
   }
 
-  &__price {
-    font-family: $font-heading;
-    color: $color-brown;
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin-bottom: 20px;
+  // --- ZMIANA: NOWY BLOK CENOWY ---
+  &__price-wrapper {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+    margin-bottom: 25px;
+
+    .price-old {
+      font-size: 1rem;
+      color: rgba($color-slate, 0.6);
+      text-decoration: line-through;
+    }
+
+    .price-current {
+      font-family: $font-heading;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: $color-brown;
+
+      &.promo {
+        color: $color-red;
+      }
+    }
   }
+
+  // --------------------------------
 
   &__btn.btn {
     margin-top: auto;

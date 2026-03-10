@@ -1,4 +1,5 @@
 @use "../../variables" as *;
+@use "sass:color";
 
 .bestseller-wrapper {
   // Możesz tu dodać marginesy pionowe dla całej grupy, jeśli chcesz
@@ -11,11 +12,13 @@
   &--slate {
     background-color: $color-slate;
   }
+
   &--brown {
     background-color: $color-brown;
   }
+
   &--olive {
-    background-color: $color-olive; // DODANE: Wariant oliwkowy
+    background-color: $color-olive;
   }
 
   &__container {
@@ -36,21 +39,19 @@
 
   // Magia szachownicy - odwracanie kolejności kolumn w CSS!
   &--reversed .bestseller__grid {
-    direction: rtl; // Odwraca kierunek dla desktopu
+    direction: rtl;
 
-    > * {
-      direction: ltr; // Przywraca normalny kierunek czytania tekstu wewnątrz bloku
+    >* {
+      direction: ltr;
     }
 
     @media (max-width: 992px) {
-      direction: ltr; // Na mobile obrazek niech wraca na górę, jest czytelniej
+      direction: ltr;
     }
   }
 
   &__text {
     padding: clamp(40px, 6vw, 80px);
-
-    // Jeśli nie jest reversed, tekst ma padding po prawej, jeśli reversed to po lewej
     padding-right: 40px;
 
     @media (max-width: 992px) {
@@ -58,10 +59,11 @@
     }
 
     h2 {
+      font-family: $font-heading;
       font-size: clamp(2rem, 3.5vw, 3rem);
       margin-bottom: 25px;
       line-height: 1.2;
-      font-weight: 400; // Pod Libre Bodoni
+      font-weight: 400;
     }
 
     p {
@@ -72,7 +74,6 @@
     }
   }
 
-  // Specyficzny padding dla odwróconego tekstu
   &--reversed .bestseller__text {
     padding-right: 0;
     padding-left: 40px;
@@ -90,7 +91,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: block; // Usuwa dziwny margines dolny pod img
+      display: block;
     }
   }
 
@@ -104,9 +105,40 @@
     color: rgba($color-cream, 0.7);
   }
 
+  // --- ZMIANA: NOWY BLOK CENOWY ---
+  &__price-wrap {
+    margin-bottom: 30px;
+
+    .old-price-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 5px;
+    }
+  }
+
+  &__price-old {
+    font-size: 1.1rem;
+    color: rgba($color-cream, 0.6);
+    text-decoration: line-through;
+  }
+
+  &__price-save {
+    background-color: rgba($color-white, 0.15);
+    color: $color-cream;
+    padding: 3px 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
   &__price {
-    font-size: 1.5rem !important;
+    font-size: 1.8rem !important;
     font-family: $font-heading;
     color: $color-white !important;
+    margin-bottom: 0 !important;
+
+    &--promo {
+      color: #ffb3b3 !important; // Jasny pastelowy czerwony/różowy do ciemnego tła
+    }
   }
 }

@@ -125,18 +125,39 @@ const ProductDetails = () => {
     return product.images;
   }, [product?.images, selectedFabric]);
 
-  const finalPrice = useMemo(() => {
-    if (!product) return 0;
-    let price = Number(product.price_brut);
+  const pricing = useMemo(() => {
+    if (!product) return { current: 0, regular: 0 };
 
+    const baseRegularPrice = Number(product.price_brut);
+    const isPromoActive =
+      product.promotional_price && Number(product.promotional_price) > 0;
+    const baseCurrentPrice = isPromoActive
+      ? Number(product.promotional_price)
+      : baseRegularPrice;
+
+    let modifiersTotal = 0;
     if (selectedSize?.price_modifier)
-      price += Number(selectedSize.price_modifier);
+      modifiersTotal += Number(selectedSize.price_modifier);
     if (selectedFabric?.price_modifier)
-      price += Number(selectedFabric.price_modifier);
+      modifiersTotal += Number(selectedFabric.price_modifier);
 
-    return price * quantity;
+    // NOWOŚĆ: Obliczamy poprawną cenę Omnibus (baza z bazy danych + dopłaty za wybrane warianty)
+    const baseOmnibus = product.lowest_price_30_days
+      ? Number(product.lowest_price_30_days)
+      : null;
+    const finalOmnibus =
+      baseOmnibus !== null ? baseOmnibus + modifiersTotal : null;
+
+    return {
+      current: (baseCurrentPrice + modifiersTotal) * quantity,
+      regular: (baseRegularPrice + modifiersTotal) * quantity,
+      isPromo: isPromoActive,
+      omnibusPrice: finalOmnibus, // <--- Przekazujemy przeliczoną cenę!
+      savings: isPromoActive
+        ? (baseRegularPrice - baseCurrentPrice) * quantity
+        : 0,
+    };
   }, [product, selectedSize, selectedFabric, quantity]);
-
   // ==========================================
   // NOWOŚĆ: LOGIKA OBLICZANIA OPINII
   // ==========================================
@@ -201,7 +222,7 @@ const ProductDetails = () => {
           {/* NOWOŚĆ: Przekazujemy rating i reviewsCount w dół do ProductInfo */}
           <ProductInfo
             product={product}
-            finalPrice={finalPrice}
+            pricing={pricing} // <--- PRZEKAZUJEMY NOWY OBIEKT!
             rating={reviewsData.average}
             reviewsCount={reviewsData.total}
           >
@@ -223,7 +244,9 @@ const ProductDetails = () => {
               <AddToCartButton
                 product={product}
                 quantity={quantity}
-                price={finalPrice / quantity}
+                price={pricing.current / quantity}
+                regularPrice={pricing.regular / quantity}
+                omnibusPrice={pricing.omnibusPrice} // <--- TEGO BRAKOWAŁO W TWOIM KODZIE WYŻEJ
                 size={selectedSize}
                 fabric={selectedFabric}
                 image={currentMainImage}

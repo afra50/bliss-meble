@@ -48,7 +48,7 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // 4. Funkcja USUWANIA z koszyka (przda się później w widoku koszyka)
+  // 4. Funkcja USUWANIA z koszyka
   const removeFromCart = (indexToRemove) => {
     setCartItems((prevItems) =>
       prevItems.filter((_, index) => index !== indexToRemove),
@@ -69,12 +69,25 @@ export const CartProvider = ({ children }) => {
     setCartItems([]);
   };
 
-  // Wartości pochodne (wyliczane w locie)
+  // --- WARTOŚCI POCHODNE (Wyliczane w locie) ---
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Wartość do zapłaty (po obniżkach)
   const cartTotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
+
+  // NOWOŚĆ: Wyliczamy łączną kwotę oszczędności z całego koszyka
+  const cartTotalSavings = cartItems.reduce((sum, item) => {
+    // Jeśli mamy regularną cenę i jest ona wyższa niż obecna cena sprzedaży
+    const regularPrice = item.regular_price || item.price_brut;
+    if (regularPrice && parseFloat(regularPrice) > parseFloat(item.price)) {
+      const savedOnOneItem = parseFloat(regularPrice) - parseFloat(item.price);
+      return sum + savedOnOneItem * item.quantity;
+    }
+    return sum;
+  }, 0);
 
   return (
     <CartContext.Provider
@@ -86,6 +99,7 @@ export const CartProvider = ({ children }) => {
         clearCart,
         cartCount,
         cartTotal,
+        cartTotalSavings, // <--- Eksportujemy nową wartość do całej aplikacji!
       }}
     >
       {children}

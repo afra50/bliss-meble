@@ -265,6 +265,24 @@
                     color: $color-slate;
                     margin-top: 4px;
                 }
+
+                // Dodajemy to na samym dole wewnątrz .total-price
+                .summary-box__savings {
+                    margin-top: 10px;
+                    padding: 8px 12px;
+                    background-color: rgba($color-red, 0.1);
+                    color: $color-red;
+                    font-size: 0.85rem;
+                    font-family: $font-body;
+                    width: max-content;
+                    align-self: flex-end;
+
+                    strong {
+                        font-size: 0.95rem;
+                        font-weight: 700;
+                        color: $color-olive;
+                    }
+                }
             }
         }
 

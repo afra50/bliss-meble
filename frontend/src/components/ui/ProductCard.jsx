@@ -23,14 +23,27 @@ const ProductCard = ({ product, isNew = false }) => {
   const rating = product.mockRating || 0;
   const reviewsCount = product.mockReviewsCount || 0;
 
+  // ZMIANA: Sprawdzamy czy produkt jest w promocji
+  const isPromo =
+    product.promotional_price && parseFloat(product.promotional_price) > 0;
+
   return (
     <article className="product-card">
       <Link to={productLink} className="product-card__link">
-        {isNew && (
-          <div className="product-card__badge product-card__badge--new">
-            Nowość
-          </div>
-        )}
+        {/* ZMIANA: Nowy kontener na plakietki (może ich być kilka) */}
+        <div className="product-card__badges">
+          {isPromo && (
+            <div className="product-card__badge product-card__badge--promo">
+              Promocja
+            </div>
+          )}
+          {isNew && (
+            <div className="product-card__badge product-card__badge--new">
+              Nowość
+            </div>
+          )}
+        </div>
+
         <div className="product-card__img">
           <img
             src={imageUrl}
@@ -50,12 +63,25 @@ const ProductCard = ({ product, isNew = false }) => {
           <Link to={productLink}>{product.name}</Link>
         </h4>
 
-        {/* ZMIANA: Zniknął warunek if/else. StarRating poradzi sobie z brakiem opinii samodzielnie! */}
         <StarRating rating={rating} count={reviewsCount} size="small" />
 
-        <p className="product-card__price">
-          od {formatPrice(product.price_brut)} zł
-        </p>
+        {/* ZMIANA: Widok ceny wspierający promocję */}
+        <div className="product-card__price-wrapper">
+          {isPromo ? (
+            <>
+              <span className="price-old">
+                {formatPrice(product.price_brut)} zł
+              </span>
+              <span className="price-current promo">
+                od {formatPrice(product.promotional_price)} zł
+              </span>
+            </>
+          ) : (
+            <span className="price-current">
+              od {formatPrice(product.price_brut)} zł
+            </span>
+          )}
+        </div>
 
         <Button
           to={productLink}

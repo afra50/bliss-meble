@@ -9,7 +9,8 @@ import { formatPrice } from "../../utils/formatPrice";
 import "../../styles/components/cart/mini-cart.scss";
 
 const MiniCart = ({ isOpen, onClose }) => {
-  const { cartItems, removeFromCart, cartTotal } = useCart();
+  // ZMIANA: Wyciągamy cartTotalSavings z naszego zaktualizowanego kontekstu
+  const { cartItems, removeFromCart, cartTotal, cartTotalSavings } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,7 +37,6 @@ const MiniCart = ({ isOpen, onClose }) => {
         className={`mini-cart ${isOpen ? "mini-cart--open" : ""}`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* NAGŁÓWEK JAK NA SCREENIE */}
         <div className="mini-cart__header">
           <h3>Koszyk</h3>
           <button className="close-btn" onClick={onClose}>
@@ -60,27 +60,47 @@ const MiniCart = ({ isOpen, onClose }) => {
                   item={item}
                   index={index}
                   removeFromCart={removeFromCart}
-                  isCompact={true} // Włączamy tryb czysty/kompaktowy
+                  isCompact={true}
                 />
               ))}
             </div>
           )}
         </div>
 
-        {/* STOPKA W TWOIM STYLU */}
         {cartItems.length > 0 && (
           <div className="mini-cart__footer">
-            <div className="subtotal">
+            {/* ZMIANA: Dodano wyświetlanie całkowitej oszczędności */}
+            <div
+              className="subtotal"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-end",
+              }}
+            >
               <span>Suma:</span>
-              <strong>{formatPrice(cartTotal)} zł</strong>
+              <div style={{ textAlign: "right" }}>
+                <strong style={{ display: "block", fontSize: "1.4rem" }}>
+                  {formatPrice(cartTotal)} zł
+                </strong>
+                {cartTotalSavings > 0 && (
+                  <small
+                    style={{
+                      color: "#dc2626",
+                      fontWeight: "600",
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    Oszczędzasz: {formatPrice(cartTotalSavings)} zł
+                  </small>
+                )}
+              </div>
             </div>
 
             <div className="action-buttons">
-              {/* Zwykły link, ale ostylowany jako "outline" w Twoich kolorach */}
               <Link to="/koszyk" onClick={onClose} className="btn-view-cart">
                 ZOBACZ KOSZYK
               </Link>
-              {/* Twój natywny Button w wariancie primary */}
               <Button
                 variant="primary"
                 onClick={handleCheckoutClick}

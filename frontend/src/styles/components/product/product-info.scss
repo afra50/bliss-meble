@@ -6,11 +6,10 @@
     font-family: $font-heading;
     font-size: clamp(2rem, 3vw, 3rem);
     color: $color-black;
-    margin-bottom: 10px; // Trochę zmniejszyłem, żeby gwiazdki były bliżej tytułu
+    margin-bottom: 10px;
     font-weight: 400;
   }
 
-  // --- NOWOŚĆ: GWIAZDKI I OCENA ---
   &__rating {
     display: flex;
     align-items: center;
@@ -38,18 +37,59 @@
     }
   }
 
-  &__price-wrapper {
-    min-height: 45px;
+  // ==========================================
+  // NOWOŚĆ: SEKCJA CENY (Promocje + Omnibus)
+  // ==========================================
+  &__price-container {
+    margin-bottom: 30px;
+    min-height: 60px;
+  }
+
+  &__price-old-wrap {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 5px;
+
+    .price-old {
+      font-size: 1.3rem;
+      color: rgba($color-slate, 0.6);
+      text-decoration: line-through;
+    }
+
+    .price-save-badge {
+      background-color: rgba($color-red, 0.1);
+      color: $color-red;
+      padding: 4px 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
   }
 
   &__price {
     font-family: $font-heading;
-    font-size: 1.8rem;
+    font-size: 2.2rem;
     color: $color-brown;
-    margin-bottom: 30px;
     display: inline-block;
+    margin-bottom: 0; // Usunięty duży margines, żeby omnibus był blisko
     animation: priceUpdate 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    &--promo {
+      color: $color-red; // Mocny czerwony kolor dla ceny po obniżce
+    }
   }
+
+  &__omnibus {
+    font-size: 0.85rem;
+    color: $color-slate;
+    margin-top: 5px;
+
+    strong {
+      color: $color-black;
+    }
+  }
+
+  // ==========================================
 
   &__short-desc {
     font-family: $font-body;
@@ -98,10 +138,12 @@
     p {
       margin-bottom: 15px;
     }
+
     ul,
     ol {
       padding-left: 20px;
       margin-bottom: 15px;
+
       li {
         margin-bottom: 8px;
       }
@@ -114,10 +156,12 @@
     transform: translateY(0) scale(1);
     color: $color-olive;
   }
+
   50% {
     transform: translateY(-5px) scale(1.05);
     color: $color-black;
   }
+
   100% {
     transform: translateY(0) scale(1);
     color: $color-brown;

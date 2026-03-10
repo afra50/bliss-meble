@@ -3,14 +3,8 @@ import { FaTruck, FaShieldAlt } from "react-icons/fa";
 import StarRating from "../ui/StarRating";
 import "../../styles/components/product/product-info.scss";
 
-// ZMIANA: Dodajemy rating i reviewsCount do propsów
-const ProductInfo = ({
-  product,
-  finalPrice,
-  rating,
-  reviewsCount,
-  children,
-}) => {
+// ZMIANA: Zamiast finalPrice przyjmujemy obiekt pricing
+const ProductInfo = ({ product, pricing, rating, reviewsCount, children }) => {
   return (
     <section className="product-info">
       <h1 className="product-info__title">{product.name}</h1>
@@ -23,10 +17,34 @@ const ProductInfo = ({
         </a>
       </div>
 
-      <div className="product-info__price-wrapper">
-        <p className="product-info__price" key={finalPrice}>
-          {formatPrice(finalPrice)} zł
-        </p>
+      {/* ZMIANA: Nowy układ ceny obsługujący promocje */}
+      <div className="product-info__price-container">
+        {pricing?.isPromo ? (
+          <>
+            <div className="product-info__price-old-wrap">
+              <span className="price-old">
+                {formatPrice(pricing.regular)} zł
+              </span>
+              <span className="price-save-badge">
+                Oszczędzasz: {formatPrice(pricing.savings)} zł
+              </span>
+            </div>
+            <p
+              className="product-info__price product-info__price--promo"
+              key={pricing.current}
+            >
+              {formatPrice(pricing.current)} zł
+            </p>
+            <div className="product-info__omnibus">
+              Najniższa cena z 30 dni przed obniżką:{" "}
+              <strong>{formatPrice(pricing.omnibusPrice)} zł</strong>
+            </div>
+          </>
+        ) : (
+          <p className="product-info__price" key={pricing?.current}>
+            {formatPrice(pricing?.current)} zł
+          </p>
+        )}
       </div>
 
       <p className="product-info__short-desc">{product.short_description}</p>

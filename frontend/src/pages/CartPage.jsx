@@ -16,22 +16,25 @@ import Button from "../components/ui/Button";
 import "../styles/pages/cart-page.scss";
 
 const CartPage = () => {
-  const { cartItems, updateQuantity, removeFromCart, cartTotal } = useCart();
+  // ZMIANA: Wyciągamy cartTotalSavings z kontekstu
+  const {
+    cartItems,
+    updateQuantity,
+    removeFromCart,
+    cartTotal,
+    cartTotalSavings,
+  } = useCart();
   const navigate = useNavigate();
 
   const handleProceedToCheckout = () => {
-    // Przekierowanie do kroku 2 (Dane i Dostawa)
     navigate("/zamowienie/dostawa");
   };
 
-  // Obliczenie wartości VAT (zakładamy 23%)
-  // Wzór: Brutto - (Brutto / 1.23) = Wartość VAT
   const vatAmount = cartTotal - cartTotal / 1.23;
 
   return (
     <main className="cart-page">
       <div className="cart-page__container">
-        {/* WSKAŹNIK KROKÓW (STEPPER) */}
         <div className="checkout-stepper">
           <div className="checkout-stepper__step checkout-stepper__step--active">
             <span>1. KOSZYK</span>
@@ -49,7 +52,6 @@ const CartPage = () => {
         <h1 className="cart-page__title">Twój Koszyk</h1>
 
         {cartItems.length === 0 ? (
-          // WIDOK PUSTEGO KOSZYKA
           <div className="cart-page__empty">
             <FaShoppingBasket className="empty-icon" />
             <h2>Twój koszyk jest pusty</h2>
@@ -62,11 +64,8 @@ const CartPage = () => {
             </Link>
           </div>
         ) : (
-          // WIDOK PEŁNEGO KOSZYKA
           <div className="cart-page__layout">
-            {/* LEWA KOLUMNA: LISTA PRODUKTÓW */}
             <div className="cart-page__items-list">
-              {/* Nagłówki tabeli */}
               <div className="cart-page__list-header">
                 <div className="col-product">PRODUKT</div>
                 <div className="col-actions">
@@ -76,7 +75,6 @@ const CartPage = () => {
                 </div>
               </div>
 
-              {/* Lista produktów */}
               <div className="cart-page__items">
                 {cartItems.map((item, index) => (
                   <CartItem
@@ -90,7 +88,6 @@ const CartPage = () => {
                 ))}
               </div>
 
-              {/* INFO O REZERWACJI */}
               <div className="cart-page__reservation-info">
                 <FaInfoCircle className="info-icon" />
                 <p>
@@ -106,14 +103,25 @@ const CartPage = () => {
               </div>
             </div>
 
-            {/* PRAWA KOLUMNA: PODSUMOWANIE */}
             <aside className="cart-page__summary">
               <div className="summary-box">
                 <h3 className="summary-box__title">PODSUMOWANIE KOSZYKA</h3>
 
                 <div className="summary-box__row">
-                  <span>Kwota</span>
+                  <span>Wartość koszyka</span>
                   <span className="price-nowrap">
+                    {/* Jeśli jest jakaś oszczędność, pokażmy ją jako starą cenę całego koszyka! */}
+                    {cartTotalSavings > 0 ? (
+                      <span
+                        style={{
+                          textDecoration: "line-through",
+                          color: "#94a3b8",
+                          marginRight: "10px",
+                        }}
+                      >
+                        {formatPrice(cartTotal + cartTotalSavings)} zł
+                      </span>
+                    ) : null}
                     {formatPrice(cartTotal)} zł
                   </span>
                 </div>
@@ -122,10 +130,8 @@ const CartPage = () => {
                   <span>Wysyłka</span>
                   <div className="shipping-info">
                     <p>
-                      Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                      Libero quo consectetur optio aut aspernatur nihil,
-                      corrupti illum dolore, quia veritatis quas magni ipsam
-                      officiis ipsa nulla repellat eum. Corrupti, totam!
+                      Koszty wysyłki zostaną obliczone w kolejnym kroku na
+                      podstawie Twojego adresu.
                     </p>
                   </div>
                 </div>
@@ -136,8 +142,15 @@ const CartPage = () => {
                     <strong className="price-nowrap">
                       {formatPrice(cartTotal)} zł
                     </strong>
-                    {/* Pokazujemy precyzyjnie wyliczony VAT */}
                     <small>(w tym {formatPrice(vatAmount)} zł VAT)</small>
+
+                    {/* ZMIANA: WYŚWIETLANIE SUMARYCZNEJ OSZCZĘDNOŚCI */}
+                    {cartTotalSavings > 0 && (
+                      <div className="summary-box__savings">
+                        Zyskujesz z rabatami:{" "}
+                        <strong>{formatPrice(cartTotalSavings)} zł</strong>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -150,7 +163,6 @@ const CartPage = () => {
                 </Button>
               </div>
 
-              {/* TRUST BADGES (IKONKI BEZPIECZEŃSTWA) */}
               <div className="trust-badges">
                 <div className="trust-badges__item">
                   <FaShieldAlt />

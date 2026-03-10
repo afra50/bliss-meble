@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { productApi } from "../../utils/api";
 import Button from "../ui/Button";
 import Loader from "../ui/Loader";
-import ErrorState from "../ui/ErrorState"; // 1. IMPORTUJEMY KOMPONENT BŁĘDU
+import ErrorState from "../ui/ErrorState";
 import defaultImg from "../../assets/default-product.jpg";
 import "../../styles/components/home/bestseller.scss";
 import { formatPrice } from "../../utils/formatPrice";
@@ -14,20 +14,19 @@ const BACKEND_URL = import.meta.env.VITE_API_URL
 const Bestseller = () => {
   const [bestsellers, setBestsellers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null); // 2. DODAJEMY STAN BŁĘDU
+  const [error, setError] = useState(null);
 
   const themes = ["slate", "olive", "brown"];
 
-  // 3. WYDZIELAMY FUNKCJĘ POBIERANIA (ABY UŻYĆ JEJ W onRetry)
   const fetchBestsellers = async () => {
     setIsLoading(true);
-    setError(null); // Resetujemy błąd przed każdą próbą
+    setError(null);
     try {
       const response = await productApi.getBestsellers();
       setBestsellers(response.data);
     } catch (error) {
       console.error("Błąd podczas pobierania bestsellerów:", error);
-      setError("Nie udało się wczytać bestsellerów."); // 4. USTAWIDAMY KOMUNIKAT
+      setError("Nie udało się wczytać bestsellerów.");
     } finally {
       setIsLoading(false);
     }
@@ -51,7 +50,6 @@ const Bestseller = () => {
     );
   }
 
-  // 5. OBSŁUGA STANU BŁĘDU
   if (error) {
     return (
       <section className="bestseller-wrapper">
@@ -68,6 +66,16 @@ const Bestseller = () => {
         const isReversed = index % 2 !== 0;
         const currentTheme = themes[index % themes.length];
 
+        // LOGIKA PROMOCYJNA
+        const isPromo =
+          product.promotional_price &&
+          parseFloat(product.promotional_price) > 0;
+        const regularPrice = parseFloat(product.price_brut);
+        const currentPrice = isPromo
+          ? parseFloat(product.promotional_price)
+          : regularPrice;
+        const savedAmount = isPromo ? regularPrice - currentPrice : 0;
+
         return (
           <article
             key={product.id}
@@ -80,11 +88,33 @@ const Bestseller = () => {
                 <span className="bestseller__badge">
                   {product.badge || "Bestseller Miesiąca"}
                 </span>
+
                 <h2>{product.name}</h2>
                 <p>{product.short_description}</p>
-                <p className="bestseller__price">
-                  od {formatPrice(product.price_brut)} zł
-                </p>
+
+                {/* ZMIANA: WYŚWIETLANIE CENY W TYM PROMOCJI */}
+                <div className="bestseller__price-wrap">
+                  {isPromo ? (
+                    <>
+                      <div className="old-price-row">
+                        <span className="bestseller__price-old">
+                          {formatPrice(regularPrice)} zł
+                        </span>
+                        <span className="bestseller__price-save">
+                          Oszczędzasz {formatPrice(savedAmount)} zł
+                        </span>
+                      </div>
+                      <p className="bestseller__price bestseller__price--promo">
+                        od {formatPrice(currentPrice)} zł
+                      </p>
+                    </>
+                  ) : (
+                    <p className="bestseller__price">
+                      od {formatPrice(currentPrice)} zł
+                    </p>
+                  )}
+                </div>
+
                 <Button
                   to={`/sklep/${product.slug}`}
                   variant={`outline-${currentTheme}`}

@@ -136,4 +136,58 @@
             }
         }
     }
+
+    // --- STYLE DLA CEN PROMOCYJNYCH W KOSZYKU ---
+    .price-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+    }
+
+    .compact-price-wrap {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 6px;
+    }
+
+    .current-price {
+        font-weight: 600;
+        color: $color-black;
+
+        &.promo {
+            color: $color-red;
+        }
+    }
+
+    .old-price {
+        color: rgba($color-slate, 0.7);
+        font-size: 0.8rem;
+        text-decoration: line-through;
+        font-weight: 400;
+    }
+
+    // NOWOŚĆ: Blok z Omnibus i informacją o oszczędności dla elementu koszyka
+    .cart-item__promo-info {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
+        .save-badge {
+            display: inline-block;
+            width: fit-content;
+            padding: 4px 8px;
+            background-color: rgba($color-red, 0.1);
+            color: $color-red;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .omnibus-text {
+            font-size: 0.75rem;
+            color: $color-slate;
+        }
+    }
 }
