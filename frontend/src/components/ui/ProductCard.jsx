@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import Button from "./Button";
 import defaultImg from "../../assets/default-product.jpg";
 import { formatPrice } from "../../utils/formatPrice";
-import { FaStar } from "react-icons/fa"; // NOWOŚĆ: Ikonka gwiazdki
 import "../../styles/components/ui/product-card.scss";
+import StarRating from "./StarRating";
 
 const BACKEND_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL.replace("/api", "")
@@ -20,9 +20,9 @@ const ProductCard = ({ product, isNew = false }) => {
 
   const productLink = `/sklep/${product.slug}`;
 
-  // TYMCZASOWE DANE DO TESTÓW (Później weźmiemy to z obiektu product, np. product.avg_rating)
-  const mockedRating = 4.3;
-  const mockedReviewsCount = 19;
+  // ZMIANA: Zczytujemy ocenę z obiektu produktu (nadamy ją w komponencie wyżej)
+  const rating = product.mockRating || 0;
+  const reviewsCount = product.mockReviewsCount || 0;
 
   return (
     <article className="product-card">
@@ -51,21 +51,23 @@ const ProductCard = ({ product, isNew = false }) => {
           <Link to={productLink}>{product.name}</Link>
         </h4>
 
-        {/* NOWOŚĆ: Gwiazdki i ocena */}
-        <div className="product-card__rating">
-          <FaStar className="star-icon" />
-          <span className="rating-score">{mockedRating}</span>
-          <span className="rating-count">({mockedReviewsCount})</span>
-        </div>
+        {/* ZMIANA: Wyświetlamy sekcję ocen tylko, jeśli faktycznie istnieją jakieś opinie */}
+        {reviewsCount > 0 ? (
+          <StarRating rating={rating} count={reviewsCount} size="small" />
+        ) : (
+          <div className="product-card__rating" style={{ opacity: 0.5 }}>
+            <span className="rating-count">Brak opinii</span>
+          </div>
+        )}
 
         <p className="product-card__price">
           od {formatPrice(product.price_brut)} zł
         </p>
 
         <Button
+          to={productLink}
           variant="outline-slate-dark"
           className="product-card__btn"
-          onClick={() => console.log(`Dodano do koszyka: ${product.name}`)}
         >
           Kup teraz
         </Button>

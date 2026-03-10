@@ -103,30 +103,6 @@
     }
   }
 
-  &__rating {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    margin-bottom: 8px;
-    font-family: $font-body;
-    font-size: 0.9rem;
-
-    .star-icon {
-      color: #f5c518; // Klasyczny złoty kolor gwiazdek
-    }
-
-    .rating-score {
-      font-weight: 600;
-      color: $color-black;
-    }
-
-    .rating-count {
-      color: rgba($color-black, 0.5);
-      font-size: 0.85rem;
-    }
-  }
-
   &__price {
     font-family: $font-heading;
     color: $color-brown;

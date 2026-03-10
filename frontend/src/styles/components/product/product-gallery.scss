@@ -5,6 +5,10 @@
   position: sticky;
   top: 120px;
 
+  // NOWOŚĆ: Zabezpiecza przed "wypychaniem" strony na telefonach
+  max-width: 100%;
+  overflow: hidden; // Dodatkowo ucina to, co może wyjść bokiem z marginesów
+
   @media (max-width: 992px) {
     position: static;
   }
@@ -116,7 +120,6 @@
       opacity: 0.6;
       transition: all 0.3s ease;
       overflow: hidden;
-      border-radius: 4px;
 
       img {
         width: 100%;

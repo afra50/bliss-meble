@@ -68,19 +68,12 @@
       margin-bottom: 10px;
     }
 
-    .stars-wrapper {
-      color: #f5c518;
-      font-size: 1.4rem;
-      display: flex;
-      justify-content: center;
-      gap: 3px;
-      margin-bottom: 10px;
-    }
-
     .reviews-count {
       font-family: $font-body;
       color: color.change($color-black, $alpha: 0.6);
       font-size: 0.9rem;
+      display: block; // Zabezpieczenie, żeby tekst był pod gwiazdkami
+      margin-top: 15px;
     }
   }
 
@@ -105,7 +98,7 @@
         min-width: 35px;
 
         .star-icon {
-          color: #f5c518;
+          color: $color-star; // Pobieramy kolor ze zmiennych globalnych
         }
       }
 
@@ -118,7 +111,7 @@
 
         &__fill {
           height: 100%;
-          background-color: #f5c518; // Złoty kolor paska
+          background-color: $color-star; // Pobieramy kolor ze zmiennych globalnych
           border-radius: 4px;
           transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -192,15 +185,7 @@
     }
 
     &__stars {
-      display: flex;
-      gap: 2px;
-      color: #f5c518;
-      font-size: 1.1rem;
-      margin-bottom: 15px;
-
-      .empty {
-        color: color.change($color-slate, $alpha: 0.2);
-      }
+      margin-bottom: 15px; // Same marginesy zostają, kolorowanie wyleciało do globalnych styli
     }
 
     &__content {

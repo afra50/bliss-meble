@@ -62,7 +62,22 @@ const Products = () => {
         if (subcategory) params.subcategory = subcategory;
         response = await productApi.getAll(params);
       }
-      setProducts(response.data);
+
+      // ZMIANA: Doklejamy mockowane oceny na sztywno bazując na ID produktu
+      // Dzięki temu ocena z "losowej" staje się pseudo-stała dla danego łóżka.
+      // GDY ZROBIMY BACKEND Z OPINIAMI, PO PROSTU TO USUNIEMY I ZOSTAWIMY: setProducts(response.data);
+      const dataWithMockReviews = response.data.map((prod) => {
+        // Prosta matematyka żeby wypluwać ładne cyferki typu 4.2, 4.8
+        const pseudoRandomScore = 3.5 + ((prod.id * 17) % 15) / 10;
+        const pseudoRandomCount = (prod.id * 11) % 45;
+        return {
+          ...prod,
+          mockRating: pseudoRandomScore.toFixed(1),
+          mockReviewsCount: pseudoRandomCount,
+        };
+      });
+
+      setProducts(dataWithMockReviews);
     } catch (err) {
       console.error("Błąd pobierania:", err);
       setError("Wystąpił błąd podczas ładowania produktów.");
@@ -87,16 +102,16 @@ const Products = () => {
       case "price_desc":
         sorted.sort((a, b) => Number(b.price_brut) - Number(a.price_brut));
         break;
+      case "rating_desc": // ZMIANA: NOWY BLOK SORTOWANIA
+        sorted.sort((a, b) => Number(b.mockRating) - Number(a.mockRating));
+        break;
       case "newest":
-        // Od najwyższego (najnowszego) ID do najniższego
         sorted.sort((a, b) => b.id - a.id);
         break;
       case "oldest":
-        // NOWE: Od najniższego (najstarszego) ID do najwyższego
         sorted.sort((a, b) => a.id - b.id);
         break;
       default:
-        // Zabezpieczenie (wpadnie tu jeśli z jakiegoś powodu będzie 'newest')
         sorted.sort((a, b) => b.id - a.id);
         break;
     }

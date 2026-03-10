@@ -1,29 +1,25 @@
 import { formatPrice } from "../../utils/formatPrice";
-import { FaTruck, FaShieldAlt, FaStar, FaStarHalfAlt } from "react-icons/fa"; // DODAŁEM GWIAZDKI
+import { FaTruck, FaShieldAlt } from "react-icons/fa";
+import StarRating from "../ui/StarRating";
 import "../../styles/components/product/product-info.scss";
 
-const ProductInfo = ({ product, finalPrice, children }) => {
-  // TYMCZASOWE DANE DO TESTÓW
-  const mockedRating = 4.8;
-  const mockedReviewsCount = 12;
-
+// ZMIANA: Dodajemy rating i reviewsCount do propsów
+const ProductInfo = ({
+  product,
+  finalPrice,
+  rating,
+  reviewsCount,
+  children,
+}) => {
   return (
     <section className="product-info">
       <h1 className="product-info__title">{product.name}</h1>
 
-      {/* NOWOŚĆ: Sekcja ocen pod tytułem */}
       <div className="product-info__rating">
-        <div className="stars">
-          <FaStar />
-          <FaStar />
-          <FaStar />
-          <FaStar />
-          <FaStarHalfAlt />
-        </div>
-        <span className="score">{mockedRating}</span>
-        {/* Link, który w przyszłości przewinie stronę do sekcji #opinie */}
+        <StarRating rating={rating} size="medium" />
+        <span className="score">{rating}</span>
         <a href="#opinie" className="count">
-          Czytaj opinie ({mockedReviewsCount})
+          Czytaj opinie ({reviewsCount})
         </a>
       </div>
 
@@ -35,7 +31,6 @@ const ProductInfo = ({ product, finalPrice, children }) => {
 
       <p className="product-info__short-desc">{product.short_description}</p>
 
-      {/* Tutaj wpadną opcje (ProductOptions) i akcje (Koszyk/Licznik) */}
       {children}
 
       <div className="product-trust">
