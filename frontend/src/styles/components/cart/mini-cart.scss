@@ -1,0 +1,175 @@
+@use "../../variables" as *;
+
+.mini-cart-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(29, 29, 27, 0.7); // Twoja czerń z przezroczystością
+    backdrop-filter: blur(3px);
+    z-index: 9999;
+    display: flex;
+    justify-content: flex-end;
+    animation: fadeInOverlay 0.3s ease-out;
+}
+
+.mini-cart {
+    width: 100%;
+    max-width: 420px;
+    height: 100vh;
+    background: $color-white;
+    box-shadow: -5px 0 25px rgba($color-black, 0.15);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+    &__header {
+        padding: 20px 25px;
+        border-bottom: 1px solid rgba($color-brown, 0.15);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        h3 {
+            font-family: $font-heading;
+            font-size: 1.4rem;
+            color: $color-black;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-family: $font-body;
+            color: $color-slate;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+
+            svg {
+                font-size: 0.9rem;
+            }
+
+            &:hover {
+                color: $color-red; // Zmienione z czerwonego na oliwkowy
+            }
+        }
+    }
+
+    &__body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0 25px;
+
+        &::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: rgba($color-slate, 0.2);
+            border-radius: 5px;
+        }
+    }
+
+    &__empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        text-align: center;
+
+        p {
+            font-size: 1.1rem;
+            color: $color-black;
+            margin-bottom: 20px;
+            font-family: $font-body;
+        }
+    }
+
+    &__footer {
+        padding: 25px;
+        border-top: 1px solid rgba($color-brown, 0.15);
+
+        .subtotal {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+
+            span {
+                font-family: $font-body;
+                font-size: 1.1rem;
+                font-weight: 500;
+                color: $color-black;
+            }
+
+            strong {
+                font-family: $font-heading;
+                font-size: 1.5rem;
+                color: $color-black;
+            }
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; // Nieco więcej powietrza
+
+            // Rozciągamy natywny Button na całą szerokość
+            .btn-checkout {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+
+            // Link wystylizowany w klimacie Twojego "outline-olive"
+            .btn-view-cart {
+                width: 100%;
+                display: block;
+                text-align: center;
+                padding: 12px;
+                border: 1px solid $color-slate;
+                color: $color-slate;
+                background: transparent;
+                font-family: $font-body;
+                font-weight: 600;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                text-decoration: none;
+                transition: background-color 0.3s ease, color 0.3s ease;
+
+                &:hover {
+                    background-color: $color-slate;
+                    color: $color-white;
+                }
+            }
+        }
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInOverlay {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

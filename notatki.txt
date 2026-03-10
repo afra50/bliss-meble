@@ -2,6 +2,7 @@
 - linki do fb i insta w stopce i headerze
 - polityka prywatności
 - regulamin
+- przeceny - cena regularna, najnizsza cena z 30 dni przed obnizka, oszczedzasz x zl 
 - errorstate, alert i loader wszedzie
 - defaultowe zdjecie dla produktu wszedzie dac
 - minheight wszedzie
@@ -38,5 +39,14 @@ DLA KRZYŚKA:
 
 ===== ADMIN =====
 - przycisk wyloguj powinien robic loader a nie nic
+- zdjecia materialow
 1.PRODUKTY
     - nie da sie wklejac do tytulu tekstu (gdzies jeszcze?)
+
+===== KOSZYK =====
+- produkty w koszyku klikalne, przenoszace na podstrne produktu
+- na podsumowaniu widoczny wybor wysylki + cena, przeniesiony na drugi krok (tam tez mozna zmienic)
+- wydzielic gorny pasek na osobny komponent
+- responsywnosc koszyka z produktami
+- oszczedzasz x zlotych
+- darmowa dostawa od x zlotych? - do darmowej dostawy brakuje x zlotych / osiagnieto prog darmowej dostawy

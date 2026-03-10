@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FaShoppingCart } from "react-icons/fa";
 import Button from "./Button";
 import ToastAlert from "./ToastAlert";
+import { useCart } from "../../context/CartContext"; // <--- 1. IMPORT HOOKA
 
 const AddToCartButton = ({
   product,
@@ -12,10 +13,13 @@ const AddToCartButton = ({
   image,
   disabled = false,
   className = "",
-  label = "Dodaj do koszyka", // Pozwala nadpisać tekst (np. "Kup teraz")
+  label = "Dodaj do koszyka",
 }) => {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+
+  // 2. WYCIĄGAMY FUNKCJĘ Z CONTEXTU
+  const { addToCart } = useCart();
 
   const handleAddToCart = () => {
     if (disabled || !product) return;
@@ -30,9 +34,10 @@ const AddToCartButton = ({
       image: image,
     };
 
-    console.log("Dodano do koszyka:", itemToAdd);
+    // 3. WYSYŁAMY OBIEKT DO GLOBALNEGO KOSZYKA
+    addToCart(itemToAdd);
 
-    // Dynamiczna wiadomość
+    // Dynamiczna wiadomość do Toasta
     const msg =
       quantity > 1
         ? `Dodano ${quantity}x "${product.name}" do koszyka.`
@@ -40,8 +45,6 @@ const AddToCartButton = ({
 
     setAlertMessage(msg);
     setIsAlertOpen(true);
-
-    // TUTAJ PÓŹNIEJ: wywołanie np. addToCart z Context API
   };
 
   return (
