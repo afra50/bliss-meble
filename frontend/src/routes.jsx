@@ -9,6 +9,7 @@ import Complaints from "./pages/Complaints";
 import Contact from "./pages/Contact";
 import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
+import CartPage from "./pages/CartPage";
 
 // Importy Admina
 import LoginPage from "./pages/admin/Login";
@@ -26,8 +27,6 @@ const routes = [
   { path: "/o-marce", element: <AboutUs /> },
   { path: "kontakt", element: <Contact /> },
   { path: "/zwroty-reklamacje", element: <Complaints /> },
-  { path: "/platnosc-udana", element: <PaymentSuccess /> },
-  { path: "/platnosc-anulowana", element: <PaymentCancel /> },
 
   // --- ROUTY DLA SKLEPU ---
   { path: "/sklep", element: <Products /> },
@@ -35,6 +34,11 @@ const routes = [
   { path: "/:category", element: <Products /> },
   { path: "/:category/:subcategory", element: <Products /> },
   { path: "/sklep/:slug", element: <ProductDetails /> },
+
+  // --- ROUTY DLA ZAMOWIEN ---
+  { path: "/koszyk", element: <CartPage /> },
+  { path: "/platnosc-udana", element: <PaymentSuccess /> },
+  { path: "/platnosc-anulowana", element: <PaymentCancel /> },
 
   // --- LOGOWANIE ADMINA (Publiczne) ---
   { path: "/admin/login", element: <LoginPage /> },

@@ -12,12 +12,16 @@ import {
 import logo from "../assets/logos/bliss_logo_Black_Bliss_poziom.svg";
 import "../styles/components/header.scss";
 import SearchBar from "./ui/search/SearchBar";
+import { useCart } from "../context/CartContext";
+import MiniCart from "./cart/MiniCart";
 
 // NOWOŚĆ: Importujemy nasze dane
 import { CATEGORIES, SUBCATEGORIES } from "../utils/categories";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { cartCount } = useCart();
 
   // NOWOŚĆ: Dynamiczne budowanie menu
   const menuData = CATEGORIES.map((category) => {
@@ -107,10 +111,21 @@ const Header = () => {
             </a>
           </div>
 
-          <Link to="/koszyk" className="header__cart">
+          <button
+            className="header__cart"
+            onClick={() => setIsCartOpen(true)}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+            }}
+          >
             <FaShoppingBasket />
-            <span className="header__cart-count">0</span>
-          </Link>
+            {cartCount > 0 && (
+              <span className="header__cart-count">{cartCount}</span>
+            )}
+          </button>
 
           {/* BURGER ICON */}
           <div
@@ -121,6 +136,7 @@ const Header = () => {
           </div>
         </div>
       </div>
+      <MiniCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </header>
   );
 };
