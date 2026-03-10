@@ -34,8 +34,6 @@ DLA KRZYŚKA:
 - przycisk wyloguj powinien robic loader a nie nic
 1.PRODUKTY
     - nie da sie wklejac do tytulu tekstu (gdzies jeszcze?)
-2. ATRYBUTY
-    - usuwanie zdjec przy usuwaniu wartosci
 
 ===== KOSZYK =====
 - produkty w koszyku klikalne, przenoszace na podstrne produktu

@@ -41,6 +41,14 @@ const Attribute = {
   deleteValue: async (id) => {
     await pool.execute("DELETE FROM attribute_values WHERE id = ?", [id]);
   },
+
+  getValueById: async (id) => {
+    const [rows] = await pool.execute(
+      "SELECT image_url FROM attribute_values WHERE id = ?",
+      [id],
+    );
+    return rows[0]; // Zwraca { image_url: "nazwa.webp" } lub undefined
+  },
 };
 
 module.exports = Attribute;

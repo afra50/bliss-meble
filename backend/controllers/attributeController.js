@@ -101,14 +101,39 @@ exports.deleteValue = async (req, res, next) => {
 
     const { id } = parsedParams.data;
 
-    // TODO w przyszłości: Można tu dodać usuwanie pliku fizycznie z dysku,
-    // żeby nie zaśmiecać serwera usuniętymi tkaninami
+    // 1. Zanim usuniemy atrybut z bazy, musimy pobrać informację, czy miał zdjęcie
+    const attribute = await Attribute.getValueById(id);
 
+    if (!attribute) {
+      return res.status(404).json({ error: "Atrybut nie istnieje." });
+    }
+
+    // 2. Usuwamy fizyczny plik zdjęcia z folderu uploads/attributes/
+    if (attribute.image_url) {
+      const fullPath = path.join(
+        __dirname,
+        "../uploads/attributes",
+        attribute.image_url,
+      );
+
+      try {
+        // Sprawdzamy czy plik fizycznie istnieje na dysku (fs.access rzuci błędem jeśli nie ma)
+        await fs.access(fullPath);
+        // Jeśli jest - usuwamy
+        await fs.unlink(fullPath);
+      } catch (fileError) {
+        // Jeśli pliku nie ma na dysku, to po prostu go ignorujemy i idziemy dalej
+        console.log("Plik nie istnieje na dysku, pomijam usuwanie:", fullPath);
+      }
+    }
+
+    // 3. Usuwamy rekord z bazy danych
     await Attribute.deleteValue(id);
 
     res.json({
       success: true,
-      message: "Wartość atrybutu została pomyślnie usunięta.",
+      message:
+        "Wartość atrybutu oraz powiązane zdjęcie zostały pomyślnie usunięte.",
     });
   } catch (error) {
     logError("deleteValue", error);
