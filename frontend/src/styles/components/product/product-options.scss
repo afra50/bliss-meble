@@ -28,12 +28,21 @@
       cursor: pointer;
       transition: all 0.2s ease;
       color: $color-black;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      &__text {
+        display: block;
+      }
 
       .modifier {
         display: block;
         font-size: 0.75rem;
         color: color.change($color-black, $alpha: 0.5);
         margin-top: 4px;
+        transition: color 0.2s ease;
       }
 
       &:hover {
@@ -48,6 +57,36 @@
 
         .modifier {
           color: color.change($color-white, $alpha: 0.8);
+        }
+      }
+
+      // --- ZMIANY DLA PRZYCISKÓW Z TKANINAMI ---
+      &--fabric {
+        flex-direction: row; // Układamy kółko i tekst w jednym rzędzie
+        align-items: center;
+        gap: 12px;
+        padding: 8px 20px 8px 12px; // Trochę asymetryczny padding, żeby kółko ładnie leżało po lewej
+
+        .option-btn__texture {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background-size: cover;
+          background-position: center;
+          border: 1px solid rgba(0, 0, 0, 0.1);
+          flex-shrink: 0;
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); // Wewnętrzny cień uwydatnia teksturę
+        }
+
+        // Modyfikator dla tkanin ląduje w rzędzie, ewentualnie z mniejszym lewym marginesem
+        .modifier {
+          margin-top: 0;
+          margin-left: 4px;
+        }
+
+        // Gdy jest aktywne, kółko tekstury może dostać delikatną otoczkę, żeby było lepiej widoczne na oliwkowym tle
+        &.active .option-btn__texture {
+          border-color: $color-white;
         }
       }
     }

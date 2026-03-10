@@ -20,7 +20,6 @@ const ProductCard = ({ product, isNew = false }) => {
 
   const productLink = `/sklep/${product.slug}`;
 
-  // ZMIANA: Zczytujemy ocenę z obiektu produktu (nadamy ją w komponencie wyżej)
   const rating = product.mockRating || 0;
   const reviewsCount = product.mockReviewsCount || 0;
 
@@ -51,14 +50,8 @@ const ProductCard = ({ product, isNew = false }) => {
           <Link to={productLink}>{product.name}</Link>
         </h4>
 
-        {/* ZMIANA: Wyświetlamy sekcję ocen tylko, jeśli faktycznie istnieją jakieś opinie */}
-        {reviewsCount > 0 ? (
-          <StarRating rating={rating} count={reviewsCount} size="small" />
-        ) : (
-          <div className="product-card__rating" style={{ opacity: 0.5 }}>
-            <span className="rating-count">Brak opinii</span>
-          </div>
-        )}
+        {/* ZMIANA: Zniknął warunek if/else. StarRating poradzi sobie z brakiem opinii samodzielnie! */}
+        <StarRating rating={rating} count={reviewsCount} size="small" />
 
         <p className="product-card__price">
           od {formatPrice(product.price_brut)} zł
