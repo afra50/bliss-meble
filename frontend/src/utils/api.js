@@ -120,7 +120,11 @@ export const attributeApi = {
   getAll: () => api.get("/attributes"), // Zwraca strukturę grup i opcji
 
   // Admin: Zarządzanie konkretnymi wartościami (np. Velvet 01, 160x200)
-  createValue: (data) => api.post("/attributes/values", data), // data: { group_id: X, value: "..." }
+  // ZMIANA: Obsługa FormData (multipart/form-data) na potrzeby wgrywania próbek tkanin
+  createValue: (formData) =>
+    api.post("/attributes/values", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
   deleteValue: (id) => api.delete(`/attributes/values/${id}`), //
 };
 

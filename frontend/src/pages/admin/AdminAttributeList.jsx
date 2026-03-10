@@ -16,6 +16,10 @@ import { COLOR_FAMILIES } from "../../utils/colors";
 
 import "../../styles/pages/admin/admin-attribute-list.scss";
 
+const BACKEND_URL = import.meta.env.VITE_API_URL
+  ? import.meta.env.VITE_API_URL.replace("/api", "")
+  : "http://localhost:5000";
+
 const sortOptions = [
   { value: "alpha_asc", label: "Alfabetycznie (A-Z)" },
   { value: "alpha_desc", label: "Alfabetycznie (Z-A)" },
@@ -71,6 +75,7 @@ const AdminAttributeList = () => {
             group_id: g.id,
             group_name: g.name,
             color_hex: v.color_hex,
+            image_url: v.image_url, // <--- DODAJ TO
           });
         });
       });
@@ -252,20 +257,36 @@ const AdminAttributeList = () => {
                       <strong>{attr.value}</strong>
                     </td>
                     <td>
-                      {attr.color_hex ? (
-                        <div className="color-preview-wrap">
-                          <span
-                            className="color-preview-circle"
-                            style={{ backgroundColor: attr.color_hex }}
-                            title={attr.color_hex}
-                          ></span>
-                          <span className="color-preview-label">
-                            {colorFamily ? colorFamily.label : attr.color_hex}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="color-preview-empty">- brak -</span>
-                      )}
+                      <div className="color-preview-wrap">
+                        {/* 1. Priorytet ma zdjęcie tkaniny */}
+                        {attr.image_url ? (
+                          <>
+                            <img
+                              className="color-preview-image"
+                              src={`${BACKEND_URL}/uploads/attributes/${attr.image_url}`}
+                              alt={attr.value}
+                            />
+                            <span className="color-preview-label">
+                              Zdjęcie próbki
+                            </span>
+                          </>
+                        ) : attr.color_hex ? (
+                          /* 2. Jeśli nie ma zdjęcia, ale jest kolor HEX */
+                          <>
+                            <span
+                              className="color-preview-circle"
+                              style={{ backgroundColor: attr.color_hex }}
+                              title={attr.color_hex}
+                            ></span>
+                            <span className="color-preview-label">
+                              {colorFamily ? colorFamily.label : attr.color_hex}
+                            </span>
+                          </>
+                        ) : (
+                          /* 3. Jeśli nie ma nic */
+                          <span className="color-preview-empty">- brak -</span>
+                        )}
+                      </div>
                     </td>
                     <td className="td-actions">
                       <div className="actions-container">

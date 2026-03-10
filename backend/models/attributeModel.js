@@ -6,9 +6,9 @@ const Attribute = {
       "SELECT * FROM attribute_groups ORDER BY name ASC",
     );
 
-    // ZMIANA: Pobieramy też color_hex z bazy
+    // ZMIANA: Pobieramy też image_url z bazy
     const [allValues] = await pool.execute(
-      "SELECT id, group_id, value, color_hex FROM attribute_values ORDER BY value ASC",
+      "SELECT id, group_id, value, color_hex, image_url FROM attribute_values ORDER BY value ASC",
     );
 
     const formattedGroups = groups.map((group) => {
@@ -16,19 +16,24 @@ const Attribute = {
         ...group,
         values: allValues
           .filter((v) => v.group_id === group.id)
-          // ZMIANA: Zwracamy color_hex w obiekcie
-          .map((v) => ({ id: v.id, value: v.value, color_hex: v.color_hex })),
+          // ZMIANA: Zwracamy image_url w obiekcie
+          .map((v) => ({
+            id: v.id,
+            value: v.value,
+            color_hex: v.color_hex,
+            image_url: v.image_url,
+          })),
       };
     });
 
     return formattedGroups;
   },
 
-  // ZMIANA: Dodajemy trzeci parametr (colorHex) do zapytania INSERT
-  createValue: async (groupId, value, colorHex) => {
+  // ZMIANA: Dodajemy imageUrl do zapytania INSERT
+  createValue: async (groupId, value, colorHex, imageUrl) => {
     const [result] = await pool.execute(
-      "INSERT INTO attribute_values (group_id, value, color_hex) VALUES (?, ?, ?)",
-      [groupId, value, colorHex],
+      "INSERT INTO attribute_values (group_id, value, color_hex, image_url) VALUES (?, ?, ?, ?)",
+      [groupId, value, colorHex, imageUrl],
     );
     return result.insertId;
   },

@@ -111,14 +111,23 @@
             gap: 8px;
         }
 
+        // NOWOŚĆ: Klasa dla zdjęcia z uploadu
+        .color-preview-image {
+            width: 30px;
+            height: 30px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
         .color-preview-circle {
             display: inline-block;
-            width: 20px;
-            height: 20px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             border: 1px solid rgba(0, 0, 0, 0.15);
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-            flex-shrink: 0; // Gwarantuje, że kółko się nie spłaszczy
+            flex-shrink: 0;
         }
 
         .color-preview-label {

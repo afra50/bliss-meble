@@ -1,5 +1,8 @@
 const Attribute = require("../models/attributeModel");
 const { z } = require("zod");
+const sharp = require("sharp");
+const path = require("path");
+const fs = require("fs").promises;
 
 const logError = (method, error) => {
   console.error(`--- BŁĄD W ATTR:${method} ---`);
@@ -15,8 +18,12 @@ const createValueSchema = z.object({
   value: z
     .string()
     .min(1, "Wartość atrybutu jest wymagana (nie może być pusta)."),
-  // NOWOŚĆ: Opcjonalny kod HEX
-  color_hex: z.string().nullable().optional(),
+  // Form Data przesyła puste pola jako puste stringi lub string "null"
+  color_hex: z
+    .string()
+    .optional()
+    .nullable()
+    .transform((val) => (val === "null" || val === "" ? null : val)),
 });
 
 const deleteValueSchema = z.object({
@@ -25,7 +32,6 @@ const deleteValueSchema = z.object({
 
 exports.getAttributes = async (req, res, next) => {
   try {
-    // Tutaj nie ma czego walidować, bo to prosty GET
     const attributes = await Attribute.findAllGroupsWithValues();
     res.json(attributes);
   } catch (error) {
@@ -43,12 +49,40 @@ exports.createValue = async (req, res, next) => {
         .json({ error: parsedData.error.errors[0].message });
     }
 
-    // NOWOŚĆ: Wyciągamy też color_hex
     const { group_id, value, color_hex } = parsedData.data;
+    let imageUrl = null;
 
-    // Przekazujemy color_hex do modelu
-    const id = await Attribute.createValue(group_id, value, color_hex || null);
-    res.status(201).json({ id, group_id, value, color_hex });
+    // OBSŁUGA ZDJĘCIA (jeśli zostało przesłane)
+    if (req.file) {
+      // Generujemy unikalną nazwę (np. attr-1701234567.webp)
+      const filename = `attr-${Date.now()}-${Math.round(Math.random() * 1000)}.webp`;
+      const uploadDir = path.join(__dirname, "../uploads/attributes");
+
+      // Tworzymy folder 'uploads/attributes' jeśli nie istnieje
+      await fs.mkdir(uploadDir, { recursive: true });
+
+      const filepath = path.join(uploadDir, filename);
+
+      // Skalujemy i optymalizujemy próbkę tkaniny (miniaturka)
+      await sharp(req.file.buffer)
+        .resize({ width: 250, height: 250, fit: "cover" }) // Kwadratowe proporcje są najlepsze dla tkanin
+        .webp({ quality: 80 })
+        .toFile(filepath);
+
+      imageUrl = filename; // Zapisujemy do bazy tylko nazwę pliku
+    }
+
+    // Przekazujemy imageUrl do modelu
+    const id = await Attribute.createValue(
+      group_id,
+      value,
+      color_hex || null,
+      imageUrl,
+    );
+
+    res
+      .status(201)
+      .json({ id, group_id, value, color_hex, image_url: imageUrl });
   } catch (error) {
     logError("createValue", error);
     next(error);
@@ -57,7 +91,6 @@ exports.createValue = async (req, res, next) => {
 
 exports.deleteValue = async (req, res, next) => {
   try {
-    // Walidujemy parametry z URL (req.params)
     const parsedParams = deleteValueSchema.safeParse(req.params);
 
     if (!parsedParams.success) {
@@ -67,6 +100,9 @@ exports.deleteValue = async (req, res, next) => {
     }
 
     const { id } = parsedParams.data;
+
+    // TODO w przyszłości: Można tu dodać usuwanie pliku fizycznie z dysku,
+    // żeby nie zaśmiecać serwera usuniętymi tkaninami
 
     await Attribute.deleteValue(id);
 
