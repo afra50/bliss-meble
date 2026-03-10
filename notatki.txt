@@ -29,7 +29,6 @@ DLA KRZYŚKA:
 
 ===== SZCZEGÓŁY PRODUKTU =====
 - darmowa dostawa z bazy?
-- tkaniny poprawic
 
 ===== ADMIN =====
 - przycisk wyloguj powinien robic loader a nie nic

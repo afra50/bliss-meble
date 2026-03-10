@@ -71,7 +71,7 @@ const Product = {
 
     const [attributes] = await pool.execute(
       `
-      SELECT av.id as value_id, av.value, ag.name as group_name, pa.price_modifier
+      SELECT av.id as value_id, av.value, av.image_url, ag.name as group_name, pa.price_modifier
       FROM product_attributes pa
       JOIN attribute_values av ON pa.attribute_value_id = av.id
       JOIN attribute_groups ag ON av.group_id = ag.id
@@ -101,7 +101,7 @@ const Product = {
 
     // 3. Pobieramy atrybuty (tkaniny/rozmiary) wraz z dopłatami
     const [attributes] = await pool.execute(
-      `SELECT av.id as value_id, av.value, ag.name as group_name, pa.price_modifier
+      `SELECT av.id as value_id, av.value, av.image_url, ag.name as group_name, pa.price_modifier
        FROM product_attributes pa
        JOIN attribute_values av ON pa.attribute_value_id = av.id
        JOIN attribute_groups ag ON av.group_id = ag.id

@@ -8,12 +8,19 @@ import "../../styles/components/ui/star-rating.scss";
 const StarRating = ({ rating = 0, count = 0, size = "small" }) => {
   // Tryb "small" (np. na liście produktów) - pokazuje tylko 1 gwiazdkę i cyferki
   if (size === "small") {
+    // ZMIANA: Obsługa "Pustego stanu" bezpośrednio z zachowaniem klas SCSS
+    if (count === 0) {
+      return (
+        <div className="star-rating star-rating--small star-rating--empty">
+          <span className="rating-count">Brak opinii</span>
+        </div>
+      );
+    }
+
     return (
-      <div
-        className={`star-rating star-rating--small ${count === 0 ? "star-rating--empty" : ""}`}
-      >
+      <div className="star-rating star-rating--small">
         <FaStar className="star-icon full" />
-        <span className="rating-score">{count > 0 ? rating : "Brak"}</span>
+        <span className="rating-score">{rating}</span>
         <span className="rating-count">({count})</span>
       </div>
     );
