@@ -23,15 +23,13 @@ DLA KRZYŚKA:
 - przyciski powinny kierowac na pewno w dobre miejsce/zakladke
 
 ===== PRODUKTY =====
-- filtry komponent? + ma dzialac
-- wydzielic na mniejsze
 - recenzje bez mockow
 - backend/baza ma zwracac ilosc opini i srednia?
 - czytaj opinie ma przenosic powoli a nie skakac
 
 ===== SZCZEGÓŁY PRODUKTU =====
 - darmowa dostawa z bazy?
-- kolory/tkaniny poprawic
+- tkaniny poprawic
 
 ===== ADMIN =====
 - przycisk wyloguj powinien robic loader a nie nic
