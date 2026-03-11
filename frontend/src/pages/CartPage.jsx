@@ -105,7 +105,6 @@ const CartPage = () => {
                         style={{
                           textDecoration: "line-through",
                           color: "#94a3b8",
-                          marginRight: "10px",
                         }}
                       >
                         {formatPrice(cartTotal + cartTotalSavings)} zł

@@ -1,6 +1,6 @@
 - index.html, seo, sitemap, googlesearch, manifest.json, robots.txt url, og.jpg, JSON-LD
 - linki do fb i insta w stopce i headerze
-- polityka prywatności
+- polityka prywatności zaktualizowac na koniec i zweryfikowac
 - regulamin
 - errorstate, alert i loader wszedzie
 - defaultowe zdjecie dla produktu wszedzie dac
@@ -9,7 +9,17 @@
 BACKEND + INTEGRACJA
 - wykorzystywać api.js, tam robić helpery do integracji
 - zod do walidacji requestow
-- jakie crony? usuwanie zamowien, order_items, shipping deatils, review tokens? produktow usunietych i ich zdjec?
+- cron zadania - raz dziennie
+    * Usuwanie nieopłaconych zamówień (po 30 dniach) - Przeszukuje bazę w poszukiwaniu "śmieciowych" zamówień starszych niż 30 dni. 
+      Dzięki temu, że w Twojej bazie bliss.sql ustawiłyśmy ON DELETE CASCADE, usunięcie rekordu z tabeli orders wywołuje reakcję 
+      łańcuchową – baza automatycznie usuwa też dane adresowe tego klienta z shipping_details i jego koszyk z order_items.
+    * Czyszczenie wygasłych tokenów opinii - Dba o higienę i bezpieczeństwo bazy. Skrypt wchodzi do tabeli review_tokens 
+      i natychmiast kasuje wszystkie tokeny, które zostały już użyte przez klienta do wystawienia recenzji (is_used = 1) oraz te, 
+      których termin ważności po prostu minął (expires_at <= NOW()).
+    * Anonimizacja bardzo starych zamówień (> 6 lat) - Znajduje zamówienia zrealizowane (paid, packed, shipped), które mają więcej niż 6 lat. 
+      Zamiast je usuwać (co zepsułoby wykresy Twoich zarobków z tamtego okresu), skrypt wchodzi do tabeli shipping_details 
+      i podmienia wrażliwe dane osobowe na wartości fikcyjne. Ulica i miasto zmieniają się na "Zanonimizowano", 
+      e-mail na "anonim@blissmeble.pl", a imię na "Anonim".
 
 DLA KRZYŚKA:
 - o nas
