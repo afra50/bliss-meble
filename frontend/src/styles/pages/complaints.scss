@@ -32,7 +32,7 @@
 	.complaints-section {
 		padding: 2.5rem;
 		border-radius: 8px;
-		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Subtelny cień */
+		box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 
 		.complaints-subtitle {
 			font-size: 1.6rem;
@@ -44,7 +44,7 @@
 			gap: 0.75rem;
 
 			svg {
-				color: $color-brown; /* Kolor ikon spójny z resztą strony */
+				color: $color-brown;
 				flex-shrink: 0; /* Zapobiega zmniejszaniu się ikony na wąskich ekranach */
 			}
 		}
@@ -58,14 +58,13 @@
 
 		.complaints-list {
 			list-style-type: disc;
-			padding-left: 1.5rem; /* Wcięcie dla listy */
+			padding-left: 1.5rem;
 			margin-bottom: 1rem;
 
-			/* Zagnieżdżona lista (np. w sekcji 2) */
 			ul.complaints-list {
 				list-style-type: circle;
 				margin-top: 0.5rem;
-				margin-bottom: 0; /* Reset dolnego marginesu w środku elementu rodzica */
+				margin-bottom: 0;
 			}
 
 			.complaints-list-text {
@@ -74,7 +73,6 @@
 				color: $color-olive;
 				margin-bottom: 0.8rem;
 
-				/* Pogrubienia na początku punktów */
 				strong {
 					color: $color-olive;
 					font-weight: 600;
