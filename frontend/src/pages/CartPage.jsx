@@ -12,6 +12,7 @@ import { useCart } from "../context/CartContext";
 import { formatPrice } from "../utils/formatPrice";
 import CartItem from "../components/cart/CartItem";
 import Button from "../components/ui/Button";
+import CheckoutStepper from "../components/checkout/CheckoutStepper";
 
 import "../styles/pages/cart-page.scss";
 
@@ -35,19 +36,7 @@ const CartPage = () => {
   return (
     <main className="cart-page">
       <div className="cart-page__container">
-        <div className="checkout-stepper">
-          <div className="checkout-stepper__step checkout-stepper__step--active">
-            <span>1. KOSZYK</span>
-          </div>
-          <FaArrowRight className="checkout-stepper__arrow" />
-          <div className="checkout-stepper__step">
-            <span>2. ZAMÓWIENIE</span>
-          </div>
-          <FaArrowRight className="checkout-stepper__arrow" />
-          <div className="checkout-stepper__step">
-            <span>3. PODSUMOWANIE</span>
-          </div>
-        </div>
+        <CheckoutStepper currentStep={1} />
 
         <h1 className="cart-page__title">Twój Koszyk</h1>
 

@@ -8,6 +8,11 @@
     border-bottom: 1px solid rgba($color-slate, 0.15);
     position: relative;
 
+    // POPRAWKA DLA MOBILKI: Zwykły koszyk łamie się na telefonie na 2 wiersze
+    @media (max-width: 768px) {
+        flex-wrap: wrap;
+    }
+
     &__image {
         width: 100px;
         height: 100px;
@@ -25,6 +30,10 @@
     &__info {
         flex: 1;
         padding-right: 30px;
+
+        @media (max-width: 768px) {
+            min-width: calc(100% - 150px); // Zapobiega zgniataniu na telefonie
+        }
     }
 
     &__name {
@@ -33,6 +42,16 @@
         color: $color-black;
         margin-bottom: 8px;
         line-height: 1.3;
+
+        a {
+            color: $color-black;
+            text-decoration: none;
+            transition: color 0.2s ease;
+
+            &:hover {
+                color: $color-olive;
+            }
+        }
     }
 
     &__attributes {
@@ -52,20 +71,42 @@
     &__actions {
         display: flex;
         align-items: center;
-        gap: 40px; // Dopasowane do nagłówków w cart-page.scss
-        padding-right: 40px; // Zapas na 'X'
+        gap: 40px;
+        padding-right: 40px;
+        flex-shrink: 0;
+
+        @media (max-width: 768px) {
+            width: 100%;
+            justify-content: space-between;
+            gap: 10px; // ZMIANA: Zmniejszamy drastycznie gap na telefonie (było 40px, co rozpychało)
+            padding-right: 0;
+            margin-top: 10px;
+        }
     }
 
     &__price-unit {
         color: $color-slate;
-        width: 90px;
+        width: 100px;
         text-align: center;
+
+        // ZMIANA: Na telefonie pozwalamy się mu kurczyć i rozciągać naturalnie
+        @media (max-width: 768px) {
+            width: auto;
+            text-align: left;
+        }
     }
 
     &__qty {
         width: 90px;
         display: flex;
         justify-content: center;
+
+        // ZMIANA: Na telefonie uwalniamy szerokość
+        @media (max-width: 768px) {
+            width: auto;
+            flex: 1; // Wypycha cenę końcową maksymalnie do prawej
+            justify-content: center;
+        }
     }
 
     &__total {
@@ -73,13 +114,18 @@
         font-size: 1.1rem;
         width: 100px;
         text-align: right;
+
+        // ZMIANA: Na telefonie uwalniamy szerokość
+        @media (max-width: 768px) {
+            width: auto;
+        }
     }
 
     // -----------------------------------------------------------
 
     &__remove {
         position: absolute;
-        top: 50%; // Wyśrodkowanie w pionie dla dużej tabeli
+        top: 50%;
         transform: translateY(-50%);
         right: 0;
         background: none;
@@ -93,11 +139,20 @@
         &:hover {
             color: $color-red;
         }
+
+        @media (max-width: 768px) {
+            top: 15px;
+            transform: none;
+
+            // ZMIANA: Krzyżyk odsuwa się mocniej od krawędzi ekranu telefonu
+            right: 15px;
+        }
     }
 
-    // --- WERSJA DLA MINI-KOSZYKA ---
+    // --- WERSJA DLA MINI-KOSZYKA (Rozdzielona od media query!) ---
     &--compact {
         align-items: flex-start;
+        flex-wrap: nowrap; // Mini koszyk zawsze trzymamy w 1 wierszu
         gap: 15px;
         padding: 15px 0;
 
@@ -106,19 +161,23 @@
             height: 80px;
         }
 
+        .cart-item__info {
+            padding-right: 25px;
+            min-width: auto;
+        }
+
         .cart-item__name {
             font-size: 0.95rem;
             font-weight: 600;
         }
 
-        .cart-item__remove {
-            top: 15px; // W kompaktowym 'X' zostaje na górze
-            transform: none;
-        }
-
         .cart-item__compact-price {
             margin-top: 8px;
             font-size: 0.95rem;
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 5px;
 
             .qty {
                 color: $color-slate;
@@ -168,12 +227,13 @@
         font-weight: 400;
     }
 
-    // NOWOŚĆ: Blok z Omnibus i informacją o oszczędności dla elementu koszyka
+    // Blok z Omnibus i informacją o oszczędności dla elementu koszyka
     .cart-item__promo-info {
         margin-top: 10px;
         display: flex;
         flex-direction: column;
         gap: 5px;
+        word-break: break-word; // Zapobiega rozpychaniu na małym ekranie
 
         .save-badge {
             display: inline-block;
@@ -183,6 +243,7 @@
             color: $color-red;
             font-size: 0.75rem;
             font-weight: 700;
+            border-radius: 4px;
         }
 
         .omnibus-text {

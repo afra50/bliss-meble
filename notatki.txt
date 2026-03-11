@@ -18,9 +18,6 @@ DLA KRZYŚKA:
     * koszty wysylek
     * recenzje
 
-===== HOME =====
-- przyciski powinny kierowac na pewno w dobre miejsce/zakladke
-
 ===== PRODUKTY =====
 - recenzje bez mockow
 - backend/baza ma zwracac ilosc opini i srednia?
@@ -30,8 +27,5 @@ DLA KRZYŚKA:
 - darmowa dostawa z bazy?
 
 ===== KOSZYK =====
-- produkty w koszyku klikalne, przenoszace na podstrne produktu
-- wydzielic gorny pasek na osobny komponent
-- responsywnosc koszyka z produktami
 - darmowa dostawa od x zlotych? - do darmowej dostawy brakuje x zlotych / osiagnieto prog darmowej dostaw
 - na podsumowaniu widoczny wybor wysylki + cena, przeniesiony na drugi krok (tam tez mozna zmienic)

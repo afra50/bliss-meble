@@ -10,48 +10,6 @@
         margin: 0 auto;
     }
 
-    // --- STEPPER (KROKI ZAMÓWIENIA) ---
-    .checkout-stepper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 15px;
-        margin-bottom: 50px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid rgba($color-brown, 0.15);
-
-        &__step {
-            font-family: $font-heading;
-            font-size: 1rem;
-            color: $color-slate;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-
-            &--active {
-                color: $color-black;
-                font-weight: 700;
-            }
-        }
-
-        &__arrow {
-            color: rgba($color-slate, 0.4);
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-            margin-bottom: 30px;
-
-            .checkout-stepper__step {
-                font-size: 0.85rem;
-            }
-
-            .checkout-stepper__arrow {
-                font-size: 0.75rem;
-            }
-        }
-    }
-
     &__title {
         font-family: $font-heading;
         font-size: 2.2rem;
@@ -98,7 +56,7 @@
         gap: 40px;
         align-items: start;
 
-        @media (max-width: 992px) {
+        @media (max-width: 1100px) {
             grid-template-columns: 1fr;
             gap: 40px;
         }
@@ -207,6 +165,15 @@
         padding: 30px;
         box-shadow: 0 10px 30px rgba($color-black, 0.03);
 
+        // ZABEZPIECZENIE GŁÓWNE: Pudełko nigdy nie będzie szersze niż ekran
+        max-width: 100%;
+        overflow-wrap: break-word;
+        box-sizing: border-box;
+
+        @media (max-width: 576px) {
+            padding: 20px 15px;
+        }
+
         &__title {
             font-family: $font-heading;
             font-size: 1.2rem;
@@ -219,12 +186,34 @@
         &__row {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
             font-size: 1.05rem;
             color: $color-slate;
+            gap: 15px;
+
+            span:first-child {
+                flex-shrink: 0;
+            }
+
+            .price-nowrap {
+                text-align: right;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 8px;
+                flex-wrap: wrap; // Pozwala starej i nowej cenie bezpiecznie spaść jedna pod drugą
+
+                @media (max-width: 576px) {
+                    flex-direction: column;
+                    align-items: flex-end;
+                    gap: 2px;
+                }
+            }
 
             &--shipping {
                 flex-direction: column;
+                align-items: stretch;
                 gap: 10px;
 
                 .shipping-info {
@@ -232,6 +221,10 @@
                     color: rgba($color-slate, 0.8);
                     text-align: right;
                     line-height: 1.4;
+
+                    @media (max-width: 576px) {
+                        text-align: left;
+                    }
                 }
             }
         }
@@ -239,25 +232,31 @@
         &__total {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-top: 30px;
             padding-top: 20px;
             border-top: 2px solid rgba($color-brown, 0.1);
+            flex-wrap: nowrap;
+            gap: 15px;
 
-            span {
+            >span {
                 font-family: $font-heading;
                 font-size: 1.2rem;
                 color: $color-black;
+                margin-top: 5px;
             }
 
             .total-price {
                 display: flex;
                 flex-direction: column;
                 align-items: flex-end;
+                text-align: right;
+                width: 100%; // Zapewnia, że flex wypełni dostępne miejsce
 
                 strong {
                     font-size: 1.6rem;
                     color: $color-black;
+                    white-space: nowrap;
                 }
 
                 small {
@@ -266,7 +265,6 @@
                     margin-top: 4px;
                 }
 
-                // Dodajemy to na samym dole wewnątrz .total-price
                 .summary-box__savings {
                     margin-top: 10px;
                     padding: 8px 12px;
@@ -274,13 +272,20 @@
                     color: $color-red;
                     font-size: 0.85rem;
                     font-family: $font-body;
-                    width: max-content;
-                    align-self: flex-end;
+
+                    // ZMIANA: Zamiast "max-content", które mogło wylewać tekst poza ekran, używamy fit-content i pozwalamy na łamanie
+                    width: fit-content;
+                    max-width: 100%;
+                    text-align: center;
+
+                    @media (max-width: 576px) {
+                        align-self: stretch; // Rozciąga się na całą szerokość kolumienki, jeśli brakuje miejsca
+                    }
 
                     strong {
                         font-size: 0.95rem;
                         font-weight: 700;
-                        color: $color-olive;
+                        color: $color-red;
                     }
                 }
             }

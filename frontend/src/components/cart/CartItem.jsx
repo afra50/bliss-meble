@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom"; // <--- 1. Importujemy Link
 import { FaTimes } from "react-icons/fa";
 import { formatPrice } from "../../utils/formatPrice";
 import QuantitySelector from "../ui/QuantitySelector";
@@ -20,19 +21,28 @@ const CartItem = ({
   const isPromo =
     regularPrice && parseFloat(regularPrice) > parseFloat(item.price);
 
-  // Oszczędność na jednej sztuce
   const savingsPerItem = isPromo
     ? parseFloat(regularPrice) - parseFloat(item.price)
     : 0;
 
+  // 2. Tworzymy zmienną na adres URL
+  // Opcja fallback: jeśli dodali wcześniej bez sluga, prowadzimy na stronę główną sklepu
+  const productUrl = item.slug ? `/sklep/${item.slug}` : `/sklep`;
+
   return (
     <div className={`cart-item ${isCompact ? "cart-item--compact" : ""}`}>
-      <div className="cart-item__image">
-        <img src={item.image || defaultImg} alt={item.name} />
-      </div>
+      {/* 3. ZDJĘCIE JAKO LINK */}
+      <Link to={productUrl} className="cart-item__image-link">
+        <div className="cart-item__image">
+          <img src={item.image || defaultImg} alt={item.name} />
+        </div>
+      </Link>
 
       <div className="cart-item__info">
-        <h4 className="cart-item__name">{item.name}</h4>
+        {/* 4. NAZWA JAKO LINK */}
+        <h4 className="cart-item__name">
+          <Link to={productUrl}>{item.name}</Link>
+        </h4>
 
         <div className="cart-item__attributes">
           {item.fabric && (
@@ -47,7 +57,7 @@ const CartItem = ({
           )}
         </div>
 
-        {/* WIDOK KOMPAKTOWY: 1 x 2400,00 zł */}
+        {/* WIDOK KOMPAKTOWY */}
         {isCompact && (
           <div className="cart-item__compact-price">
             <span className="qty">{item.quantity}</span>
@@ -69,7 +79,7 @@ const CartItem = ({
           </div>
         )}
 
-        {/* ZMIANA: OMNIBUS ORAZ INFO O OSZCZĘDNOŚCI DLA WIDOKU PEŁNEGO */}
+        {/* OMNIBUS ORAZ INFO O OSZCZĘDNOŚCI DLA WIDOKU PEŁNEGO */}
         {!isCompact && isPromo && (
           <div className="cart-item__promo-info">
             <span className="save-badge">

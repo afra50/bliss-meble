@@ -1,0 +1,42 @@
+@use "../../variables" as *;
+
+.checkout-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 50px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba($color-brown, 0.15);
+
+    &__step {
+        font-family: $font-heading;
+        font-size: 1rem;
+        color: $color-slate;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+
+        &--active {
+            color: $color-black;
+            font-weight: 700;
+        }
+    }
+
+    &__arrow {
+        color: rgba($color-slate, 0.4);
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        margin-bottom: 30px;
+
+        &__step {
+            font-size: 0.85rem;
+        }
+
+        &__arrow {
+            font-size: 0.75rem;
+        }
+    }
+}

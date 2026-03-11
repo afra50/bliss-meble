@@ -28,6 +28,7 @@ const AddToCartButton = ({
     const itemToAdd = {
       id: product.id,
       name: product.name,
+      slug: product.slug,
       price: price || product.price_brut,
       regular_price: regularPrice || product.price_brut,
       omnibusPrice: omnibusPrice || null, // <--- TERAZ TO ZADZIAŁA
