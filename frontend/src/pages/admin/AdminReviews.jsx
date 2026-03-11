@@ -6,6 +6,10 @@ import AdminSearchBar from "../../components/admin/AdminSearchBar";
 import CustomSelect from "../../components/ui/CustomSelect";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import ToastAlert from "../../components/ui/ToastAlert";
+import Pagination from "../../components/ui/Pagination";
+// NOWE IMPORTY
+import Loader from "../../components/ui/Loader";
+import ErrorState from "../../components/ui/ErrorState";
 
 function AdminReviews() {
 	const [searchQuery, setSearchQuery] = useState("");
@@ -18,6 +22,12 @@ function AdminReviews() {
 		label: "Od najnowszych",
 	});
 
+	const [currentPage, setCurrentPage] = useState(1);
+
+	// --- STANY ŁADOWANIA I BŁĘDÓW (do pobierania danych z API) ---
+	const [isLoadingData, setIsLoadingData] = useState(false); // Zmień na true, by przetestować Loader
+	const [error, setError] = useState(null); // Zmień na np. "Błąd serwera", by przetestować ErrorState
+
 	const [dialogConfig, setDialogConfig] = useState({
 		isOpen: false,
 		action: null,
@@ -29,7 +39,6 @@ function AdminReviews() {
 	});
 	const [isProcessing, setIsProcessing] = useState(false);
 
-	// --- STAN DLA TOASTA ---
 	const [toastConfig, setToastConfig] = useState({
 		isOpen: false,
 		message: "",
@@ -73,12 +82,10 @@ function AdminReviews() {
 
 	const handleConfirm = () => {
 		setIsProcessing(true);
-		// Symulacja akcji API
 		setTimeout(() => {
 			setIsProcessing(false);
 			closeDialog();
 
-			// --- WYŚWIETLANIE TOASTA PO ZAKOŃCZONEJ AKCJI ---
 			if (dialogConfig.action === "delete") {
 				setToastConfig({
 					isOpen: true,
@@ -93,6 +100,13 @@ function AdminReviews() {
 				});
 			}
 		}, 1000);
+	};
+
+	// Funkcja do testowego resetowania błędu
+	const handleRetry = () => {
+		setError(null);
+		setIsLoadingData(true);
+		setTimeout(() => setIsLoadingData(false), 1000);
 	};
 
 	const ratingOptions = [
@@ -139,141 +153,163 @@ function AdminReviews() {
 				</div>
 			</div>
 
-			<section className="reviews-section">
-				<h2 className="reviews-title">Oczekujące na akceptację</h2>
-				<div className="reviews-table-wrapper">
-					<table className="reviews-table">
-						<colgroup>
-							<col style={{ width: "120px" }} />
-							<col style={{ width: "22%" }} />
-							<col style={{ width: "18%" }} />
-							<col style={{ width: "12%" }} />
-							<col style={{ width: "25%" }} />
-							<col style={{ width: "13%" }} />
-							<col style={{ width: "10%" }} />
-						</colgroup>
-						<thead>
-							<tr>
-								<th>Miniatura</th>
-								<th>Produkt</th>
-								<th>Autor</th>
-								<th>Ocena</th>
-								<th>Treść</th>
-								<th>Status</th>
-								<th>Akcje</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td className="td-img">
-									<img src="https://placehold.co/60x60" alt="Produkt" />
-								</td>
-								<td className="td-main">
-									<strong>Fotel Wypoczynkowy Lumina</strong>
-									<span className="sub-info">ID: #19</span>
-								</td>
-								<td className="td-main">
-									<strong>Jan Kowalski</strong>
-									<span className="sub-info">10.03.2026</span>
-								</td>
-								<td>
-									<div className="rating-stars">
-										{[...Array(4)].map((_, i) => (
-											<Star key={i} size={16} fill="#eab308" color="#eab308" />
-										))}
-										<Star size={16} color="#eab308" />
-									</div>
-								</td>
-								<td className="td-review-text">
-									Bardzo wygodny fotel, materiał solidny. Polecam.
-								</td>
-								<td>
-									<span className="status-badge pending">Oczekująca</span>
-								</td>
-								<td className="td-actions">
-									<div className="actions-container">
-										<button
-											className="action-btn accept"
-											onClick={() => openDialog("accept", 19)}>
-											<Check size={16} />
-										</button>
-										<button
-											className="action-btn delete"
-											onClick={() => openDialog("delete", 19)}>
-											<Trash2 size={16} />
-										</button>
-									</div>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</section>
+			{/* --- LOGIKA WARUNKOWA DLA LOADERA / ERRORA / DANYCH --- */}
+			{isLoadingData ? (
+				<Loader message="Wczytywanie recenzji..." />
+			) : error ? (
+				<ErrorState message={error} onRetry={handleRetry} />
+			) : (
+				<>
+					<section className="reviews-section">
+						<h2 className="reviews-title">Oczekujące na akceptację</h2>
+						<div className="reviews-table-wrapper">
+							<table className="reviews-table">
+								<colgroup>
+									<col style={{ width: "120px" }} />
+									<col style={{ width: "22%" }} />
+									<col style={{ width: "18%" }} />
+									<col style={{ width: "12%" }} />
+									<col style={{ width: "25%" }} />
+									<col style={{ width: "13%" }} />
+									<col style={{ width: "10%" }} />
+								</colgroup>
+								<thead>
+									<tr>
+										<th>Miniatura</th>
+										<th>Produkt</th>
+										<th>Autor</th>
+										<th>Ocena</th>
+										<th>Treść</th>
+										<th>Status</th>
+										<th>Akcje</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td className="td-img">
+											<img src="https://placehold.co/60x60" alt="Produkt" />
+										</td>
+										<td className="td-main">
+											<strong>Fotel Wypoczynkowy Lumina</strong>
+											<span className="sub-info">ID: #19</span>
+										</td>
+										<td className="td-main">
+											<strong>Jan Kowalski</strong>
+											<span className="sub-info">10.03.2026</span>
+										</td>
+										<td>
+											<div className="rating-stars">
+												<Star size={16} fill="#eab308" color="#eab308" />
+												<Star size={16} fill="#eab308" color="#eab308" />
+												<Star size={16} fill="#eab308" color="#eab308" />
+												<Star size={16} fill="#eab308" color="#eab308" />
+												<Star size={16} color="#eab308" />
+											</div>
+										</td>
+										<td className="td-review-text">
+											Bardzo wygodny fotel, materiał solidny. Polecam.
+										</td>
+										<td>
+											<span className="status-badge pending">Oczekująca</span>
+										</td>
+										<td className="td-actions">
+											<div className="actions-container">
+												<button
+													className="action-btn accept"
+													onClick={() => openDialog("accept", 19)}>
+													<Check size={16} />
+												</button>
+												<button
+													className="action-btn delete"
+													onClick={() => openDialog("delete", 19)}>
+													<Trash2 size={16} />
+												</button>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</section>
 
-			<section className="reviews-section">
-				<h2 className="reviews-title">Zaakceptowane recenzje</h2>
-				<div className="reviews-table-wrapper">
-					<table className="reviews-table">
-						<colgroup>
-							<col style={{ width: "120px" }} />
-							<col style={{ width: "22%" }} />
-							<col style={{ width: "18%" }} />
-							<col style={{ width: "12%" }} />
-							<col style={{ width: "25%" }} />
-							<col style={{ width: "13%" }} />
-							<col style={{ width: "10%" }} />
-						</colgroup>
-						<thead>
-							<tr>
-								<th>Miniatura</th>
-								<th>Produkt</th>
-								<th>Autor</th>
-								<th>Ocena</th>
-								<th>Treść</th>
-								<th>Status</th>
-								<th>Akcje</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td className="td-img">
-									<img src="https://placehold.co/60x60" alt="Produkt" />
-								</td>
-								<td className="td-main">
-									<strong>Sofa Copenhagen</strong>
-									<span className="sub-info">ID: #45</span>
-								</td>
-								<td className="td-main">
-									<strong>Anna Nowak</strong>
-									<span className="sub-info">05.03.2026</span>
-								</td>
-								<td>
-									<div className="rating-stars">
-										{[...Array(5)].map((_, i) => (
-											<Star key={i} size={16} fill="#eab308" color="#eab308" />
-										))}
-									</div>
-								</td>
-								<td className="td-review-text">
-									Kanapa jest przepiękna i idealnie pasuje do salonu.
-								</td>
-								<td>
-									<span className="status-badge success">Zaakceptowana</span>
-								</td>
-								<td className="td-actions">
-									<div className="actions-container">
-										<button
-											className="action-btn delete"
-											onClick={() => openDialog("delete", 45)}>
-											<Trash2 size={16} />
-										</button>
-									</div>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</section>
+					<section className="reviews-section">
+						<h2 className="reviews-title">Zaakceptowane recenzje</h2>
+						<div className="reviews-table-wrapper">
+							<table className="reviews-table">
+								<colgroup>
+									<col style={{ width: "120px" }} />
+									<col style={{ width: "22%" }} />
+									<col style={{ width: "18%" }} />
+									<col style={{ width: "12%" }} />
+									<col style={{ width: "25%" }} />
+									<col style={{ width: "13%" }} />
+									<col style={{ width: "10%" }} />
+								</colgroup>
+								<thead>
+									<tr>
+										<th>Miniatura</th>
+										<th>Produkt</th>
+										<th>Autor</th>
+										<th>Ocena</th>
+										<th>Treść</th>
+										<th>Status</th>
+										<th>Akcje</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td className="td-img">
+											<img src="https://placehold.co/60x60" alt="Produkt" />
+										</td>
+										<td className="td-main">
+											<strong>Sofa Copenhagen</strong>
+											<span className="sub-info">ID: #45</span>
+										</td>
+										<td className="td-main">
+											<strong>Anna Nowak</strong>
+											<span className="sub-info">05.03.2026</span>
+										</td>
+										<td>
+											<div className="rating-stars">
+												<Star size={16} fill="#eab308" color="#eab308" />
+												<Star size={16} fill="#eab308" color="#eab308" />
+												<Star size={16} fill="#eab308" color="#eab308" />
+												<Star size={16} fill="#eab308" color="#eab308" />
+												<Star size={16} fill="#eab308" color="#eab308" />
+											</div>
+										</td>
+										<td className="td-review-text">
+											Kanapa jest przepiękna i idealnie pasuje do salonu.
+										</td>
+										<td>
+											<span className="status-badge success">
+												Zaakceptowana
+											</span>
+										</td>
+										<td className="td-actions">
+											<div className="actions-container">
+												<button
+													className="action-btn delete"
+													onClick={() => openDialog("delete", 45)}>
+													<Trash2 size={16} />
+												</button>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+
+						<div className="reviews-pagination">
+							<Pagination
+								currentPage={currentPage}
+								totalPages={5}
+								onPageChange={setCurrentPage}
+							/>
+						</div>
+					</section>
+				</>
+			)}
 
 			<ConfirmDialog
 				isOpen={dialogConfig.isOpen}
