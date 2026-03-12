@@ -9,12 +9,12 @@ const Product = {
     colorHex,
     isAdmin = false,
   }) => {
-    // ZMIANA: Dodano p.promotional_price oraz p.lowest_price_30_days do wyciąganych kolumn
+    // KLUCZOWE: Dodajemy podzapytania do SELECT
     let query = `
-      SELECT DISTINCT p.id, p.name, p.short_description, p.slug, p.price_brut, 
-             p.promotional_price, p.lowest_price_30_days, 
-             p.is_bestseller, p.is_available, p.created_at,
-             pi.url as main_image, s.name as subcategory_name, c.name as category_name 
+      SELECT DISTINCT p.*, 
+             pi.url as main_image, s.name as subcategory_name, c.name as category_name,
+             (SELECT COUNT(*) FROM reviews WHERE product_id = p.id AND is_approved = 1) AS reviews_count,
+             (SELECT IFNULL(ROUND(AVG(rating), 1), 0) FROM reviews WHERE product_id = p.id AND is_approved = 1) AS average_rating
       FROM products p
       LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
       LEFT JOIN subcategories s ON p.subcategory_id = s.id
@@ -25,29 +25,24 @@ const Product = {
     `;
     const params = [];
 
-    if (!isAdmin) query += " AND p.is_available = 1";
-
+    if (!isAdmin) query += " AND p.is_available = 1"; // Tu musi być spacja przed AND!
     if (subcategorySlug) {
       query += " AND s.slug = ?";
       params.push(subcategorySlug);
     }
-
     if (categorySlug) {
       query += " AND c.slug = ?";
       params.push(categorySlug);
     }
-
     if (colorHex) {
       query += " AND av.color_hex = ?";
       params.push(colorHex);
     }
-
     if (isBestseller) {
       query += " AND p.is_bestseller = 1";
     }
 
     query += " ORDER BY p.created_at DESC";
-
     if (isBestseller) query += " LIMIT 3";
 
     const [rows] = await pool.execute(query, params);
@@ -56,8 +51,15 @@ const Product = {
 
   // Tutaj jest SELECT *, więc automatycznie pobierze nowe kolumny
   findBySlug: async (slug) => {
+    // Tu też musimy policzyć opinie dla konkretnego produktu
     const [productRows] = await pool.execute(
-      "SELECT * FROM products WHERE slug = ? AND is_deleted = 0 AND is_available = 1",
+      `
+      SELECT p.*,
+             (SELECT COUNT(*) FROM reviews WHERE product_id = p.id AND is_approved = 1) AS reviews_count,
+             (SELECT IFNULL(ROUND(AVG(rating), 1), 0) FROM reviews WHERE product_id = p.id AND is_approved = 1) AS average_rating
+      FROM products p 
+      WHERE p.slug = ? AND p.is_deleted = 0 AND p.is_available = 1
+    `,
       [slug],
     );
 
@@ -132,7 +134,10 @@ const Product = {
     const conditions = words.map(() => `p.name LIKE ?`).join(" AND ");
 
     const query = `
-      SELECT p.*, pi.url as main_image FROM products p
+      SELECT p.*, pi.url as main_image,
+             (SELECT COUNT(*) FROM reviews WHERE product_id = p.id AND is_approved = 1) AS reviews_count,
+             (SELECT IFNULL(ROUND(AVG(rating), 1), 0) FROM reviews WHERE product_id = p.id AND is_approved = 1) AS average_rating
+      FROM products p
       LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
       WHERE (${conditions}) AND p.is_deleted = 0 AND p.is_available = 1
     `;

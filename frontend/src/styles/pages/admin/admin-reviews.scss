@@ -1,142 +1,178 @@
 @use "../../variables" as *;
-@use "../../components/admin/tables"; // Importujemy Twoje globalne style tabel!
+@use "../../components/admin/tables";
+@use "sass:color";
 
 .reviews-page {
-	// Usunięto sztywne paddingi i tła - teraz panel główny zajmie się odpowiednimi marginesami na mobile
+  .reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
 
-	// --- NAGŁÓWEK ---
-	.reviews-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-end;
-		margin-bottom: 30px;
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 20px;
+    }
 
-		@media (max-width: 768px) {
-			flex-direction: column;
-			align-items: flex-start;
-			gap: 20px;
-		}
+    .reviews-title {
+      h1 {
+        font-family: $font-heading;
+        font-size: 2rem;
+        color: $color-black;
+        margin-bottom: 5px;
+      }
+      .sub-info {
+        color: $color-slate;
+        font-size: 0.9rem;
+      }
+    }
+  }
 
-		.reviews-title {
-			h1 {
-				font-family: $font-heading;
-				font-size: 2rem;
-				color: $color-black;
-				margin-bottom: 5px;
-			}
+  .reviews-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    gap: 20px;
+    flex-wrap: wrap;
 
-			.sub-info {
-				color: $color-slate;
-				font-size: 0.9rem;
-			}
-		}
-	}
+    .search-wrapper {
+      flex: 1;
+      max-width: 400px;
+    }
 
-	// --- PASEK NARZĘDZI ---
-	.reviews-toolbar {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 25px;
-		gap: 20px;
-		flex-wrap: wrap; // Przenosi filtry do nowej linii na telefonie
+    .filters {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
 
-		.search-wrapper {
-			flex: 1;
-			max-width: 400px;
-		}
+    @media (max-width: 768px) {
+      .search-wrapper,
+      .filters {
+        max-width: 100%;
+        width: 100%;
+      }
+      .filters {
+        flex-direction: column;
+        align-items: stretch;
+        > div {
+          width: 100%;
+        }
+      }
+    }
+  }
 
-		.filters {
-			display: flex;
-			align-items: center;
-			gap: 15px;
-		}
+  .reviews-section {
+    margin-bottom: 40px;
 
-		@media (max-width: 768px) {
-			.search-wrapper,
-			.filters {
-				max-width: 100%;
-				width: 100%;
-			}
+    h2.reviews-title {
+      font-family: $font-heading;
+      font-size: 1.3rem;
+      color: $color-black;
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid $color-olive;
+      display: inline-block;
+    }
 
-			// Na małych ekranach filtry układają się idealnie jeden pod drugim
-			.filters {
-				flex-direction: column;
-				align-items: stretch;
+    .reviews-table-wrapper {
+      @extend .admin-table-wrapper;
+    }
 
-				> div {
-					width: 100%;
-				}
-			}
-		}
-	}
+    .reviews-table {
+      @extend .admin-table;
+      table-layout: fixed;
+      min-width: 1000px;
 
-	// --- SEKCJE Z TABELAMI ---
-	.reviews-section {
-		margin-bottom: 40px;
+      // --- KLASY UNIKALNE DLA RECENZJI ---
+      th:first-child,
+      .td-img {
+        text-align: center;
+      }
 
-		h2.reviews-title {
-			font-family: $font-heading;
-			font-size: 1.3rem;
-			color: $color-black;
-			margin-bottom: 20px;
-			padding-bottom: 8px;
-			border-bottom: 2px solid $color-olive; // Spójne podkreślenie z resztą strony
-			display: inline-block;
-		}
+      .td-img {
+        vertical-align: middle;
 
-		.reviews-table-wrapper {
-			@extend .admin-table-wrapper; // Pobiera tło, ramkę i overflow z globala
-		}
+        .img-wrapper {
+          width: 60px;
+          height: 60px;
+          margin: 0 auto;
+          overflow: hidden;
+          background-color: color.change($color-slate, $alpha: 0.05);
+          border: 1px solid color.change($color-slate, $alpha: 0.15);
 
-		.reviews-table {
-			@extend .admin-table; // Pobiera fonty, kolory komórek, th i td z globala
-			table-layout: fixed; // Zachowujemy blokadę dla równych kolumn
-			min-width: 1000px;
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+          }
+        }
+      }
 
-			// --- KLASY UNIKALNE DLA RECENZJI ---
-			.td-review-text {
-				font-size: 0.9rem;
-				line-height: 1.5;
-				color: $color-slate;
-			}
+      .td-review-text {
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: $color-slate;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
 
-			.rating-stars {
-				display: flex;
-				gap: 2px;
-			}
+      .rating-stars {
+        display: flex;
+        gap: 2px;
+        flex-wrap: wrap;
+      }
 
-			// Przyciski akcji dołączone lokalnie (jeśli brakuje ich w pliku globalnym tables)
-			.action-btn {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				width: 32px;
-				height: 32px;
-				border-radius: 4px;
-				border: 1px solid transparent;
-				background: transparent;
-				cursor: pointer;
-				transition: all 0.2s ease;
+      // NOWOŚĆ: Klasy dla nowych ikon statusu zamiast tekstów
+      .status-icon {
+        display: inline-block;
+        &.pending {
+          color: $color-brown; // lub pomarańczowy, co tam pasuje z Twojej palety
+        }
+        &.success {
+          color: $color-green;
+        }
+      }
 
-				&.accept {
-					color: $color-green;
-					border-color: rgba($color-green, 0.3);
+      .actions-container {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+      }
 
-					&:hover {
-						background: rgba($color-green, 0.1);
-					}
-				}
+      .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        border: 1px solid transparent;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
 
-				&.delete {
-					color: $color-red;
-					border-color: rgba($color-red, 0.3);
+        &.accept {
+          color: $color-green;
+          border-color: rgba($color-green, 0.3);
+          &:hover {
+            background: rgba($color-green, 0.1);
+          }
+        }
 
-					&:hover {
-						background: rgba($color-red, 0.1);
-					}
-				}
-			}
-		}
-	}
+        &.delete {
+          color: $color-red;
+          border-color: rgba($color-red, 0.3);
+          &:hover {
+            background: rgba($color-red, 0.1);
+          }
+        }
+      }
+    }
+  }
 }

@@ -1,15 +1,27 @@
+import { useState } from "react";
 import { FaStar, FaCheckCircle } from "react-icons/fa";
 import Button from "../ui/Button";
 import StarRating from "../ui/StarRating";
 import "../../styles/components/product/product-reviews.scss";
 
-// ZMIANA: Wszystkie dane wpadają przez propsy z góry!
 const ProductReviews = ({
-  reviews,
-  averageRating,
-  totalReviews,
-  ratingDistribution,
+  reviews = [],
+  averageRating = 0,
+  totalReviews = 0,
+  ratingDistribution = {},
 }) => {
+  // NOWOŚĆ: Stan określający ile opinii pokazujemy na start
+  const REVIEWS_PER_PAGE = 3;
+  const [visibleCount, setVisibleCount] = useState(REVIEWS_PER_PAGE);
+
+  // ZMIANA: Tniemy pełną listę opinii do wyznaczonego limitu
+  const visibleReviews = reviews.slice(0, visibleCount);
+
+  // Funkcja obsługująca kliknięcie przycisku
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + REVIEWS_PER_PAGE);
+  };
+
   return (
     <section className="product-reviews" id="opinie">
       <div className="product-reviews__header">
@@ -28,7 +40,8 @@ const ProductReviews = ({
             <span className="big-number">{averageRating}</span>
             <StarRating rating={averageRating} size="large" />
             <span className="reviews-count">
-              Na podstawie {totalReviews} opinii
+              Na podstawie {totalReviews}{" "}
+              {totalReviews === 1 ? "opinii" : "opinii"}
             </span>
           </div>
 
@@ -59,12 +72,17 @@ const ProductReviews = ({
         {/* PRAWA STRONA: LISTA OPINII */}
         <div className="reviews-list">
           {reviews.length > 0 ? (
-            reviews.map((review) => (
+            // ZMIANA: Zamiast mapować po `reviews`, mapujemy po pociętej liście `visibleReviews`
+            visibleReviews.map((review) => (
               <article key={review.id} className="review-card">
                 <div className="review-card__header">
                   <div className="author-info">
                     <span className="author-name">{review.author}</span>
-                    <span className="verified-badge">Zweryfikowany zakup</span>
+                    {review.is_verified === 1 && (
+                      <span className="verified-badge">
+                        Zweryfikowany zakup
+                      </span>
+                    )}
                   </div>
                   <span className="review-date">{review.date}</span>
                 </div>
@@ -78,9 +96,14 @@ const ProductReviews = ({
             <p>Ten produkt nie ma jeszcze opinii.</p>
           )}
 
-          {reviews.length > 0 && (
+          {/* ZMIANA: Przycisk pojawia się TYLKO WTEDY, gdy ukrytych opinii jest więcej niż pokazuje visibleCount */}
+          {visibleCount < reviews.length && (
             <div className="reviews-list__actions">
-              <Button variant="outline-slate" className="load-more-btn">
+              <Button
+                variant="outline-slate"
+                className="load-more-btn"
+                onClick={handleLoadMore}
+              >
                 Pokaż więcej opinii
               </Button>
             </div>

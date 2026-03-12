@@ -128,4 +128,15 @@ export const attributeApi = {
   deleteValue: (id) => api.delete(`/attributes/values/${id}`), //
 };
 
+// ---- REVIEW API ----
+export const reviewApi = {
+  // Publiczne
+  getByProduct: (productId) => api.get(`/reviews/product/${productId}`), // <--- NOWE
+
+  // Admin
+  getAdminAll: () => api.get("/reviews/admin/all"),
+  approve: (id) => api.patch(`/reviews/${id}/approve`),
+  reject: (id) => api.delete(`/reviews/${id}`),
+};
+
 export default api;

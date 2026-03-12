@@ -20,7 +20,7 @@ import "../styles/pages/products.scss";
 const ITEMS_PER_PAGE = 9;
 
 // Definicja przedziałów cenowych
-export const PRICE_RANGES = [
+const PRICE_RANGES = [
   { id: "under1000", label: "Poniżej 1000 zł", min: 0, max: 999.99 },
   { id: "1000-3000", label: "1000 zł - 3000 zł", min: 1000, max: 3000 },
   { id: "over3000", label: "Powyżej 3000 zł", min: 3000.01, max: Infinity },
@@ -67,24 +67,18 @@ const Products = () => {
       if (isSearch && searchQuery) {
         response = await productApi.search(searchQuery);
       } else {
-        const params = {};
-        if (category) params.category = category;
-        if (subcategory) params.subcategory = subcategory;
-        if (colorQuery) params.color = colorQuery;
-        if (pricesQuery) params.prices = pricesQuery;
+        const params = {
+          category,
+          subcategory,
+          color: colorQuery,
+          prices: pricesQuery,
+        };
         response = await productApi.getAll(params);
       }
 
-      // Mockowanie ocen do momentu gotowego backendu
-      const dataWithMockReviews = response.data.map((prod) => {
-        return {
-          ...prod,
-          mockRating: (3.5 + ((prod.id * 17) % 15) / 10).toFixed(1),
-          mockReviewsCount: (prod.id * 11) % 45,
-        };
-      });
-
-      setProducts(dataWithMockReviews);
+      // WYWALONO dataWithMockReviews!
+      // Teraz bierzemy czyste dane, bo backend już przysłał average_rating i reviews_count
+      setProducts(response.data);
     } catch (err) {
       setError("Wystąpił błąd podczas ładowania produktów.");
     } finally {
@@ -162,9 +156,9 @@ const Products = () => {
   const sortedProducts = useMemo(() => {
     let sorted = [...filteredProducts];
     switch (sortOption) {
-      case "price_asc":
+      case "rating_desc":
         return sorted.sort(
-          (a, b) => Number(a.price_brut) - Number(b.price_brut),
+          (a, b) => Number(b.average_rating) - Number(a.average_rating),
         );
       case "price_desc":
         return sorted.sort(

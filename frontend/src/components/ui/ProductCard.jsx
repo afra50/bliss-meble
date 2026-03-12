@@ -20,8 +20,9 @@ const ProductCard = ({ product, isNew = false }) => {
 
   const productLink = `/sklep/${product.slug}`;
 
-  const rating = product.mockRating || 0;
-  const reviewsCount = product.mockReviewsCount || 0;
+  // ZMIANA: Wywalamy mockRating i mockReviewsCount
+  const rating = Number(product.average_rating) || 0;
+  const reviewsCount = Number(product.reviews_count) || 0;
 
   // ZMIANA: Sprawdzamy czy produkt jest w promocji
   const isPromo =

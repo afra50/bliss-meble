@@ -7,6 +7,7 @@
 - minheight wszedzie
 
 BACKEND + INTEGRACJA
+- formularz kontaktowy
 - wykorzystywać api.js, tam robić helpery do integracji
 - zod do walidacji requestow
 - cron zadania - raz dziennie
@@ -23,14 +24,10 @@ BACKEND + INTEGRACJA
 
 DLA KRZYŚKA:
 - o nas
-- kontakt
 - admin (mocki):
     * koszty wysylek
-    * recenzje
 
 ===== PRODUKTY =====
-- recenzje bez mockow
-- backend/baza ma zwracac ilosc opini i srednia?
 - czytaj opinie ma przenosic powoli a nie skakac
 
 ===== SZCZEGÓŁY PRODUKTU =====

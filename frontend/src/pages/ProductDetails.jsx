@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { productApi } from "../utils/api";
+// ZMIANA: Importujemy reviewApi
+import { productApi, reviewApi } from "../utils/api";
 import Breadcrumbs from "../components/ui/Breadcrumbs";
 import Loader from "../components/ui/Loader";
 import NotFound from "./NotFound";
-import ErrorState from "../components/ui/ErrorState"; // DODANE
+import ErrorState from "../components/ui/ErrorState";
 
 // Nasze małe komponenty
 import QuantitySelector from "../components/ui/QuantitySelector";
@@ -21,35 +22,15 @@ const BACKEND_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL.replace("/api", "")
   : "http://localhost:5000";
 
-// TYMCZASOWE DANE (Mockup)
-const MOCK_REVIEWS = [
-  {
-    id: 1,
-    author: "Katarzyna W.",
-    date: "12 Marzec 2026",
-    rating: 5,
-    content: "Łóżko jest przepiękne...",
-  },
-  {
-    id: 2,
-    author: "Michał P.",
-    date: "05 Luty 2026",
-    rating: 4,
-    content: "Bardzo wygodny materac...",
-  },
-  {
-    id: 3,
-    author: "Anna K.",
-    date: "28 Styczeń 2026",
-    rating: 5,
-    content: "Świetny stosunek...",
-  },
-];
+// USUNIĘTO MOCK_REVIEWS!
 
 const ProductDetails = () => {
   const { slug } = useParams();
 
   const [product, setProduct] = useState(null);
+  // NOWOŚĆ: Pusty stan dla opinii dociąganych z bazy
+  const [reviews, setReviews] = useState([]);
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -57,12 +38,21 @@ const ProductDetails = () => {
   const [selectedFabric, setSelectedFabric] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
-  const fetchProduct = async () => {
+  const fetchData = async () => {
     try {
       setIsLoading(true);
       setError(null);
+
+      // 1. Pobieramy produkt
       const response = await productApi.getBySlug(slug);
-      setProduct(response.data);
+      const fetchedProduct = response.data;
+      setProduct(fetchedProduct);
+
+      // 2. Jeśli mamy produkt, od razu pobieramy jego zaakceptowane recenzje
+      if (fetchedProduct && fetchedProduct.id) {
+        const reviewsResponse = await reviewApi.getByProduct(fetchedProduct.id);
+        setReviews(reviewsResponse.data);
+      }
     } catch (err) {
       console.error("Błąd ładowania produktu:", err);
       if (!err.response) {
@@ -76,14 +66,13 @@ const ProductDetails = () => {
   };
 
   useEffect(() => {
-    fetchProduct();
+    fetchData();
   }, [slug]);
 
   // ==========================================
   // STAN WIDOKÓW
   // ==========================================
 
-  // 1. Ładowanie (ZMIANA: Nie ma fullPage i jest owinięte w układ strony)
   if (isLoading) {
     return (
       <main
@@ -100,7 +89,6 @@ const ProductDetails = () => {
     );
   }
 
-  // 2. Błąd serwera / sieci
   if (error === "network_error" || error === 500) {
     return (
       <main
@@ -118,13 +106,12 @@ const ProductDetails = () => {
               ? "Brak połączenia z serwerem. Sprawdź swoje połączenie internetowe."
               : "Wystąpił nieoczekiwany problem z serwerem."
           }
-          onRetry={fetchProduct}
+          onRetry={fetchData}
         />
       </main>
     );
   }
 
-  // 3. Błąd 404 lub brak produktu
   if (error === 404 || (!product && !isLoading && !error)) {
     return <NotFound />;
   }
@@ -163,11 +150,9 @@ const ProductDetails = () => {
       .sort((a, b) => Number(a.price_modifier) - Number(b.price_modifier)) ||
     [];
 
-  // Inicjalne ustawienie domyślnych wariantów (Używamy useMemo dla wydajności zamiast useEffect w tym przypadku)
   if (sizes.length > 0 && !selectedSize) setSelectedSize(sizes[0]);
   if (fabrics.length > 0 && !selectedFabric) setSelectedFabric(fabrics[0]);
 
-  // Używamy zwykłych zmiennych (to szybkie operacje tablicowe), a omijamy problemowe useMemo w hookach
   let filteredImages = product.images || [];
   if (selectedFabric) {
     const filtered = product.images.filter(
@@ -208,8 +193,7 @@ const ProductDetails = () => {
       : 0,
   };
 
-  // Wyliczanie opinii
-  const reviews = MOCK_REVIEWS;
+  // ZMIANA: Wyliczanie opinii korzystając ze stanu z API
   const totalReviews = reviews.length;
   let reviewsData = {
     average: 0,
@@ -221,21 +205,35 @@ const ProductDetails = () => {
   if (totalReviews > 0) {
     const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     let sum = 0;
+
     reviews.forEach((r) => {
       distribution[r.rating] += 1;
       sum += r.rating;
     });
+
     const average = (sum / totalReviews).toFixed(1);
+
+    // ZMIANA: Formatujemy datę odebraną z serwera
+    const formattedReviewsList = reviews.map((r) => ({
+      ...r,
+      date: new Date(r.date).toLocaleDateString("pl-PL", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      }),
+    }));
+
     reviewsData = {
       average: Number(average),
       total: totalReviews,
       distribution,
-      list: reviews,
+      list: formattedReviewsList,
     };
   }
 
   const currentMainImage =
     filteredImages.length > 0 ? getImageUrl(filteredImages[0].url) : defaultImg;
+
   return (
     <main className="product-details">
       <div className="product-details__container">
@@ -255,12 +253,12 @@ const ProductDetails = () => {
             getImageUrl={getImageUrl}
           />
 
-          {/* NOWOŚĆ: Przekazujemy rating i reviewsCount w dół do ProductInfo */}
           <ProductInfo
             product={product}
-            pricing={pricing} // <--- PRZEKAZUJEMY NOWY OBIEKT!
-            rating={reviewsData.average}
-            reviewsCount={reviewsData.total}
+            pricing={pricing}
+            // Używamy nowych pól dociągniętych przez findBySlug
+            rating={Number(product.average_rating) || 0}
+            reviewsCount={Number(product.reviews_count) || 0}
           >
             <ProductOptions
               sizes={sizes}
@@ -282,7 +280,7 @@ const ProductDetails = () => {
                 quantity={quantity}
                 price={pricing.current / quantity}
                 regularPrice={pricing.regular / quantity}
-                omnibusPrice={pricing.omnibusPrice} // <--- TEGO BRAKOWAŁO W TWOIM KODZIE WYŻEJ
+                omnibusPrice={pricing.omnibusPrice}
                 size={selectedSize}
                 fabric={selectedFabric}
                 image={currentMainImage}
@@ -292,7 +290,6 @@ const ProductDetails = () => {
           </ProductInfo>
         </div>
 
-        {/* NOWOŚĆ: Przekazujemy skompletowany pakiet opinii w dół do sekcji Reviews */}
         <ProductReviews
           reviews={reviewsData.list}
           averageRating={reviewsData.average}
