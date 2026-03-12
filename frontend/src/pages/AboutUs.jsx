@@ -1,33 +1,32 @@
-import { useNavigate } from "react-router-dom";
-import Button from "../components/ui/Button";
+import Button from "../components/ui/Button"; // Upewnij się, że ścieżka jest poprawna
 import "../styles/pages/about-us.scss";
 import aboutus3 from "../assets/aboutus3.jpg";
 import aboutus2 from "../assets/aboutus2.jpg";
 
 function AboutUs() {
-	const navigate = useNavigate();
-
 	return (
 		<main className="about-page">
-			{/* SEKCJA 1: Nachodzący Box */}
+			{/* SEKCJA 1: Nachodzący Box (Szerokie zdjęcie, wyrównany tekst) */}
 			<section className="about-block about-block--hero">
 				<div className="about-image">
 					<img src={aboutus3} alt="dzieci bawiące się na kanapie" />
 				</div>
 				<div className="about-contener about-overlap-box">
-					<span className="about-label">Nasza filozofia</span>
-					<h2 className="about-subtitle">
-						Pasja, która stała się <em>Twoim komfortem</em>
-					</h2>
-					<p className="about-text">
-						W Bliss Meble wierzymy, że design to nie tylko wygląd, ale przede
-						wszystkim uczucie spokoju, gdy siadasz na ulubionej sofie po długim
-						dniu.
-					</p>
+					<div className="overlap-content">
+						<span className="about-label">Nasza filozofia</span>
+						<h2 className="about-subtitle">
+							Pasja, która stała się <em>Twoim komfortem</em>
+						</h2>
+						<p className="about-text">
+							W Bliss Meble wierzymy, że design to nie tylko wygląd, ale przede
+							wszystkim uczucie spokoju, gdy siadasz na ulubionej sofie po
+							długim dniu.
+						</p>
+					</div>
 				</div>
 			</section>
 
-			{/* SEKCJA 2: Plakietka 15 lat */}
+			{/* SEKCJA 2: Plakietka 15 lat (Standardowa szerokość) */}
 			<section className="about-block">
 				<div className="about-image about-image--with-badge">
 					<div className="about-badge">
@@ -79,10 +78,10 @@ function AboutUs() {
 				</div>
 			</section>
 
-			{/* SEKCJA 4: Wezwanie do akcji (Taka sama wysokość jak pasek wyżej) */}
+			{/* SEKCJA 4: Wezwanie do akcji (Taka sama wysokość, przenosi na główną) */}
 			<section className="about-cta">
 				<h2 className="cta-title">Gotowy na nową definicję wygody?</h2>
-				<Button variant="primary" onClick={() => navigate("/")}>
+				<Button variant="primary" onClick={() => (window.location.href = "/")}>
 					ZOBACZ NASZE KOLEKCJE
 				</Button>
 			</section>
