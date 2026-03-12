@@ -119,17 +119,17 @@
 		z-index: 2;
 
 		.badge-number {
-			font-size: 2.2rem;
+			font-size: 0.85rem;
+			letter-spacing: 1px;
+			text-transform: uppercase;
+		}
+
+		.badge-text {
+			font-size: 1.6rem;
 			font-weight: 700;
 			line-height: 1;
 			margin-bottom: 5px;
 			font-family: $font-heading;
-		}
-
-		.badge-text {
-			font-size: 0.65rem;
-			letter-spacing: 1px;
-			text-transform: uppercase;
 		}
 	}
 

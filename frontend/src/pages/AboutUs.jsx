@@ -26,12 +26,12 @@ function AboutUs() {
 				</div>
 			</section>
 
-			{/* SEKCJA 2: Plakietka 15 lat (Standardowa szerokość) */}
+			{/* SEKCJA 2: Plakietka dobre bo polskie (Standardowa szerokość) */}
 			<section className="about-block">
 				<div className="about-image about-image--with-badge">
 					<div className="about-badge">
-						<span className="badge-number">15</span>
-						<span className="badge-text">Lat rzemiosła</span>
+						<span className="badge-number">dobre bo</span>
+						<span className="badge-text">polskie</span>
 					</div>
 					<img src={aboutus2} alt="dziecięce nogi na tle kanapy" />
 				</div>
@@ -81,7 +81,9 @@ function AboutUs() {
 			{/* SEKCJA 4: Wezwanie do akcji (Taka sama wysokość, przenosi na główną) */}
 			<section className="about-cta">
 				<h2 className="cta-title">Gotowy na nową definicję wygody?</h2>
-				<Button variant="primary" onClick={() => (window.location.href = "/")}>
+				<Button
+					variant="primary"
+					onClick={() => (window.location.href = "/sklep")}>
 					ZOBACZ NASZE KOLEKCJE
 				</Button>
 			</section>

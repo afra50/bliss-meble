@@ -1,0 +1,61 @@
+@use "../../variables" as *;
+
+.shipping-page {
+	padding-top: 10px;
+
+	.shipping-header {
+		margin-bottom: 35px;
+
+		h1 {
+			font-family: $font-heading;
+			font-size: 2rem;
+			color: $color-black;
+			margin-bottom: 6px;
+		}
+
+		p {
+			font-family: $font-body;
+			font-size: 0.95rem;
+			color: $color-slate;
+		}
+	}
+
+	.shipping-card {
+		background: $color-white;
+		border-radius: 8px;
+		padding: 40px;
+		max-width: 600px;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+
+		.shipping-form {
+			.form-group {
+				&__label {
+					display: flex; // Wyrównuje ikonę z tekstem
+					align-items: center;
+					gap: 10px; // Robi odstęp między ikoną a tekstem
+
+					svg {
+						color: $color-brown;
+					}
+				}
+			}
+
+			.form-actions {
+				margin-top: 20px;
+				display: flex;
+				justify-content: flex-start;
+
+				button {
+					min-width: 180px;
+				}
+			}
+		}
+	}
+
+	@media (max-width: 768px) {
+		.shipping-card {
+			padding: 25px;
+			max-width: 100%;
+		}
+	}
+}
