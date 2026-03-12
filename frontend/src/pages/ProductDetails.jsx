@@ -4,6 +4,7 @@ import { productApi } from "../utils/api";
 import Breadcrumbs from "../components/ui/Breadcrumbs";
 import Loader from "../components/ui/Loader";
 import NotFound from "./NotFound";
+import ErrorState from "../components/ui/ErrorState"; // DODANE
 
 // Nasze małe komponenty
 import QuantitySelector from "../components/ui/QuantitySelector";
@@ -20,31 +21,28 @@ const BACKEND_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL.replace("/api", "")
   : "http://localhost:5000";
 
-// TYMCZASOWE DANE (Mockup) - później to zniknie, a dane przyjdą z backendu (np. w product.reviews)
+// TYMCZASOWE DANE (Mockup)
 const MOCK_REVIEWS = [
   {
     id: 1,
     author: "Katarzyna W.",
     date: "12 Marzec 2026",
     rating: 5,
-    content:
-      "Łóżko jest przepiękne i bardzo solidnie wykonane. Materiał (welur) w rzeczywistości wygląda jeszcze lepiej niż na zdjęciach. Zdecydowanie polecam ten sklep!",
+    content: "Łóżko jest przepiękne...",
   },
   {
     id: 2,
     author: "Michał P.",
     date: "05 Luty 2026",
     rating: 4,
-    content:
-      "Bardzo wygodny materac. Jedyna uwaga to czas dostawy, który wydłużył się o 2 dni, ale kontakt ze sklepem był wzorowy. Sam produkt bez zarzutu.",
+    content: "Bardzo wygodny materac...",
   },
   {
     id: 3,
     author: "Anna K.",
     date: "28 Styczeń 2026",
     rating: 5,
-    content:
-      "Świetny stosunek jakości do ceny. Montaż był całkiem prosty, a łóżko nie skrzypi i jest bardzo stabilne.",
+    content: "Świetny stosunek...",
   },
 ];
 
@@ -59,6 +57,88 @@ const ProductDetails = () => {
   const [selectedFabric, setSelectedFabric] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
+  const fetchProduct = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await productApi.getBySlug(slug);
+      setProduct(response.data);
+    } catch (err) {
+      console.error("Błąd ładowania produktu:", err);
+      if (!err.response) {
+        setError("network_error");
+      } else {
+        setError(err.response.status === 404 ? 404 : 500);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProduct();
+  }, [slug]);
+
+  // ==========================================
+  // STAN WIDOKÓW
+  // ==========================================
+
+  // 1. Ładowanie (ZMIANA: Nie ma fullPage i jest owinięte w układ strony)
+  if (isLoading) {
+    return (
+      <main
+        className="product-details"
+        style={{
+          minHeight: "60vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Loader message="Trwa ładowanie produktu..." />
+      </main>
+    );
+  }
+
+  // 2. Błąd serwera / sieci
+  if (error === "network_error" || error === 500) {
+    return (
+      <main
+        className="product-details"
+        style={{
+          minHeight: "60vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <ErrorState
+          message={
+            error === "network_error"
+              ? "Brak połączenia z serwerem. Sprawdź swoje połączenie internetowe."
+              : "Wystąpił nieoczekiwany problem z serwerem."
+          }
+          onRetry={fetchProduct}
+        />
+      </main>
+    );
+  }
+
+  // 3. Błąd 404 lub brak produktu
+  if (error === 404 || (!product && !isLoading && !error)) {
+    return <NotFound />;
+  }
+
+  // ==========================================
+  // WYLICZENIA TYLKO GDY PRODUKT ISTNIEJE
+  // ==========================================
+
+  const getImageUrl = (url) => {
+    if (!url) return defaultImg;
+    if (url.startsWith("http")) return url;
+    return `${BACKEND_URL}/uploads/products/${url}`;
+  };
+
   const isProductNew = (createdAt) => {
     if (!createdAt) return false;
     const addedDate = new Date(createdAt);
@@ -67,38 +147,14 @@ const ProductDetails = () => {
     return addedDate >= thirtyDaysAgo;
   };
 
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const response = await productApi.getBySlug(slug);
-        setProduct(response.data);
-      } catch (err) {
-        console.error("Błąd ładowania produktu:", err);
-        setError(err.response?.status === 404 ? 404 : 500);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProduct();
-  }, [slug]);
-
-  const getImageUrl = (url) => {
-    if (!url) return defaultImg;
-    if (url.startsWith("http")) return url;
-    return `${BACKEND_URL}/uploads/products/${url}`;
-  };
-
   const sizes =
-    product?.attributes
+    product.attributes
       ?.filter((a) => a.group_name.toLowerCase().includes("rozmiar"))
       .sort((a, b) => Number(a.price_modifier) - Number(b.price_modifier)) ||
     [];
 
   const fabrics =
-    product?.attributes
+    product.attributes
       ?.filter(
         (a) =>
           a.group_name.toLowerCase().includes("tkanina") ||
@@ -107,99 +163,79 @@ const ProductDetails = () => {
       .sort((a, b) => Number(a.price_modifier) - Number(b.price_modifier)) ||
     [];
 
-  useEffect(() => {
-    if (sizes.length > 0 && !selectedSize) setSelectedSize(sizes[0]);
-    if (fabrics.length > 0 && !selectedFabric) setSelectedFabric(fabrics[0]);
-  }, [sizes, fabrics, selectedSize, selectedFabric]);
+  // Inicjalne ustawienie domyślnych wariantów (Używamy useMemo dla wydajności zamiast useEffect w tym przypadku)
+  if (sizes.length > 0 && !selectedSize) setSelectedSize(sizes[0]);
+  if (fabrics.length > 0 && !selectedFabric) setSelectedFabric(fabrics[0]);
 
-  const filteredImages = useMemo(() => {
-    if (!product?.images) return [];
-    if (selectedFabric) {
-      const filtered = product.images.filter(
-        (img) =>
-          img.attribute_value_id === selectedFabric.value_id ||
-          img.attribute_value_id === null,
-      );
-      if (filtered.length > 0) return filtered;
-    }
-    return product.images;
-  }, [product?.images, selectedFabric]);
+  // Używamy zwykłych zmiennych (to szybkie operacje tablicowe), a omijamy problemowe useMemo w hookach
+  let filteredImages = product.images || [];
+  if (selectedFabric) {
+    const filtered = product.images.filter(
+      (img) =>
+        img.attribute_value_id === selectedFabric.value_id ||
+        img.attribute_value_id === null,
+    );
+    if (filtered.length > 0) filteredImages = filtered;
+  }
 
-  const pricing = useMemo(() => {
-    if (!product) return { current: 0, regular: 0 };
+  // Wyliczanie cen
+  const baseRegularPrice = Number(product.price_brut);
+  const isPromoActive =
+    product.promotional_price && Number(product.promotional_price) > 0;
+  const baseCurrentPrice = isPromoActive
+    ? Number(product.promotional_price)
+    : baseRegularPrice;
 
-    const baseRegularPrice = Number(product.price_brut);
-    const isPromoActive =
-      product.promotional_price && Number(product.promotional_price) > 0;
-    const baseCurrentPrice = isPromoActive
-      ? Number(product.promotional_price)
-      : baseRegularPrice;
+  let modifiersTotal = 0;
+  if (selectedSize?.price_modifier)
+    modifiersTotal += Number(selectedSize.price_modifier);
+  if (selectedFabric?.price_modifier)
+    modifiersTotal += Number(selectedFabric.price_modifier);
 
-    let modifiersTotal = 0;
-    if (selectedSize?.price_modifier)
-      modifiersTotal += Number(selectedSize.price_modifier);
-    if (selectedFabric?.price_modifier)
-      modifiersTotal += Number(selectedFabric.price_modifier);
+  const baseOmnibus = product.lowest_price_30_days
+    ? Number(product.lowest_price_30_days)
+    : null;
+  const finalOmnibus =
+    baseOmnibus !== null ? baseOmnibus + modifiersTotal : null;
 
-    // NOWOŚĆ: Obliczamy poprawną cenę Omnibus (baza z bazy danych + dopłaty za wybrane warianty)
-    const baseOmnibus = product.lowest_price_30_days
-      ? Number(product.lowest_price_30_days)
-      : null;
-    const finalOmnibus =
-      baseOmnibus !== null ? baseOmnibus + modifiersTotal : null;
+  const pricing = {
+    current: (baseCurrentPrice + modifiersTotal) * quantity,
+    regular: (baseRegularPrice + modifiersTotal) * quantity,
+    isPromo: isPromoActive,
+    omnibusPrice: finalOmnibus,
+    savings: isPromoActive
+      ? (baseRegularPrice - baseCurrentPrice) * quantity
+      : 0,
+  };
 
-    return {
-      current: (baseCurrentPrice + modifiersTotal) * quantity,
-      regular: (baseRegularPrice + modifiersTotal) * quantity,
-      isPromo: isPromoActive,
-      omnibusPrice: finalOmnibus, // <--- Przekazujemy przeliczoną cenę!
-      savings: isPromoActive
-        ? (baseRegularPrice - baseCurrentPrice) * quantity
-        : 0,
-    };
-  }, [product, selectedSize, selectedFabric, quantity]);
-  // ==========================================
-  // NOWOŚĆ: LOGIKA OBLICZANIA OPINII
-  // ==========================================
-  const reviewsData = useMemo(() => {
-    // Kiedy będzie API, zamienisz MOCK_REVIEWS na product?.reviews || []
-    const reviews = MOCK_REVIEWS;
-    const totalReviews = reviews.length;
+  // Wyliczanie opinii
+  const reviews = MOCK_REVIEWS;
+  const totalReviews = reviews.length;
+  let reviewsData = {
+    average: 0,
+    total: 0,
+    distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
+    list: [],
+  };
 
-    if (totalReviews === 0) {
-      return {
-        average: 0,
-        total: 0,
-        distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
-        list: [],
-      };
-    }
-
+  if (totalReviews > 0) {
     const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     let sum = 0;
-
     reviews.forEach((r) => {
       distribution[r.rating] += 1;
       sum += r.rating;
     });
-
     const average = (sum / totalReviews).toFixed(1);
-
-    return {
+    reviewsData = {
       average: Number(average),
       total: totalReviews,
       distribution,
       list: reviews,
     };
-  }, [product]);
-
-  if (isLoading)
-    return <Loader fullPage message="Trwa ładowanie produktu..." />;
-  if (error || !product) return <NotFound />;
+  }
 
   const currentMainImage =
     filteredImages.length > 0 ? getImageUrl(filteredImages[0].url) : defaultImg;
-
   return (
     <main className="product-details">
       <div className="product-details__container">
