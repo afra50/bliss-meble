@@ -4,31 +4,19 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	padding: 4rem 2rem;
-	max-width: 1200px;
-	min-height: 80vh;
-	margin: 0 auto;
-	gap: 5rem;
+	padding-top: 4rem;
+	width: 100%;
 	background-color: $color-white;
 
-	.about-header {
-		text-align: left;
-		width: 100%;
-
-		.about-title {
-			font-size: 3rem;
-			font-weight: bold;
-			color: $color-brown;
-			margin-bottom: 1rem;
-		}
-	}
-
-	.about-block,
-	.about-block-reverse {
+	// --- BAZOWE KLASY (Z limitem szerokości) ---
+	.about-block {
 		display: flex;
 		align-items: center;
 		gap: 6rem;
 		width: 100%;
+		max-width: 1200px;
+		margin: 0 auto 8rem;
+		padding: 0 2rem;
 
 		.about-contener {
 			flex: 1;
@@ -37,25 +25,29 @@
 			justify-content: center;
 
 			.about-subtitle {
-				font-size: 2.2rem;
-				font-weight: bold;
+				font-size: 2.6rem;
+				font-weight: 500;
 				margin-bottom: 1.5rem;
 				color: $color-black;
-				line-height: 1.3;
+				line-height: 1.2;
+				font-family: $font-heading;
+
+				em {
+					font-style: italic;
+					font-weight: 400;
+				}
 			}
 
 			.about-text {
 				font-size: 1.1rem;
 				line-height: 1.8;
-				color: $color-black;
+				color: $color-olive;
 			}
 		}
 
 		.about-image {
 			flex: 1;
-			border-radius: 12px;
-			overflow: hidden;
-			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+			position: relative;
 
 			img {
 				width: 100%;
@@ -66,64 +58,201 @@
 		}
 	}
 
-	.about-block-reverse {
-		flex-direction: row-reverse;
+	// --- LABELKI I OVERLAY ---
+	.about-label {
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		letter-spacing: 2px;
+		color: $color-slate;
+		margin-bottom: 1.2rem;
+		display: block;
+		font-weight: 600;
 	}
 
-	@media (max-width: 1024px) {
-		padding: 3rem 1.5rem;
-		gap: 4rem;
+	.about-block--hero {
+		display: block;
+		position: relative;
+		padding-bottom: 5rem;
 
-		.about-header {
-			.about-title {
-				font-size: 2.5rem;
+		.about-image {
+			width: 85%;
+			height: 550px;
+		}
+
+		.about-overlap-box {
+			position: absolute;
+			right: 0;
+			bottom: 0;
+			width: 55%;
+			background-color: $color-white;
+			padding: 4rem;
+			box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
+			z-index: 2;
+		}
+	}
+
+	.about-badge {
+		position: absolute;
+		top: -20px;
+		left: -20px;
+		background-color: $color-brown;
+		color: $color-white;
+		width: 130px;
+		height: 130px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		z-index: 2;
+
+		.badge-number {
+			font-size: 2.2rem;
+			font-weight: 700;
+			line-height: 1;
+			margin-bottom: 5px;
+			font-family: $font-heading;
+		}
+
+		.badge-text {
+			font-size: 0.65rem;
+			letter-spacing: 1px;
+			text-transform: uppercase;
+		}
+	}
+
+	// --- OLIWKOWY PAS (Tło na 100% ekranu) ---
+	.about-features {
+		width: 100%;
+		background-color: $color-olive;
+		color: $color-white;
+		padding: 5rem 2rem;
+
+		.features-grid {
+			max-width: 1200px;
+			width: 100%;
+			margin: 0 auto;
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 4rem;
+			text-align: center;
+		}
+
+		.feature-title {
+			font-size: 1.3rem;
+			font-family: $font-heading;
+			margin-bottom: 1rem;
+			font-weight: 400;
+		}
+
+		.feature-desc {
+			font-size: 0.95rem;
+			line-height: 1.6;
+			opacity: 0.85;
+			font-weight: 300;
+		}
+	}
+
+	// --- BIAŁY PAS Z PRZYCISKIEM ---
+	.about-cta {
+		width: 100%;
+		max-width: 1200px;
+		margin: 0 auto;
+		padding: 5rem 2rem; // Identyczny padding jak w oliwkowym, żeby zrównać wysokość
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+
+		.cta-title {
+			font-size: 2.2rem;
+			font-family: $font-heading;
+			font-weight: 400;
+			color: $color-black;
+			margin-bottom: 2.5rem;
+			text-align: center;
+		}
+	}
+
+	// --- RWD ---
+	@media (max-width: 1024px) {
+		padding-top: 3rem;
+
+		.about-block {
+			margin-bottom: 5rem;
+			padding: 0 1.5rem;
+		}
+
+		.about-block--hero {
+			.about-image {
+				width: 95%;
+				height: 450px;
+			}
+			.about-overlap-box {
+				width: 70%;
+				padding: 3rem;
 			}
 		}
 
-		.about-block,
-		.about-block-reverse {
-			gap: 4rem;
-
-			.about-contener {
-				.about-subtitle {
-					font-size: 1.8rem;
-					margin-bottom: 1.2rem;
-				}
-
-				.about-text {
-					font-size: 1.05rem;
-				}
-			}
+		.about-features .features-grid {
+			gap: 2rem;
 		}
 	}
 
 	@media (max-width: 768px) {
-		padding: 2rem 1rem;
-		gap: 3rem;
+		padding-top: 2rem;
 
-		.about-header {
-			.about-title {
+		.about-block {
+			margin-bottom: 4rem;
+			padding: 0 1rem;
+		}
+
+		.about-block,
+		.about-block--hero {
+			flex-direction: column;
+			gap: 2rem;
+
+			.about-image {
+				width: 100%;
+				height: auto;
+			}
+
+			.about-overlap-box {
+				position: relative;
+				width: 100%;
+				padding: 2rem 0 0 0;
+				box-shadow: none;
+			}
+		}
+
+		.about-block .about-contener {
+			.about-subtitle {
 				font-size: 2rem;
 			}
 		}
 
-		.about-block,
-		.about-block-reverse {
-			flex-direction: column;
-			text-align: left;
-			gap: 2.5rem;
-
-			.about-image {
-				order: -1;
-				width: 100%;
+		.about-badge {
+			width: 100px;
+			height: 100px;
+			top: -10px;
+			left: -10px;
+			.badge-number {
+				font-size: 1.8rem;
 			}
-
-			.about-contener {
-				.about-subtitle {
-					font-size: 1.5rem;
-					margin-bottom: 1rem;
-				}
+			.badge-text {
+				font-size: 0.55rem;
 			}
+		}
+
+		.about-features {
+			padding: 4rem 1.5rem;
+			.features-grid {
+				grid-template-columns: 1fr;
+				gap: 3rem;
+			}
+		}
+
+		.about-cta .cta-title {
+			font-size: 1.8rem;
 		}
 	}
 }
