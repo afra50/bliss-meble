@@ -56,7 +56,14 @@ const Footer = () => {
               <Link to="/regulamin">Regulamin</Link>
             </li>
             <li>
-              <Link to="/polityka-prywatnosci">Polityka prywatności</Link>
+              {/* ZMIANA TUTAJ: Zwykły znacznik <a> kierujący do pliku PDF w folderze public */}
+              <a
+                href="/polityka_prywatnosci.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Polityka prywatności
+              </a>
             </li>
           </ul>
         </div>
