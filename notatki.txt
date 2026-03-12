@@ -22,11 +22,8 @@ BACKEND + INTEGRACJA
       e-mail na "anonim@blissmeble.pl", a imię na "Anonim".
 
 DLA KRZYŚKA:
-- o nas
-- kontakt
 - admin (mocki):
     * koszty wysylek
-    * recenzje
 
 ===== PRODUKTY =====
 - recenzje bez mockow
