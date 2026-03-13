@@ -2,148 +2,147 @@
 @use "../../components/admin/tables";
 
 .admin-attributes {
-    &__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 30px;
+	&__header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-end;
+		margin-bottom: 30px;
 
-        @media (max-width: 768px) {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 20px;
-        }
+		@media (max-width: 768px) {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 20px;
+		}
 
-        h1 {
-            font-family: $font-heading;
-            font-size: 2rem;
-            color: $color-black;
-            margin-bottom: 5px;
-        }
+		h1 {
+			font-family: $font-heading;
+			font-size: 2rem;
+			color: $color-black;
+			margin-bottom: 5px;
+		}
 
-        p {
-            color: $color-slate;
-            font-size: 0.9rem;
-        }
-    }
+		p {
+			color: $color-slate;
+			font-size: 0.9rem;
+		}
+	}
 
-    &__controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-        gap: 20px;
-        flex-wrap: wrap;
+	&__controls {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 25px;
+		gap: 20px;
+		flex-wrap: wrap;
 
-        .controls-search {
-            flex: 1;
-            max-width: 400px;
-        }
+		.controls-search {
+			flex: 1;
+			max-width: 400px;
+		}
 
-        .controls-filters {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+		.controls-filters {
+			display: flex;
+			align-items: center;
+			gap: 15px;
+		}
 
-        @media (max-width: 768px) {
+		@media (max-width: 768px) {
+			.controls-search,
+			.controls-filters {
+				max-width: 100%;
+				width: 100%;
+			}
 
-            .controls-search,
-            .controls-filters {
-                max-width: 100%;
-                width: 100%;
-            }
+			.controls-filters {
+				flex-direction: column;
+				align-items: stretch;
 
-            .controls-filters {
-                flex-direction: column;
-                align-items: stretch;
+				> div {
+					width: 100%;
+				}
+			}
+		}
+	}
 
-                >div {
-                    width: 100%;
-                }
-            }
-        }
-    }
+	&__table-wrapper {
+		@extend .admin-table-wrapper;
 
-    &__table-wrapper {
-        @extend .admin-table-wrapper;
+		.th-id {
+			width: 80px;
+		}
 
-        .th-id {
-            width: 80px;
-        }
+		.th-actions {
+			width: 120px;
+			text-align: right;
+		}
 
-        .th-actions {
-            width: 120px;
-            text-align: right;
-        }
+		.td-id {
+			color: rgba($color-black, 0.5);
+			font-size: 0.85rem;
+			font-weight: 600;
+		}
 
-        .td-id {
-            color: rgba($color-black, 0.5);
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
+		// Dekoracyjna pastylka dla Grupy (np. "Tkanina i kolor")
+		.group-badge {
+			display: inline-block;
+			padding: 4px 10px;
+			background-color: rgba($color-olive, 0.1);
+			color: color-mix(in srgb, $color-olive 80%, black);
+			border-radius: 4px;
+			font-size: 0.85rem;
+			font-weight: 500;
+		}
 
-        // Dekoracyjna pastylka dla Grupy (np. "Tkanina i kolor")
-        .group-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            background-color: rgba($color-olive, 0.1);
-            color: color-mix(in srgb, $color-olive 80%, black);
-            border-radius: 4px;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
+		strong {
+			color: $color-black;
+			font-weight: 600;
+			font-size: 0.95rem;
+		}
 
-        strong {
-            color: $color-black;
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
+		// --- STYLE DLA KOLORÓW (Tego brakowało!) ---
+		.actions-container {
+			justify-content: flex-end;
+		}
 
-        // --- STYLE DLA KOLORÓW (Tego brakowało!) ---
-        .actions-container {
-            justify-content: flex-end;
-        }
+		.color-preview-wrap {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
 
-        .color-preview-wrap {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+		// NOWOŚĆ: Klasa dla zdjęcia z uploadu
+		.color-preview-image {
+			width: 30px;
+			height: 30px;
+			object-fit: cover;
+			border-radius: 50%;
+			border: 1px solid rgba(0, 0, 0, 0.1);
+			flex-shrink: 0;
+		}
 
-        // NOWOŚĆ: Klasa dla zdjęcia z uploadu
-        .color-preview-image {
-            width: 30px;
-            height: 30px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            flex-shrink: 0;
-        }
+		.color-preview-circle {
+			display: inline-block;
+			width: 30px;
+			height: 30px;
+			border-radius: 50%;
+			border: 1px solid rgba(0, 0, 0, 0.15);
+			flex-shrink: 0;
+		}
 
-        .color-preview-circle {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: 1px solid rgba(0, 0, 0, 0.15);
-            flex-shrink: 0;
-        }
+		.color-preview-label {
+			font-size: 0.85rem;
+			color: $color-black;
+		}
 
-        .color-preview-label {
-            font-size: 0.85rem;
-            color: $color-black;
-        }
+		.color-preview-empty {
+			color: $color-black;
+			font-size: 0.85rem;
+		}
+	}
 
-        .color-preview-empty {
-            color: $color-black;
-            font-size: 0.85rem;
-        }
-    }
-
-    &__pagination {
-        margin-top: 30px;
-        display: flex;
-        justify-content: center;
-    }
+	&__pagination {
+		margin-top: 30px;
+		display: flex;
+		justify-content: center;
+	}
 }
