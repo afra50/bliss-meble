@@ -4,11 +4,16 @@ import defaultImg from "../../../assets/default-product.jpg";
 import "../../../styles/components/ui/search/search-item.scss";
 
 const SearchItem = ({ product, onClick }) => {
-  // 2. Sprawdzamy, czy product.main_image istnieje.
-  // Jeśli tak - budujemy URL, jeśli nie - używamy zaimportowanego defaultImg.
-  const imageUrl = product.main_image
-    ? `${import.meta.env.VITE_API_URL.replace("/api", "")}/uploads/products/${product.main_image}`
-    : defaultImg;
+  // ZMIANA: Czysta funkcja do generowania linku ze zmiennej .env
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return defaultImg;
+    if (imagePath.startsWith("http")) return imagePath;
+
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    return `${apiUrl}/uploads/products/${imagePath}`;
+  };
+
+  const imageUrl = getImageUrl(product.main_image);
 
   return (
     <Link

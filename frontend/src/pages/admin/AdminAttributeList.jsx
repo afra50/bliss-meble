@@ -12,14 +12,12 @@ import { adminSortOptions } from "../../utils/sortOptions";
 import CustomSelect from "../../components/ui/CustomSelect";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import ToastAlert from "../../components/ui/ToastAlert";
-import AdminAttributeModal from "../../components/admin/AdminAttributeModal"; // <--- IMPORT NOWEGO MODALA
+import AdminAttributeModal from "../../components/admin/AdminAttributeModal";
 import { COLOR_FAMILIES } from "../../utils/colors";
 
 import "../../styles/pages/admin/admin-attribute-list.scss";
 
-const BACKEND_URL = import.meta.env.VITE_API_URL
-  ? import.meta.env.VITE_API_URL.replace("/api", "")
-  : "http://localhost:5000";
+// ZMIANA: Usunięto stary BACKEND_URL z replace("/api", "")
 
 const AdminAttributeList = () => {
   const [rawGroups, setRawGroups] = useState([]);
@@ -52,6 +50,16 @@ const AdminAttributeList = () => {
     setToast({ isOpen: true, message, type });
   };
 
+  // ZMIANA: Nowa funkcja generująca adres URL dla atrybutów
+  const getAttributeImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    if (imagePath.startsWith("http")) return imagePath;
+
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    // Zwróć uwagę na podfolder 'attributes'
+    return `${apiUrl}/uploads/attributes/${imagePath}`;
+  };
+
   const fetchAttributes = async () => {
     try {
       setLoading(true);
@@ -69,7 +77,7 @@ const AdminAttributeList = () => {
             group_id: g.id,
             group_name: g.name,
             color_hex: v.color_hex,
-            image_url: v.image_url, // <--- DODAJ TO
+            image_url: v.image_url,
           });
         });
       });
@@ -123,7 +131,6 @@ const AdminAttributeList = () => {
     }
   };
 
-  // --- Funkcja sukcesu przekazywana do Modala ---
   const handleModalSuccess = () => {
     setIsModalOpen(false);
     showToast("Dodano nowy atrybut.", "success");
@@ -252,12 +259,12 @@ const AdminAttributeList = () => {
                     </td>
                     <td>
                       <div className="color-preview-wrap">
-                        {/* 1. Priorytet ma zdjęcie tkaniny */}
+                        {/* ZMIANA: Zastosowanie nowej funkcji dla obrazu atrybutu */}
                         {attr.image_url ? (
                           <>
                             <img
                               className="color-preview-image"
-                              src={`${BACKEND_URL}/uploads/attributes/${attr.image_url}`}
+                              src={getAttributeImageUrl(attr.image_url)}
                               alt={attr.value}
                             />
                             <span className="color-preview-label">
@@ -265,7 +272,6 @@ const AdminAttributeList = () => {
                             </span>
                           </>
                         ) : attr.color_hex ? (
-                          /* 2. Jeśli nie ma zdjęcia, ale jest kolor HEX */
                           <>
                             <span
                               className="color-preview-circle"
@@ -277,7 +283,6 @@ const AdminAttributeList = () => {
                             </span>
                           </>
                         ) : (
-                          /* 3. Jeśli nie ma nic */
                           <span className="color-preview-empty">- brak -</span>
                         )}
                       </div>
@@ -314,7 +319,6 @@ const AdminAttributeList = () => {
         </div>
       )}
 
-      {/* --- CZYSTY I WYDZIELONY MODAL --- */}
       <AdminAttributeModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
