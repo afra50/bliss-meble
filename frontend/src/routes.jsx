@@ -19,6 +19,7 @@ import AdminProductsList from "./pages/admin/AdminProductList";
 import AdminAttributeList from "./pages/admin/AdminAttributeList";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminShipping from "./pages/admin/AdminShipping";
+import AdminOrders from "./pages/admin/AdminOrders";
 
 // Import ochrony
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -59,6 +60,7 @@ const routes = [
 			{ path: "atrybuty", element: <AdminAttributeList /> },
 			{ path: "recenzje", element: <AdminReviews /> },
 			{ path: "wysylki", element: <AdminShipping /> },
+			{ path: "zamowienia", element: <AdminOrders /> },
 			{ path: "*", element: <NotFound /> },
 		],
 	},

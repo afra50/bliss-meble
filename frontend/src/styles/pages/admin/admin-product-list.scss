@@ -2,78 +2,77 @@
 @use "../../components/admin/tables";
 
 .admin-products {
-    &__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 30px;
+	&__header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-end;
+		margin-bottom: 30px;
 
-        @media (max-width: 768px) {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 20px;
-        }
+		@media (max-width: 768px) {
+			flex-direction: column;
+			align-items: flex-start;
+			gap: 20px;
+		}
 
-        h1 {
-            font-family: $font-heading;
-            font-size: 2rem;
-            color: $color-black;
-            margin-bottom: 5px;
-        }
+		h1 {
+			font-family: $font-heading;
+			font-size: 2rem;
+			color: $color-black;
+			margin-bottom: 5px;
+		}
 
-        p {
-            color: $color-slate;
-            font-size: 0.9rem;
-        }
-    }
+		p {
+			color: $color-slate;
+			font-size: 0.9rem;
+		}
+	}
 
-    &__controls {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-        gap: 20px;
-        flex-wrap: wrap; // Przenosi filtry do nowej linii na telefonie
+	&__controls {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 25px;
+		gap: 20px;
+		flex-wrap: wrap; // Przenosi filtry do nowej linii na telefonie
 
-        .controls-search {
-            flex: 1;
-            max-width: 400px;
-        }
+		.controls-search {
+			flex: 1;
+			max-width: 400px;
+		}
 
-        // TWORZY PIĘKNY RZĄD FILTRÓW
-        .controls-filters {
-            display: flex;
-            align-items: center;
-            gap: 15px; // Odstęp między Kategorią a Sortowaniem
-        }
+		// TWORZY PIĘKNY RZĄD FILTRÓW
+		.controls-filters {
+			display: flex;
+			align-items: center;
+			gap: 15px; // Odstęp między Kategorią a Sortowaniem
+		}
 
-        @media (max-width: 768px) {
+		@media (max-width: 768px) {
+			.controls-search,
+			.controls-filters {
+				max-width: 100%;
+				width: 100%;
+			}
 
-            .controls-search,
-            .controls-filters {
-                max-width: 100%;
-                width: 100%;
-            }
+			// Na bardzo małych ekranach filtry też ułożą się jeden pod drugim
+			.controls-filters {
+				flex-direction: column;
+				align-items: stretch;
 
-            // Na bardzo małych ekranach filtry też ułożą się jeden pod drugim
-            .controls-filters {
-                flex-direction: column;
-                align-items: stretch;
+				> div {
+					width: 100%;
+				}
+			}
+		}
+	}
 
-                >div {
-                    width: 100%;
-                }
-            }
-        }
-    }
+	&__table-wrapper {
+		@extend .admin-table-wrapper;
+	}
 
-    &__table-wrapper {
-        @extend .admin-table-wrapper;
-    }
-
-    &__pagination {
-        margin-top: 30px;
-        display: flex;
-        justify-content: center;
-    }
+	&__pagination {
+		margin-top: 30px;
+		display: flex;
+		justify-content: center;
+	}
 }
