@@ -14,7 +14,9 @@
 .mini-cart {
     width: 100%;
     max-width: 420px;
+    // ZMIANA 1: Fallback dla starszych przeglądarek i nowa jednostka dvh
     height: 100vh;
+    height: 100dvh;
     background: $color-white;
     box-shadow: -5px 0 25px rgba($color-black, 0.15);
     display: flex;
@@ -95,7 +97,9 @@
 
     &__footer {
         padding: 25px;
+        padding-bottom: calc(25px + env(safe-area-inset-bottom));
         border-top: 1px solid rgba($color-brown, 0.15);
+        background: $color-white; // Upewniamy się, że tło jest pod przyciskami
 
         .subtotal {
             display: flex;

@@ -3,7 +3,7 @@
 .toast-alert {
     position: fixed;
     bottom: 30px;
-    right: 30px;
+    right: 30px; // Domyślnie na komputerach
     display: flex;
     align-items: center;
     gap: 15px;
@@ -13,6 +13,7 @@
     z-index: 10000;
     animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     color: $color-white;
+    max-width: 400px; // Zapobiega rozciąganiu na całą szerokość
 
     &--success {
         background-color: $color-green;
@@ -36,14 +37,27 @@
         cursor: pointer;
         display: flex;
         padding: 0;
-        margin-left: 10px;
+        margin-left: auto; // Pcha krzyżyk do prawej krawędzi
 
         &:hover {
             color: $color-white;
         }
     }
+
+    // --- CENTROWANIE NA TELEFONIE ---
+    @media (max-width: 768px) {
+        // Możesz tu użyć swojej zmiennej np. $breakpoint-mobile
+        right: auto;
+        left: 50%;
+        bottom: 20px;
+        transform: translateX(-50%);
+        width: calc(100% - 40px); // Marginesy po 20px z każdej strony
+        max-width: 500px;
+        animation: slideUpMobile 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
 }
 
+// Animacja dla desktopu
 @keyframes slideInRight {
     from {
         opacity: 0;
@@ -53,5 +67,18 @@
     to {
         opacity: 1;
         transform: translateX(0);
+    }
+}
+
+// Animacja dla mobilki (wjeżdża od dołu i trzyma środek)
+@keyframes slideUpMobile {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
     }
 }

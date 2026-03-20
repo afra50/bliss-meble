@@ -34,3 +34,13 @@ BACKEND + INTEGRACJA
 
 ===== KONTAKT =====
 - mapa zmiana na pinezke
+
+===== KRZYSIEK =====
+- podpiecie do formularza kontaktowego wysylki
+  * w backendzie utils/email.js z wykorzystaniem nodemailer
+  * contactRoutes do trasy wykorzystujace email.js
+  * w app.js dpdac trase do contactRoutes
+  * dodać odpowiednie zmienne w .env
+  * dane - kontakt@blissmeble.pl;KwfggY0Yfflk0MyK
+  * dodać w api.js integracje z backendem od formularza
+  * zmienic kompoentnt frontu, aby wykorzystal integracje z api.js

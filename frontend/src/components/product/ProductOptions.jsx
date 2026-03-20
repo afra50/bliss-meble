@@ -1,10 +1,7 @@
 import { formatPrice } from "../../utils/formatPrice";
 import "../../styles/components/product/product-options.scss";
 
-// Adres URL bazy dla zdjęć atrybutów (tkanin)
-const BACKEND_URL = import.meta.env.VITE_API_URL
-  ? import.meta.env.VITE_API_URL.replace("/api", "")
-  : "http://localhost:5000";
+// ZMIANA: Usunięto stary blok BACKEND_URL z funkcją .replace()
 
 const ProductOptions = ({
   sizes,
@@ -14,10 +11,13 @@ const ProductOptions = ({
   selectedFabric,
   setSelectedFabric,
 }) => {
-  // Pomocnicza funkcja do budowania URL dla tekstur materiałów
+  // ZMIANA: Nowa funkcja budująca URL dla próbek materiałów korzystająca z /api
   const getTextureUrl = (filename) => {
     if (!filename) return null;
-    return `${BACKEND_URL}/uploads/attributes/${filename}`;
+
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    // Atrybuty leżą w podfolderze /uploads/attributes/
+    return `${apiUrl}/uploads/attributes/${filename}`;
   };
 
   return (
@@ -54,7 +54,7 @@ const ProductOptions = ({
                 className={`option-btn option-btn--fabric ${selectedFabric?.value_id === fabric.value_id ? "active" : ""}`}
                 onClick={() => setSelectedFabric(fabric)}
               >
-                {/* NOWOŚĆ: Wyświetlanie miniatury tkaniny, jeśli istnieje */}
+                {/* Miniatura tkaniny */}
                 {fabric.image_url && (
                   <span
                     className="option-btn__texture"
