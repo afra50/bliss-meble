@@ -28,7 +28,7 @@ const routes = [
 	// --- CZĘŚĆ PUBLICZNA ---
 	{ path: "/", element: <Home /> },
 	{ path: "/o-marce", element: <AboutUs /> },
-	{ path: "kontakt", element: <Contact /> },
+	{ path: "/kontakt", element: <Contact /> },
 	{ path: "/zwroty-reklamacje", element: <Complaints /> },
 
 	// --- ROUTY DLA SKLEPU ---
