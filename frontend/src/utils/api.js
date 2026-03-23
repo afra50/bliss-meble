@@ -149,4 +149,9 @@ export const settingApi = {
 		api.put("/settings/shipping-costs", costsData),
 };
 
+// ---- CONTACT API ----
+export const contactApi = {
+	sendMessage: (formData) => api.post("/contact", formData),
+};
+
 export default api;
