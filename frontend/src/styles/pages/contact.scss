@@ -112,10 +112,12 @@
 
 	.contact-image-wrapper {
 		width: 100%;
-		height: 350px;
+		height: 350px; // Sztywna wysokość
 		border: 1px solid rgba($color-slate, 0.15);
 		overflow: hidden;
 
+		// Te style zadziałają również na <iframe>, ponieważ <iframe> zachowuje się 
+		// podobnie do elementów zastępowanych (jak img)
 		img {
 			width: 100%;
 			height: 100%;

@@ -1,4 +1,4 @@
-- index.html, seo, sitemap, googlesearch, manifest.json, robots.txt url, og.jpg, JSON-LD
+- index.html, seo, sitemap, googlesearch, manifest.json, JSON-LD
 - linki do fb i insta w stopce i headerze
 - polityka prywatności zaktualizowac na koniec i zweryfikowac
 - errorstate, alert i loader wszedzie
@@ -6,7 +6,6 @@
 - minheight wszedzie
 
 BACKEND + INTEGRACJA
-- formularz kontaktowy
 - wykorzystywać api.js, tam robić helpery do integracji
 - zod do walidacji requestow
 - cron zadania - raz dziennie
@@ -21,15 +20,9 @@ BACKEND + INTEGRACJA
       i podmienia wrażliwe dane osobowe na wartości fikcyjne. Ulica i miasto zmieniają się na "Zanonimizowano", 
       e-mail na "anonim@blissmeble.pl", a imię na "Anonim".
 
-===== PRODUKTY =====
-- czytaj opinie ma przenosic powoli a nie skakac
-
 ===== SZCZEGÓŁY PRODUKTU =====
 - darmowa dostawa z bazy?
 
 ===== KOSZYK =====
 - darmowa dostawa od x zlotych? - do darmowej dostawy brakuje x zlotych / osiagnieto prog darmowej dostaw
 - na podsumowaniu widoczny wybor wysylki + cena, przeniesiony na drugi krok (tam tez mozna zmienic)
-
-===== KONTAKT =====
-- mapa zmiana na pinezke
