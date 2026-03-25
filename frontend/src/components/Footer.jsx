@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
-import { FaInstagram, FaFacebook } from "react-icons/fa";
-// Upewnij się, że ścieżka i nazwa pliku z jasnym logo są poprawne
+import { FaInstagram, FaFacebook, FaTiktok } from "react-icons/fa";
 import logoLight from "../assets/logos/bliss_logo_Beige_Bliss_poziom.svg";
 import "../styles/components/footer.scss";
 
@@ -20,11 +19,24 @@ const Footer = () => {
 						Twojego wnętrza.
 					</p>
 					<div className="footer__socials">
-						<a href="https://instagram.com" target="_blank" rel="noreferrer">
+						<a
+							href="https://www.instagram.com/blissmeble"
+							target="_blank"
+							rel="noreferrer">
 							<FaInstagram />
 						</a>
-						<a href="https://facebook.com" target="_blank" rel="noreferrer">
+						<a
+							href="https://www.facebook.com/profile.php?id=61585843586803&rdid=1muYW7nZuCsrWVan&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1BsCWMh6zr#"
+							target="_blank"
+							rel="noreferrer">
 							<FaFacebook />
+						</a>
+
+						<a
+							href="https://www.tiktok.com/@bliss.meble?_r=1&_t=ZN-94zWs1rmuCA"
+							target="_blank"
+							rel="noreferrer">
+							<FaTiktok />
 						</a>
 					</div>
 				</div>
