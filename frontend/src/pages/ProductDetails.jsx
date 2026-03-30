@@ -17,7 +17,7 @@ import ProductReviews from "../components/product/ProductReviews";
 import defaultImg from "../assets/default-product.jpg";
 import "../styles/pages/product-details.scss";
 
-// ZMIANA: Usunięto stary BACKEND_URL z replace("/api", "")
+import { CATEGORIES, SUBCATEGORIES } from "../utils/categories";
 
 const ProductDetails = () => {
   const { slug } = useParams();
@@ -40,6 +40,24 @@ const ProductDetails = () => {
       // 1. Pobieramy produkt
       const response = await productApi.getBySlug(slug);
       const fetchedProduct = response.data;
+
+      // --- NOWOŚĆ: Szukamy nazwy kategorii i dodajemy ją do produktu ---
+      if (fetchedProduct && fetchedProduct.subcategory_id) {
+        const foundSub = SUBCATEGORIES.find(
+          (s) => Number(s.id) === Number(fetchedProduct.subcategory_id),
+        );
+        if (foundSub) {
+          fetchedProduct.subcategory_name = foundSub.name;
+          const foundCat = CATEGORIES.find(
+            (c) => Number(c.id) === Number(foundSub.category_id),
+          );
+          if (foundCat) {
+            fetchedProduct.category_name = foundCat.name;
+          }
+        }
+      }
+      // ----------------------------------------------------------------
+
       setProduct(fetchedProduct);
 
       // 2. Jeśli mamy produkt, od razu pobieramy jego zaakceptowane recenzje

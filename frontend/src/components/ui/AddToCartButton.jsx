@@ -31,11 +31,14 @@ const AddToCartButton = ({
       slug: product.slug,
       price: price || product.price_brut,
       regular_price: regularPrice || product.price_brut,
-      omnibusPrice: omnibusPrice || null, // <--- TERAZ TO ZADZIAŁA
+      omnibusPrice: omnibusPrice || null,
       quantity,
       size: size?.value || null,
       fabric: fabric?.value || null,
       image: image,
+      // --- NOWOŚĆ: Zapisujemy kategorie w koszyku ---
+      category_name: product.category_name || "Brak",
+      subcategory_name: product.subcategory_name || "Brak",
     };
 
     addToCart(itemToAdd);

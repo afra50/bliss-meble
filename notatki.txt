@@ -1,6 +1,5 @@
 - index.html, seo, sitemap, googlesearch, manifest.json, JSON-LD
-- linki do fb i insta w stopce i headerze
-- polityka prywatności zaktualizowac na koniec i zweryfikowac
+- polityka prywatności zaktualizowac na koniec i zweryfikowac + dodac info o google mapie
 - errorstate, alert i loader wszedzie
 - defaultowe zdjecie dla produktu wszedzie dac
 - minheight wszedzie
@@ -20,9 +19,12 @@ BACKEND + INTEGRACJA
       i podmienia wrażliwe dane osobowe na wartości fikcyjne. Ulica i miasto zmieniają się na "Zanonimizowano", 
       e-mail na "anonim@blissmeble.pl", a imię na "Anonim".
 
-===== SZCZEGÓŁY PRODUKTU =====
-- darmowa dostawa z bazy?
-
-===== KOSZYK =====
-- darmowa dostawa od x zlotych? - do darmowej dostawy brakuje x zlotych / osiagnieto prog darmowej dostaw
-- na podsumowaniu widoczny wybor wysylki + cena, przeniesiony na drugi krok (tam tez mozna zmienic)
+ZAMÓWIENIE
+- checkout stepper ma byc klikalny
+- kolory
+- koszty wysylek z backendu
+- przetestowac
+- faktura zweryfikowac/poprawic
+- podpiac backend - zapisywanie zamowien, szczegolow wysylki
+- tymczasowo pominac bramke i zrobic ekran sukcesu zawsze razem z zapisaniem zamowienia
+- bramka

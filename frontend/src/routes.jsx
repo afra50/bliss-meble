@@ -10,6 +10,7 @@ import Contact from "./pages/Contact";
 import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
 import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage";
 
 // Importy Admina
 import LoginPage from "./pages/admin/Login";
@@ -25,48 +26,49 @@ import AdminOrders from "./pages/admin/AdminOrders";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const routes = [
-	// --- CZĘŚĆ PUBLICZNA ---
-	{ path: "/", element: <Home /> },
-	{ path: "/o-marce", element: <AboutUs /> },
-	{ path: "/kontakt", element: <Contact /> },
-	{ path: "/zwroty-reklamacje", element: <Complaints /> },
+  // --- CZĘŚĆ PUBLICZNA ---
+  { path: "/", element: <Home /> },
+  { path: "/o-marce", element: <AboutUs /> },
+  { path: "/kontakt", element: <Contact /> },
+  { path: "/zwroty-reklamacje", element: <Complaints /> },
 
-	// --- ROUTY DLA SKLEPU ---
-	{ path: "/sklep", element: <Products /> },
-	{ path: "/szukaj", element: <Products /> },
-	{ path: "/:category", element: <Products /> },
-	{ path: "/:category/:subcategory", element: <Products /> },
-	{ path: "/sklep/:slug", element: <ProductDetails /> },
+  // --- ROUTY DLA SKLEPU ---
+  { path: "/sklep", element: <Products /> },
+  { path: "/szukaj", element: <Products /> },
+  { path: "/:category", element: <Products /> },
+  { path: "/:category/:subcategory", element: <Products /> },
+  { path: "/sklep/:slug", element: <ProductDetails /> },
 
-	// --- ROUTY DLA ZAMOWIEN ---
-	{ path: "/koszyk", element: <CartPage /> },
-	{ path: "/platnosc-udana", element: <PaymentSuccess /> },
-	{ path: "/platnosc-anulowana", element: <PaymentCancel /> },
+  // --- ROUTY DLA ZAMOWIEN ---
+  { path: "/koszyk", element: <CartPage /> },
+  { path: "/zamowienie", element: <CheckoutPage /> },
+  { path: "/platnosc-udana", element: <PaymentSuccess /> },
+  { path: "/platnosc-anulowana", element: <PaymentCancel /> },
 
-	// --- LOGOWANIE ADMINA (Publiczne) ---
-	{ path: "/admin/login", element: <LoginPage /> },
+  // --- LOGOWANIE ADMINA (Publiczne) ---
+  { path: "/admin/login", element: <LoginPage /> },
 
-	// --- PANEL ADMINA (Chroniony) ---
-	{
-		path: "/admin",
-		element: (
-			<ProtectedRoute>
-				<AdminLayout />
-			</ProtectedRoute>
-		),
-		children: [
-			{ index: true, element: <AdminDashboard /> },
-			{ path: "produkty", element: <AdminProductsList /> },
-			{ path: "atrybuty", element: <AdminAttributeList /> },
-			{ path: "recenzje", element: <AdminReviews /> },
-			{ path: "wysylki", element: <AdminShipping /> },
-			{ path: "zamowienia", element: <AdminOrders /> },
-			{ path: "*", element: <NotFound /> },
-		],
-	},
+  // --- PANEL ADMINA (Chroniony) ---
+  {
+    path: "/admin",
+    element: (
+      <ProtectedRoute>
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      { index: true, element: <AdminDashboard /> },
+      { path: "produkty", element: <AdminProductsList /> },
+      { path: "atrybuty", element: <AdminAttributeList /> },
+      { path: "recenzje", element: <AdminReviews /> },
+      { path: "wysylki", element: <AdminShipping /> },
+      { path: "zamowienia", element: <AdminOrders /> },
+      { path: "*", element: <NotFound /> },
+    ],
+  },
 
-	// --- 404 ---
-	{ path: "*", element: <NotFound /> },
+  // --- 404 ---
+  { path: "*", element: <NotFound /> },
 ];
 
 export default routes;

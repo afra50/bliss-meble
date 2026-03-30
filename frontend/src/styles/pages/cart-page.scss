@@ -225,6 +225,16 @@
                     @media (max-width: 576px) {
                         text-align: left;
                     }
+
+                    .free-shipping {
+                        font-weight: 600;
+                        color: $color-green;
+                    }
+
+                    .cost-shipping {
+                        font-size: 0.9rem;
+                        color: $color-black;
+                    }
                 }
             }
         }

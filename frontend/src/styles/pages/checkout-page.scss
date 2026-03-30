@@ -1,0 +1,265 @@
+@use "../variables" as *;
+
+.checkout-page {
+    // Te paddingi i min-height pochodzą idealnie z cart-page.scss
+    padding: 60px 20px;
+    min-height: calc(100vh - 200px);
+    background-color: $color-white;
+
+    &__container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    // --- PUSTY KOSZYK ---
+    &__empty {
+        text-align: center;
+        padding: 60px 20px;
+
+        h2 {
+            font-family: $font-heading;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: $color-black;
+        }
+
+        .empty-btn {
+            margin-top: 20px;
+        }
+    }
+
+    // --- LAYOUT: 2 KOLUMNY (z cart-page) ---
+    &__layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 40px;
+        align-items: start;
+        margin-top: 20px;
+
+        @media (max-width: 1100px) {
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+    }
+
+    &__form-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    // --- ELEMENTY SPECYFICZNE DLA CHECKOUTU ---
+    .radio-group {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        // Delikatne tło pasujące do Twoich inputów
+        background-color: rgba($color-cream, 0.3);
+        border: 1px solid rgba($color-brown, 0.2);
+        padding: 20px;
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-family: $font-body;
+            font-size: 1rem;
+            color: $color-black;
+
+            input[type="radio"] {
+                accent-color: $color-olive; // Kolor z Twojego checkboxa
+                width: 18px;
+                height: 18px;
+                margin: 0;
+            }
+
+            .price {
+                margin-left: auto;
+                font-weight: bold;
+                color: $color-black;
+
+                &--free {
+                    color: $color-olive;
+                }
+            }
+        }
+    }
+
+    .invoice-box {
+        margin-top: 15px;
+        background-color: rgba($color-cream, 0.3);
+        border-left: 4px solid $color-olive;
+        padding: 15px 20px;
+        margin-bottom: 15px;
+
+        .info-text {
+            font-size: 0.85rem;
+            color: $color-slate;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            line-height: 1.5;
+
+            .info-icon {
+                color: $color-olive;
+                margin-top: 3px;
+                flex-shrink: 0;
+            }
+        }
+    }
+
+    // --- BOKS PODSUMOWANIA (PRAWA KOLUMNA Z CART-PAGE) ---
+    &__summary {
+        position: sticky;
+        top: 100px;
+    }
+
+    .summary-box {
+        background: $color-white;
+        border: 1px solid rgba($color-brown, 0.2);
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba($color-black, 0.03);
+
+        // ZABEZPIECZENIE GŁÓWNE
+        max-width: 100%;
+        overflow-wrap: break-word;
+        box-sizing: border-box;
+
+        @media (max-width: 576px) {
+            padding: 20px 15px;
+        }
+
+        &__title {
+            font-family: $font-heading;
+            font-size: 1.2rem;
+            color: $color-black;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba($color-brown, 0.1);
+        }
+
+        // Lista zamawianych produktów (unikalna dla Checkoutu)
+        &__items {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba($color-brown, 0.1);
+            padding-bottom: 20px;
+
+            .summary-item {
+                display: flex;
+                gap: 15px;
+                align-items: center;
+
+                img {
+                    width: 60px;
+                    height: 60px;
+                    object-fit: cover;
+                    border: 1px solid rgba($color-brown, 0.2);
+                }
+
+                .info {
+                    flex: 1;
+                    font-size: 0.9rem;
+
+                    h4 {
+                        margin: 0 0 5px;
+                        font-weight: 600;
+                        color: $color-black;
+                        font-family: $font-body;
+                    }
+
+                    p {
+                        margin: 0;
+                        color: $color-slate;
+                        font-size: 0.8rem;
+                    }
+                }
+
+                .price {
+                    font-weight: bold;
+                    color: $color-black;
+                    font-size: 0.95rem;
+                }
+            }
+        }
+
+        &__row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 1.05rem;
+            color: $color-slate;
+            gap: 15px;
+
+            span:first-child {
+                flex-shrink: 0;
+            }
+
+            .price-nowrap {
+                text-align: right;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 8px;
+                flex-wrap: wrap;
+
+                @media (max-width: 576px) {
+                    flex-direction: column;
+                    align-items: flex-end;
+                    gap: 2px;
+                }
+            }
+        }
+
+        &__total {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid rgba($color-brown, 0.1);
+            flex-wrap: nowrap;
+            gap: 15px;
+
+            >span {
+                font-family: $font-heading;
+                font-size: 1.2rem;
+                color: $color-black;
+                margin-top: 5px;
+            }
+
+            .total-price {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                text-align: right;
+                width: 100%;
+
+                strong {
+                    font-size: 1.6rem;
+                    color: $color-black;
+                    white-space: nowrap;
+                }
+
+                small {
+                    font-size: 0.75rem;
+                    color: $color-slate;
+                    margin-top: 4px;
+                }
+            }
+        }
+
+        &__btn {
+            width: 100%;
+            margin-top: 30px;
+            padding: 16px;
+            font-size: 1.05rem;
+            display: flex;
+            justify-content: center;
+        }
+    }
+}
