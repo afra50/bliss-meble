@@ -25,6 +25,7 @@ ZAMÓWIENIE
 - koszty wysylek z backendu
 - przetestowac
 - faktura zweryfikowac/poprawic
+- responsywnosc
 - podpiac backend - zapisywanie zamowien, szczegolow wysylki
 - tymczasowo pominac bramke i zrobic ekran sukcesu zawsze razem z zapisaniem zamowienia
 - bramka
