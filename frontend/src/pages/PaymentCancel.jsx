@@ -14,10 +14,11 @@ function PaymentCancel() {
           skontaktuj się z nami
         </p>
         <div className="pc-buttons">
-          <Button className="pc-button" to="/">
-            Strona główna
+          {/* Zmieniamy cel na /koszyk */}
+          <Button className="pc-button" to="/koszyk" variant="primary">
+            Wróć do koszyka
           </Button>
-          <Button className="pc-button-contact" to="contact" variant="olive">
+          <Button className="pc-button-contact" to="/kontakt" variant="olive">
             Kontakt
           </Button>
         </div>

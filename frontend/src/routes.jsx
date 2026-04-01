@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
+import OrderSummary from "./pages/OrderSummary";
 import AboutUs from "./pages/AboutUs";
 import Complaints from "./pages/Complaints";
 import Contact from "./pages/Contact";
@@ -42,6 +43,7 @@ const routes = [
   // --- ROUTY DLA ZAMOWIEN ---
   { path: "/koszyk", element: <CartPage /> },
   { path: "/zamowienie", element: <CheckoutPage /> },
+  { path: "/zamowienie/podsumowanie", element: <OrderSummary /> },
   { path: "/platnosc-udana", element: <PaymentSuccess /> },
   { path: "/platnosc-anulowana", element: <PaymentCancel /> },
 

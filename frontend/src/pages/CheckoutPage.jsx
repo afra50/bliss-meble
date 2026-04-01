@@ -5,6 +5,8 @@ import { formatPrice } from "../utils/formatPrice";
 import { settingApi } from "../utils/api";
 import CheckoutStepper from "../components/checkout/CheckoutStepper";
 import Button from "../components/ui/Button";
+import ToastAlert from "../components/ui/ToastAlert";
+import Loader from "../components/ui/Loader";
 import { FaInfoCircle } from "react-icons/fa";
 
 import "../styles/pages/checkout-page.scss";
@@ -14,6 +16,13 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
 
   // --- STANY ---
+  const [isLoading, setIsLoading] = useState(true);
+  const [toast, setToast] = useState({
+    isOpen: false,
+    message: "",
+    type: "error",
+  });
+
   const [shippingCostsDB, setShippingCostsDB] = useState({
     courierCost: 55,
     lockerCost: 50,
@@ -35,6 +44,7 @@ const CheckoutPage = () => {
     companyName: "",
     nip: "",
     notes: "",
+    paczkomatCode: "",
   });
 
   // --- LOGIKA BIZNESOWA ---
@@ -46,6 +56,7 @@ const CheckoutPage = () => {
   useEffect(() => {
     const fetchCosts = async () => {
       try {
+        setIsLoading(true);
         const response = await settingApi.getShippingCosts();
         setShippingCostsDB({
           courierCost: Number(response.data.courierCost),
@@ -53,6 +64,8 @@ const CheckoutPage = () => {
         });
       } catch (error) {
         console.error("Błąd pobierania kosztów wysyłki:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchCosts();
@@ -77,6 +90,10 @@ const CheckoutPage = () => {
   const finalTotal = cartTotal + shippingCost;
   const vatAmount = finalTotal - finalTotal / 1.23;
 
+  const showErrorToast = (message) => {
+    setToast({ isOpen: true, message, type: "error" });
+  };
+
   // --- HANDLERY ---
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -85,8 +102,19 @@ const CheckoutPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     if (!termsAccepted) {
-      alert("Musisz zaakceptować regulamin i politykę prywatności.");
+      showErrorToast("Musisz zaakceptować regulamin i politykę prywatności.");
+      return;
+    }
+
+    const hasCompany = formData.companyName.trim().length > 0;
+    const hasNip = formData.nip.trim().length > 0;
+
+    if ((hasCompany && !hasNip) || (!hasCompany && hasNip)) {
+      showErrorToast(
+        "Aby otrzymać fakturę na firmę, musisz podać ZARÓWNO NIP, jak i Nazwę firmy.",
+      );
       return;
     }
 
@@ -99,9 +127,28 @@ const CheckoutPage = () => {
       totalAmount: finalTotal,
     };
 
-    console.log("Wysyłam zamówienie:", orderData);
-    // TODO: API Call
+    // Tymczasowe przejście do podsumowania (zamiast wysyłania do API)
+    navigate("/zamowienie/podsumowanie", { state: { orderData } });
+
+    // Opcjonalnie: wyczyść koszyk tutaj lub na stronie podsumowania
+    clearCart();
   };
+
+  if (isLoading) {
+    return (
+      <main
+        className="checkout-page"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "50vh",
+        }}
+      >
+        <Loader message="Przygotowujemy podsumowanie..." />
+      </main>
+    );
+  }
 
   if (cartItems.length === 0) {
     return (
@@ -124,6 +171,13 @@ const CheckoutPage = () => {
 
   return (
     <main className="checkout-page">
+      <ToastAlert
+        isOpen={toast.isOpen}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ ...toast, isOpen: false })}
+      />
+
       <div className="checkout-page__container">
         <CheckoutStepper currentStep={2} />
 
@@ -145,19 +199,55 @@ const CheckoutPage = () => {
                 </label>
 
                 {!hasFurniture && (
-                  <label>
-                    <input
-                      type="radio"
-                      name="delivery"
-                      value="paczkomat"
-                      checked={deliveryMethod === "paczkomat"}
-                      onChange={(e) => setDeliveryMethod(e.target.value)}
-                    />
-                    Paczkomaty InPost 24/7{" "}
-                    <span className="price">
-                      {formatPrice(shippingCostsDB.lockerCost)} zł
-                    </span>
-                  </label>
+                  <>
+                    <label>
+                      <input
+                        type="radio"
+                        name="delivery"
+                        value="paczkomat"
+                        checked={deliveryMethod === "paczkomat"}
+                        onChange={(e) => setDeliveryMethod(e.target.value)}
+                      />
+                      Paczkomaty InPost 24/7{" "}
+                      <span className="price">
+                        {formatPrice(shippingCostsDB.lockerCost)} zł
+                      </span>
+                    </label>
+
+                    {deliveryMethod === "paczkomat" && (
+                      <div
+                        className="form-group"
+                        style={{
+                          marginLeft: "30px",
+                          marginTop: "-5px",
+                          marginBottom: "10px",
+                        }}
+                      >
+                        <label className="form-group__label">
+                          Kod paczkomatu <span>*</span>
+                        </label>
+                        <input
+                          className="form-group__input"
+                          type="text"
+                          name="paczkomatCode"
+                          placeholder="Np. WAW123M"
+                          value={formData.paczkomatCode}
+                          onChange={handleInputChange}
+                          required={deliveryMethod === "paczkomat"}
+                        />
+                        <span
+                          style={{
+                            fontSize: "0.8rem",
+                            color: "#64748b",
+                            marginTop: "4px",
+                          }}
+                        >
+                          Wpisz kod paczkomatu, do którego mamy wysłać
+                          zamówienie.
+                        </span>
+                      </div>
+                    )}
+                  </>
                 )}
 
                 <label>
@@ -364,6 +454,7 @@ const CheckoutPage = () => {
             <section className="form-section">
               <h3>Metoda płatności</h3>
               <div className="radio-group">
+                {/* --- PŁATNOŚĆ ONLINE --- */}
                 <label>
                   <input
                     type="radio"
@@ -375,6 +466,18 @@ const CheckoutPage = () => {
                   Płatność online (BLIK, szybki przelew, karta) – przez
                   Przelewy24
                 </label>
+                {paymentMethod === "online" && (
+                  <div className="radio-info-box">
+                    <FaInfoCircle className="info-icon" />
+                    <span>
+                      Zostaniesz przekierowany do szybkiej płatności
+                      internetowej. Obsługiwane są m.in. BLIK, przelewy
+                      ekspresowe.
+                    </span>
+                  </div>
+                )}
+
+                {/* --- PRZELEW TRADYCYJNY --- */}
                 <label>
                   <input
                     type="radio"
@@ -386,7 +489,17 @@ const CheckoutPage = () => {
                   Przelew tradycyjny (samodzielna wpłata na konto po złożeniu
                   zamówienia)
                 </label>
+                {paymentMethod === "tradycyjny" && (
+                  <div className="radio-info-box">
+                    <FaInfoCircle className="info-icon" />
+                    <span>
+                      Po złożeniu zamówienia otrzymasz dane do przelewu. Wyślemy
+                      je także na Twój adres e-mail.
+                    </span>
+                  </div>
+                )}
 
+                {/* --- PŁATNOŚĆ PRZY ODBIORZE --- */}
                 {deliveryMethod === "odbior" && (
                   <label>
                     <input
