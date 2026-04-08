@@ -2,6 +2,7 @@ import { BrowserRouter as Router, useRoutes } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import ScrollToTop from "./components/ScrollToTop";
+import SocialSidebar from "./components/ui/SocialSidebar";
 import routes from "./routes";
 
 // Ta funkcja zajmuje się renderowaniem odpowiedniej strony z routes.jsx
@@ -16,9 +17,8 @@ export default function App() {
       <ScrollToTop />
       <div className="App">
         <Header />
-
+        <SocialSidebar />
         <AppRoutes />
-
         <Footer />
       </div>
     </Router>

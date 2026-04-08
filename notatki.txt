@@ -20,6 +20,7 @@ BACKEND + INTEGRACJA
       e-mail na "anonim@blissmeble.pl", a imię na "Anonim".
 
 ZAMÓWIENIE
+- zabezpieczyc zamawianie - nie pozwolic na zamowienie usunietego produktu
 - Zabezpieczenie strony podsumowania (Tokeny UUID w URL) - po złożeniu zamówienia backend powinien wygenerować token (UUID) i odesłać go do frontendu. Klient zostanie przekierowany na adres typu /zamowienie/podsumowanie/550e8400-e29b..., a komponent na podstawie tego tokena bezpiecznie pobierze z API i wyświetli szczegóły zamówienia.
 - podpiac backend - zapisywanie zamowien, szczegolow wysylki, bramka
 - CheckoutPage.jsx: Zamiast tylko robić Maps do podsumowania, funkcja handleSubmit musi najpierw wysłać zamówienie do Twojego backendu (API), odebrać unikalny 
