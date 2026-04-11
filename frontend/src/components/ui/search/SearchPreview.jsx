@@ -5,7 +5,7 @@ import "../../../styles/components/ui/search/search-preview.scss";
 const SearchPreview = ({ results, query, onClose }) => {
   if (!results || results.length === 0) return null;
 
-  const MAX_RESULTS = 1;
+  const MAX_RESULTS = 5;
   const displayResults = results.slice(0, MAX_RESULTS);
   const hasMore = results.length > MAX_RESULTS;
 

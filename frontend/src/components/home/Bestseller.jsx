@@ -7,9 +7,7 @@ import defaultImg from "../../assets/default-product.jpg";
 import "../../styles/components/home/bestseller.scss";
 import { formatPrice } from "../../utils/formatPrice";
 
-const BACKEND_URL = import.meta.env.VITE_API_URL
-  ? import.meta.env.VITE_API_URL.replace("/api", "")
-  : "http://localhost:5000";
+// --- USUNIĘTO SKOMPLIKOWANY BACKEND_URL ---
 
 const Bestseller = () => {
   const [bestsellers, setBestsellers] = useState([]);
@@ -36,10 +34,14 @@ const Bestseller = () => {
     fetchBestsellers();
   }, []);
 
+  // --- ZMIANA: NOWA LOGIKA GENEROWANIA URL ---
   const getImageUrl = (imagePath) => {
     if (!imagePath) return defaultImg;
     if (imagePath.startsWith("http")) return imagePath;
-    return `${BACKEND_URL}/uploads/products/${imagePath}`;
+
+    // Budujemy czysty adres: https://blissmeble.pl/api + /uploads/products/ + obrazek.jpg
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    return `${apiUrl}/uploads/products/${imagePath}`;
   };
 
   if (isLoading) {

@@ -17,7 +17,6 @@ import CheckoutStepper from "../components/checkout/CheckoutStepper";
 import "../styles/pages/cart-page.scss";
 
 const CartPage = () => {
-  // ZMIANA: Wyciągamy cartTotalSavings z kontekstu
   const {
     cartItems,
     updateQuantity,
@@ -28,10 +27,18 @@ const CartPage = () => {
   const navigate = useNavigate();
 
   const handleProceedToCheckout = () => {
-    navigate("/zamowienie/dostawa");
+    navigate("/zamowienie");
   };
 
   const vatAmount = cartTotal - cartTotal / 1.23;
+
+  // NOWOŚĆ: Logika sprawdzająca, czy w koszyku jest mebel.
+  // UWAGA: Upewnij się, jak w Twoim obiekcie "item" zapisana jest kategoria!
+  // Tutaj zakładam, że kategoria z dodatkami ma nazwę "Dodatki" (lub dopisz odpowiednie ID kategorii, np. item.category_id !== 3)
+  const hasFurniture = cartItems.some(
+    (item) =>
+      item.category_name !== "Dodatki" && item.subcategory_name !== "Dodatki",
+  );
 
   return (
     <main className="cart-page">
@@ -99,12 +106,12 @@ const CartPage = () => {
                 <div className="summary-box__row">
                   <span>Wartość koszyka</span>
                   <span className="price-nowrap">
-                    {/* Jeśli jest jakaś oszczędność, pokażmy ją jako starą cenę całego koszyka! */}
                     {cartTotalSavings > 0 ? (
                       <span
                         style={{
                           textDecoration: "line-through",
                           color: "#94a3b8",
+                          marginRight: "8px",
                         }}
                       >
                         {formatPrice(cartTotal + cartTotalSavings)} zł
@@ -114,13 +121,17 @@ const CartPage = () => {
                   </span>
                 </div>
 
+                {/* ZMIANA: Dynamiczna informacja o wysyłce */}
                 <div className="summary-box__row summary-box__row--shipping">
                   <span>Wysyłka</span>
-                  <div className="shipping-info">
-                    <p>
-                      Koszty wysyłki zostaną obliczone w kolejnym kroku na
-                      podstawie Twojego adresu.
-                    </p>
+                  <div className="shipping-info" style={{ textAlign: "right" }}>
+                    {hasFurniture ? (
+                      <p className="free-shipping">Darmowa dostawa!</p>
+                    ) : (
+                      <p className="cost-shipping">
+                        Koszty zostaną obliczone w kolejnym kroku.
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -132,7 +143,6 @@ const CartPage = () => {
                     </strong>
                     <small>(w tym {formatPrice(vatAmount)} zł VAT)</small>
 
-                    {/* ZMIANA: WYŚWIETLANIE SUMARYCZNEJ OSZCZĘDNOŚCI */}
                     {cartTotalSavings > 0 && (
                       <div className="summary-box__savings">
                         Zyskujesz z rabatami:{" "}

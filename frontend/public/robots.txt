@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
 
+# Blokowanie dostępu do panelu admina i jego podstron
+Disallow: /admin/
+Disallow: /api/
+
 Sitemap: https://bliss-meble.pl/sitemap.xml

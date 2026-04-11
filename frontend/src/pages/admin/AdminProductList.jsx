@@ -17,9 +17,7 @@ import AdminProductModal from "../../components/admin/AdminProductModal";
 import defaultImg from "../../assets/default-product.jpg";
 import "../../styles/pages/admin/admin-product-list.scss";
 
-const BACKEND_URL = import.meta.env.VITE_API_URL
-  ? import.meta.env.VITE_API_URL.replace("/api", "")
-  : "http://localhost:5000";
+// ZMIANA: Usunięto stary blok BACKEND_URL z funkcją .replace()
 
 const AdminProductList = () => {
   const [products, setProducts] = useState([]);
@@ -52,10 +50,13 @@ const AdminProductList = () => {
     setToast({ isOpen: true, message, type });
   };
 
+  // ZMIANA: Nowa funkcja generująca pełny adres URL zdjęcia (z /api)
   const getImageUrl = (imagePath) => {
     if (!imagePath) return defaultImg;
     if (imagePath.startsWith("http")) return imagePath;
-    return `${BACKEND_URL}/uploads/products/${imagePath}`;
+
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    return `${apiUrl}/uploads/products/${imagePath}`;
   };
 
   const fetchProducts = async () => {
@@ -75,6 +76,8 @@ const AdminProductList = () => {
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // ... (reszta funkcji bez zmian)
 
   useEffect(() => {
     setCurrentPage(1);
@@ -141,15 +144,12 @@ const AdminProductList = () => {
     );
   }
 
-  // NAPRAWIONE FILTROWANIE - Niezależnie od tego, czy to obiekt czy string
   if (selectedCategoryFilter && selectedCategoryFilter !== "all") {
-    // Wyciągamy czysty string nazwy kategorii
     const categoryString =
       typeof selectedCategoryFilter === "object"
         ? selectedCategoryFilter.value
         : selectedCategoryFilter;
 
-    // Ponowny warunek 'all' na wypadek gdyby z obiektu wyciągnięto "all"
     if (categoryString !== "all") {
       processedProducts = processedProducts.filter(
         (p) => p.subcategory_name === categoryString,
@@ -214,7 +214,6 @@ const AdminProductList = () => {
           />
         </div>
 
-        {/* Zmienione na "sort", żeby tło było przezroczyste i ułożone obok siebie */}
         <div className="controls-filters">
           <CustomSelect
             variant="form"

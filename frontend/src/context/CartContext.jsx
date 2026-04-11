@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { productApi } from "../utils/api"; // <--- NOWOŚĆ: Importujemy API
 
 // Tworzymy Context
 const CartContext = createContext();
@@ -20,7 +21,53 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem("bliss_cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // 3. Funkcja DODAWANIA do koszyka
+  // --- 3. NOWOŚĆ: Walidacja koszyka przy starcie aplikacji ---
+  useEffect(() => {
+    const validateCartItems = async () => {
+      // Jeśli koszyk jest pusty, nic nie robimy
+      if (cartItems.length === 0) return;
+
+      try {
+        // Wyciągamy unikalne ID produktów z koszyka
+        const productIds = [...new Set(cartItems.map((item) => item.id))];
+
+        // Odpytujemy API o status tych produktów
+        const response = await productApi.validateCart({ ids: productIds });
+
+        // Zwrócone z backendu "żywe" produkty
+        const activeProducts = response.data;
+        const activeProductIds = activeProducts.map((p) => p.id);
+
+        // Filtrujemy koszyk – zostawiamy tylko to, co jest nadal aktywne
+        const validCartItems = cartItems.filter((item) =>
+          activeProductIds.includes(item.id),
+        );
+
+        // Jeśli długość się różni, tzn. że jakiś produkt wyleciał z oferty
+        if (validCartItems.length !== cartItems.length) {
+          setCartItems(validCartItems); // Aktualizujemy stan na "czysty" koszyk
+
+          // Informujemy klienta
+          alert(
+            "UWAGA: Niektóre z Twoich produktów wyprzedały się lub zostały wycofane z oferty, dlatego usunęliśmy je z koszyka.",
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Błąd podczas sprawdzania dostępności produktów w koszyku:",
+          error,
+        );
+      }
+    };
+
+    // Uruchamiamy walidację zaraz po załadowaniu
+    validateCartItems();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Pusta tablica oznacza, że uruchomi się tylko raz (po F5 / wejściu do sklepu)
+  // -------------------------------------------------------------
+
+  // 4. Funkcja DODAWANIA do koszyka
   const addToCart = (newItem) => {
     setCartItems((prevItems) => {
       const existingItemIndex = prevItems.findIndex(
@@ -48,14 +95,14 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // 4. Funkcja USUWANIA z koszyka
+  // 5. Funkcja USUWANIA z koszyka
   const removeFromCart = (indexToRemove) => {
     setCartItems((prevItems) =>
       prevItems.filter((_, index) => index !== indexToRemove),
     );
   };
 
-  // 5. Funkcja do zmiany ilości konkretnego przedmiotu w koszyku
+  // 6. Funkcja do zmiany ilości konkretnego przedmiotu w koszyku
   const updateQuantity = (indexToUpdate, newQuantity) => {
     setCartItems((prevItems) => {
       const updatedItems = [...prevItems];
@@ -64,7 +111,7 @@ export const CartProvider = ({ children }) => {
     });
   };
 
-  // 6. Czyszczenie całego koszyka (np. po udanym zamówieniu)
+  // 7. Czyszczenie całego koszyka (np. po udanym zamówieniu)
   const clearCart = () => {
     setCartItems([]);
   };
@@ -78,7 +125,7 @@ export const CartProvider = ({ children }) => {
     0,
   );
 
-  // NOWOŚĆ: Wyliczamy łączną kwotę oszczędności z całego koszyka
+  // Wyliczamy łączną kwotę oszczędności z całego koszyka
   const cartTotalSavings = cartItems.reduce((sum, item) => {
     // Jeśli mamy regularną cenę i jest ona wyższa niż obecna cena sprzedaży
     const regularPrice = item.regular_price || item.price_brut;
@@ -99,7 +146,7 @@ export const CartProvider = ({ children }) => {
         clearCart,
         cartCount,
         cartTotal,
-        cartTotalSavings, // <--- Eksportujemy nową wartość do całej aplikacji!
+        cartTotalSavings,
       }}
     >
       {children}

@@ -28,7 +28,7 @@ const MiniCart = ({ isOpen, onClose }) => {
 
   const handleCheckoutClick = () => {
     onClose();
-    navigate("/checkout");
+    navigate("/zamowienie");
   };
 
   const content = (

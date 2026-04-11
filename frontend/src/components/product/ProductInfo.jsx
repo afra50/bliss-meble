@@ -3,8 +3,12 @@ import { FaTruck, FaShieldAlt } from "react-icons/fa";
 import StarRating from "../ui/StarRating";
 import "../../styles/components/product/product-info.scss";
 
-// ZMIANA: Zamiast finalPrice przyjmujemy obiekt pricing
 const ProductInfo = ({ product, pricing, rating, reviewsCount, children }) => {
+  // Sprawdzamy, czy produkt jest meblem, czy dodatkiem
+  const isFurniture =
+    product?.category_name !== "Dodatki" &&
+    product?.subcategory_name !== "Dodatki";
+
   return (
     <section className="product-info">
       <h1 className="product-info__title">{product.name}</h1>
@@ -17,7 +21,6 @@ const ProductInfo = ({ product, pricing, rating, reviewsCount, children }) => {
         </a>
       </div>
 
-      {/* ZMIANA: Nowy układ ceny obsługujący promocje */}
       <div className="product-info__price-container">
         {pricing?.isPromo ? (
           <>
@@ -53,7 +56,12 @@ const ProductInfo = ({ product, pricing, rating, reviewsCount, children }) => {
 
       <div className="product-trust">
         <div className="trust-item">
-          <FaTruck /> <span>Darmowa dostawa od 3000 zł</span>
+          <FaTruck />{" "}
+          <span>
+            {isFurniture
+              ? "Darmowa dostawa na terenie całej Polski!"
+              : "Wysyłka paczkomatem lub kurierem"}
+          </span>
         </div>
         <div className="trust-item">
           <FaShieldAlt /> <span>2 lata gwarancji producenta</span>

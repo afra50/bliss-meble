@@ -261,16 +261,20 @@
 			}
 		}
 
+		// POPRAWIONA PLAKIETKA NA MOBILE
 		.about-badge {
-			width: 100px;
-			height: 100px;
+			width: 90px;
+			height: 90px;
 			top: -10px;
 			left: -10px;
+			padding: 5px; // Żeby tekst nie właził na ścianki
+
 			.badge-number {
-				font-size: 1.8rem;
+				font-size: 0.65rem; // Zmniejszone z 1.8rem
 			}
 			.badge-text {
-				font-size: 0.55rem;
+				font-size: 1.1rem; // Zwiększone z 0.55rem
+				margin-bottom: 2px;
 			}
 		}
 

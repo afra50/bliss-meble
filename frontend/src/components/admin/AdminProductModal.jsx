@@ -10,6 +10,8 @@ import ImageUploadZone from "../ui/ImageUploadZone";
 import "../../styles/components/admin/admin-modal.scss";
 import { CATEGORIES, SUBCATEGORIES } from "../../utils/categories";
 
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
 const BACKEND_URL = import.meta.env.VITE_API_URL
   ? import.meta.env.VITE_API_URL.replace("/api", "")
   : "http://localhost:5000";
@@ -637,13 +639,13 @@ const AdminProductModal = ({
                   <ImageUploadZone
                     existingImages={existingImages}
                     newFiles={newFiles}
-                    maxFiles={MAX_IMAGES} // <--- PRZEKAZUJEMY LIMIT ZMIENNEJ
+                    maxFiles={MAX_IMAGES}
                     onFilesSelected={handleFilesSelected}
-                    onFilesRejected={handleFilesRejected} // <--- ODBIERAMY BŁĘDY
+                    onFilesRejected={handleFilesRejected}
                     onExistingImageRemove={handleExistingImageRemove}
                     onRestoreExistingImage={handleRestoreExistingImage}
                     onNewFileRemove={handleNewFileRemove}
-                    backendUrl={BACKEND_URL}
+                    backendUrl={apiUrl} // <--- O TUTAJ PRZEKAZUJEMY POPRAWNY ADRES
                     colorOptions={colorOptions}
                     onSetMainImage={handleSetMainImage}
                     onNewFileAttributeChange={handleNewFileAttributeChange}

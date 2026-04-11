@@ -5,13 +5,16 @@ import { formatPrice } from "../../utils/formatPrice";
 import "../../styles/components/ui/product-card.scss";
 import StarRating from "./StarRating";
 
-const BACKEND_URL = import.meta.env.VITE_API_URL
-  ? import.meta.env.VITE_API_URL.replace("/api", "")
-  : "http://localhost:5000";
+// ZMIANA: Usunięto stary BACKEND_URL z replace("/api", "")
 
 const ProductCard = ({ product, isNew = false }) => {
+  // ZMIANA: Nowa funkcja generująca pełny adres URL zdjęcia
   const getImageUrl = (imagePath) => {
-    return `${BACKEND_URL}/uploads/products/${imagePath}`;
+    if (!imagePath) return defaultImg;
+    if (imagePath.startsWith("http")) return imagePath;
+
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    return `${apiUrl}/uploads/products/${imagePath}`;
   };
 
   const imageUrl = product.main_image
@@ -20,18 +23,18 @@ const ProductCard = ({ product, isNew = false }) => {
 
   const productLink = `/sklep/${product.slug}`;
 
-  // ZMIANA: Wywalamy mockRating i mockReviewsCount
+  // Wywalamy mockRating i mockReviewsCount
   const rating = Number(product.average_rating) || 0;
   const reviewsCount = Number(product.reviews_count) || 0;
 
-  // ZMIANA: Sprawdzamy czy produkt jest w promocji
+  // Sprawdzamy czy produkt jest w promocji
   const isPromo =
     product.promotional_price && parseFloat(product.promotional_price) > 0;
 
   return (
     <article className="product-card">
       <Link to={productLink} className="product-card__link">
-        {/* ZMIANA: Nowy kontener na plakietki (może ich być kilka) */}
+        {/* Nowy kontener na plakietki (może ich być kilka) */}
         <div className="product-card__badges">
           {isPromo && (
             <div className="product-card__badge product-card__badge--promo">
@@ -66,7 +69,7 @@ const ProductCard = ({ product, isNew = false }) => {
 
         <StarRating rating={rating} count={reviewsCount} size="small" />
 
-        {/* ZMIANA: Widok ceny wspierający promocję */}
+        {/* Widok ceny wspierający promocję */}
         <div className="product-card__price-wrapper">
           {isPromo ? (
             <>

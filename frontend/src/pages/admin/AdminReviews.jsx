@@ -14,9 +14,7 @@ import ErrorState from "../../components/ui/ErrorState";
 import { reviewApi } from "../../utils/api";
 import defaultImg from "../../assets/default-product.jpg";
 
-const BACKEND_URL = import.meta.env.VITE_API_URL
-  ? import.meta.env.VITE_API_URL.replace("/api", "")
-  : "http://localhost:5000";
+// ZMIANA: Usunięto stary BACKEND_URL z replace("/api", "")
 
 function AdminReviews() {
   const [reviews, setReviews] = useState([]);
@@ -230,10 +228,13 @@ function AdminReviews() {
     });
   };
 
+  // ZMIANA: Nowa funkcja generująca pełny adres URL zdjęcia
   const getImageUrl = (imagePath) => {
     if (!imagePath) return defaultImg;
     if (imagePath.startsWith("http")) return imagePath;
-    return `${BACKEND_URL}/uploads/products/${imagePath}`;
+
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    return `${apiUrl}/uploads/products/${imagePath}`;
   };
 
   return (

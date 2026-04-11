@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
-// ZMIANA: Importujemy reviewApi
 import { productApi, reviewApi } from "../utils/api";
 import Breadcrumbs from "../components/ui/Breadcrumbs";
 import Loader from "../components/ui/Loader";
@@ -18,17 +17,12 @@ import ProductReviews from "../components/product/ProductReviews";
 import defaultImg from "../assets/default-product.jpg";
 import "../styles/pages/product-details.scss";
 
-const BACKEND_URL = import.meta.env.VITE_API_URL
-  ? import.meta.env.VITE_API_URL.replace("/api", "")
-  : "http://localhost:5000";
-
-// USUNIĘTO MOCK_REVIEWS!
+import { CATEGORIES, SUBCATEGORIES } from "../utils/categories";
 
 const ProductDetails = () => {
   const { slug } = useParams();
 
   const [product, setProduct] = useState(null);
-  // NOWOŚĆ: Pusty stan dla opinii dociąganych z bazy
   const [reviews, setReviews] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -46,6 +40,24 @@ const ProductDetails = () => {
       // 1. Pobieramy produkt
       const response = await productApi.getBySlug(slug);
       const fetchedProduct = response.data;
+
+      // --- NOWOŚĆ: Szukamy nazwy kategorii i dodajemy ją do produktu ---
+      if (fetchedProduct && fetchedProduct.subcategory_id) {
+        const foundSub = SUBCATEGORIES.find(
+          (s) => Number(s.id) === Number(fetchedProduct.subcategory_id),
+        );
+        if (foundSub) {
+          fetchedProduct.subcategory_name = foundSub.name;
+          const foundCat = CATEGORIES.find(
+            (c) => Number(c.id) === Number(foundSub.category_id),
+          );
+          if (foundCat) {
+            fetchedProduct.category_name = foundCat.name;
+          }
+        }
+      }
+      // ----------------------------------------------------------------
+
       setProduct(fetchedProduct);
 
       // 2. Jeśli mamy produkt, od razu pobieramy jego zaakceptowane recenzje
@@ -120,10 +132,13 @@ const ProductDetails = () => {
   // WYLICZENIA TYLKO GDY PRODUKT ISTNIEJE
   // ==========================================
 
+  // ZMIANA: Nowa funkcja generująca pełny adres URL zdjęcia
   const getImageUrl = (url) => {
     if (!url) return defaultImg;
     if (url.startsWith("http")) return url;
-    return `${BACKEND_URL}/uploads/products/${url}`;
+
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    return `${apiUrl}/uploads/products/${url}`;
   };
 
   const isProductNew = (createdAt) => {
@@ -193,7 +208,6 @@ const ProductDetails = () => {
       : 0,
   };
 
-  // ZMIANA: Wyliczanie opinii korzystając ze stanu z API
   const totalReviews = reviews.length;
   let reviewsData = {
     average: 0,
@@ -213,7 +227,6 @@ const ProductDetails = () => {
 
     const average = (sum / totalReviews).toFixed(1);
 
-    // ZMIANA: Formatujemy datę odebraną z serwera
     const formattedReviewsList = reviews.map((r) => ({
       ...r,
       date: new Date(r.date).toLocaleDateString("pl-PL", {
@@ -256,7 +269,6 @@ const ProductDetails = () => {
           <ProductInfo
             product={product}
             pricing={pricing}
-            // Używamy nowych pól dociągniętych przez findBySlug
             rating={Number(product.average_rating) || 0}
             reviewsCount={Number(product.reviews_count) || 0}
           >

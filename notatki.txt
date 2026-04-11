@@ -1,13 +1,10 @@
-- index.html, seo, sitemap, googlesearch, manifest.json, robots.txt url, og.jpg, JSON-LD
-- linki do fb i insta w stopce i headerze
-- polityka prywatności zaktualizowac na koniec i zweryfikowac
-- regulamin
+- index.html, seo, sitemap, googlesearch, manifest.json, JSON-LD
+- polityka prywatności zaktualizowac na koniec i zweryfikowac + dodac info o google mapie
 - errorstate, alert i loader wszedzie
 - defaultowe zdjecie dla produktu wszedzie dac
 - minheight wszedzie
 
 BACKEND + INTEGRACJA
-- formularz kontaktowy
 - wykorzystywać api.js, tam robić helpery do integracji
 - zod do walidacji requestow
 - cron zadania - raz dziennie
@@ -22,6 +19,7 @@ BACKEND + INTEGRACJA
       i podmienia wrażliwe dane osobowe na wartości fikcyjne. Ulica i miasto zmieniają się na "Zanonimizowano", 
       e-mail na "anonim@blissmeble.pl", a imię na "Anonim".
 
+<<<<<<< HEAD
 DLA KRZYŚKA:
 - admin (mocki):
     * koszty wysylek
@@ -32,3 +30,15 @@ DLA KRZYŚKA:
 ===== KOSZYK =====
 - darmowa dostawa od x zlotych? - do darmowej dostawy brakuje x zlotych / osiagnieto prog darmowej dostaw
 - na podsumowaniu widoczny wybor wysylki + cena, przeniesiony na drugi krok (tam tez mozna zmienic)
+=======
+ZAMÓWIENIE
+- zabezpieczyc zamawianie - nie pozwolic na zamowienie usunietego produktu
+- Zabezpieczenie strony podsumowania (Tokeny UUID w URL) - po złożeniu zamówienia backend powinien wygenerować token (UUID) i odesłać go do frontendu. Klient zostanie przekierowany na adres typu /zamowienie/podsumowanie/550e8400-e29b..., a komponent na podstawie tego tokena bezpiecznie pobierze z API i wyświetli szczegóły zamówienia.
+- podpiac backend - zapisywanie zamowien, szczegolow wysylki, bramka
+- CheckoutPage.jsx: Zamiast tylko robić Maps do podsumowania, funkcja handleSubmit musi najpierw wysłać zamówienie do Twojego backendu (API), odebrać unikalny 
+  paymentUrl wygenerowany przez bramkę i zapisać ID zamówienia w bazie ze statusem "oczekuje na wpłatę".
+- OrderSummary.jsx: jeśli metoda to online, skrypt powinien automatycznie przekierować użytkownika na zewnętrzny adres URL bramki płatniczej (window.location.href = orderData.paymentUrl).
+- Należy dopisać logikę, która po powrocie klienta na stronę PaymentSuccess sprawdzi w API, czy status zamówienia faktycznie zmienił się na "opłacone" (ponieważ sam powrót na stronę nie daje 100% pewności, że przelew przeszedł – to musi potwierdzić serwer bramki poprzez tzw. webhook do Twojego backendu).
+- Funkcję clearCart() wywołujemy dopiero na stronie PaymentSuccess lub w OrderSummary (dla przelewu), aby w razie błędu płatności (PaymentCancel) klient wciąż miał produkty w koszyku i mógł spróbować zapłacić inną metodą.
+- zod do walidacji, pola na froncie zablokowane pod to jak jest na backendzie
+>>>>>>> 85a0462dbcef0d07b557ca8bdcb6683cc93f56f1

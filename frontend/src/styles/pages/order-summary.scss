@@ -1,0 +1,142 @@
+@use "../variables" as *;
+
+.order-summary {
+    padding: 60px 20px;
+    background-color: $color-white;
+
+    // Kluczowa zmiana: strona zajmie min. 70% wysokości okna, 
+    // co odepchnie stopkę na dół
+    min-height: 70vh;
+    display: flex;
+    align-items: center; // Środkowanie w pionie
+    justify-content: center; // Środkowanie w poziomie
+
+    &__container {
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    // --- STYL DLA EKRANU BŁĘDU (gdy brakuje danych) ---
+    &--error {
+        text-align: center;
+
+        h2 {
+            font-family: $font-heading;
+            font-size: 1.8rem;
+            color: $color-black;
+            margin-bottom: 25px;
+        }
+
+        .order-summary__container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+    }
+
+    &__card {
+        background: $color-white;
+        border: 1px solid rgba($color-brown, 0.2);
+        padding: 50px 40px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+
+        .success-icon {
+            color: $color-brown;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-family: $font-heading;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .order-number {
+            color: $color-slate;
+            margin-bottom: 40px;
+        }
+    }
+
+    .payment-instructions {
+        background-color: #fdfaf6;
+        border: 1px solid rgba($color-brown, 0.15);
+        padding: 30px;
+        margin: 30px 0;
+        text-align: left;
+
+        .instruction-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: $color-brown;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba($color-brown, 0.1);
+            padding-bottom: 10px;
+
+            h3 {
+                margin: 0;
+                font-size: 1.1rem;
+            }
+        }
+
+        .bank-details {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+
+            .bank-row {
+                display: flex;
+                justify-content: space-between;
+                font-size: 0.95rem;
+
+                span {
+                    color: $color-slate;
+                }
+
+                strong {
+                    color: $color-black;
+                    word-break: break-all;
+                    text-align: right;
+                }
+            }
+        }
+
+        .instruction-footer {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: $color-slate;
+            font-style: italic;
+        }
+    }
+
+    .payment-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        background-color: #f8fafc;
+        padding: 20px;
+        margin: 30px 0;
+        color: $color-slate;
+        font-size: 0.9rem;
+        border-radius: 4px;
+
+        svg {
+            color: $color-brown;
+            flex-shrink: 0;
+        }
+    }
+
+    &__actions {
+        margin-top: 40px;
+
+        p {
+            margin-bottom: 20px;
+            color: $color-slate;
+            font-size: 0.9rem;
+        }
+    }
+}
