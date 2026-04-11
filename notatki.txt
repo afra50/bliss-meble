@@ -19,18 +19,6 @@ BACKEND + INTEGRACJA
       i podmienia wrażliwe dane osobowe na wartości fikcyjne. Ulica i miasto zmieniają się na "Zanonimizowano", 
       e-mail na "anonim@blissmeble.pl", a imię na "Anonim".
 
-<<<<<<< HEAD
-DLA KRZYŚKA:
-- admin (mocki):
-    * koszty wysylek
-
-===== SZCZEGÓŁY PRODUKTU =====
-- darmowa dostawa z bazy?
-
-===== KOSZYK =====
-- darmowa dostawa od x zlotych? - do darmowej dostawy brakuje x zlotych / osiagnieto prog darmowej dostaw
-- na podsumowaniu widoczny wybor wysylki + cena, przeniesiony na drugi krok (tam tez mozna zmienic)
-=======
 ZAMÓWIENIE
 - zabezpieczyc zamawianie - nie pozwolic na zamowienie usunietego produktu
 - Zabezpieczenie strony podsumowania (Tokeny UUID w URL) - po złożeniu zamówienia backend powinien wygenerować token (UUID) i odesłać go do frontendu. Klient zostanie przekierowany na adres typu /zamowienie/podsumowanie/550e8400-e29b..., a komponent na podstawie tego tokena bezpiecznie pobierze z API i wyświetli szczegóły zamówienia.
@@ -41,4 +29,3 @@ ZAMÓWIENIE
 - Należy dopisać logikę, która po powrocie klienta na stronę PaymentSuccess sprawdzi w API, czy status zamówienia faktycznie zmienił się na "opłacone" (ponieważ sam powrót na stronę nie daje 100% pewności, że przelew przeszedł – to musi potwierdzić serwer bramki poprzez tzw. webhook do Twojego backendu).
 - Funkcję clearCart() wywołujemy dopiero na stronie PaymentSuccess lub w OrderSummary (dla przelewu), aby w razie błędu płatności (PaymentCancel) klient wciąż miał produkty w koszyku i mógł spróbować zapłacić inną metodą.
 - zod do walidacji, pola na froncie zablokowane pod to jak jest na backendzie
->>>>>>> 85a0462dbcef0d07b557ca8bdcb6683cc93f56f1
