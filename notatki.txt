@@ -26,9 +26,6 @@ DLA KRZYŚKA:
 - admin (mocki):
     * koszty wysylek
 
-===== PRODUKTY =====
-- czytaj opinie ma przenosic powoli a nie skakac
-
 ===== SZCZEGÓŁY PRODUKTU =====
 - darmowa dostawa z bazy?
 
