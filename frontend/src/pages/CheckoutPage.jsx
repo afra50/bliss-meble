@@ -522,14 +522,18 @@ const CheckoutPage = () => {
 
               <div className="summary-box__items">
                 {cartItems.map((item, index) => (
-                  <div key={index} className="summary-item">
+                  <div key={`${item.id}-${index}`} className="summary-item">
                     <img src={item.image} alt={item.name} />
                     <div className="info">
                       <h4>{item.name}</h4>
                       <p>Ilość: {item.quantity}</p>
-                      {(item.fabric || item.size) && (
+
+                      {/* NOWOŚĆ: Uwzględniamy wyświetlanie strony narożnika (item.side) */}
+                      {(item.fabric || item.size || item.side) && (
                         <p>
-                          {item.fabric} {item.size ? `| ${item.size}` : ""}
+                          {item.fabric}
+                          {item.size ? ` | ${item.size}` : ""}
+                          {item.side ? ` | Strona: ${item.side}` : ""}
                         </p>
                       )}
                     </div>

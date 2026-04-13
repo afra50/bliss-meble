@@ -9,9 +9,10 @@ const AddToCartButton = ({
   quantity = 1,
   price,
   regularPrice,
-  omnibusPrice, // <--- TO JEST TEN BRAKUJĄCY ELEMENT! MUSI BYĆ NA LIŚCIE PROPSÓW
+  omnibusPrice,
   size,
   fabric,
+  side, // <--- NOWOŚĆ: Odbieramy stronę
   image,
   disabled = false,
   className = "",
@@ -35,8 +36,8 @@ const AddToCartButton = ({
       quantity,
       size: size?.value || null,
       fabric: fabric?.value || null,
+      side: side || null, // <--- NOWOŚĆ: Dodajemy stronę do koszyka
       image: image,
-      // --- NOWOŚĆ: Zapisujemy kategorie w koszyku ---
       category_name: product.category_name || "Brak",
       subcategory_name: product.subcategory_name || "Brak",
     };

@@ -55,6 +55,12 @@ const CartItem = ({
               <span>Rozmiar:</span> {item.size}
             </p>
           )}
+          {/* NOWOŚĆ: Wyświetlanie strony narożnika */}
+          {item.side && (
+            <p>
+              <span>Strona:</span> {item.side}
+            </p>
+          )}
         </div>
 
         {/* WIDOK KOMPAKTOWY */}

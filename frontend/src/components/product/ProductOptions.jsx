@@ -1,8 +1,6 @@
 import { formatPrice } from "../../utils/formatPrice";
 import "../../styles/components/product/product-options.scss";
 
-// ZMIANA: Usunięto stary blok BACKEND_URL z funkcją .replace()
-
 const ProductOptions = ({
   sizes,
   fabrics,
@@ -10,18 +8,40 @@ const ProductOptions = ({
   setSelectedSize,
   selectedFabric,
   setSelectedFabric,
+  // --- NOWE PROPSY ---
+  isCornerSofa,
+  selectedSide,
+  setSelectedSide,
 }) => {
-  // ZMIANA: Nowa funkcja budująca URL dla próbek materiałów korzystająca z /api
   const getTextureUrl = (filename) => {
     if (!filename) return null;
-
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-    // Atrybuty leżą w podfolderze /uploads/attributes/
     return `${apiUrl}/uploads/attributes/${filename}`;
   };
 
   return (
     <>
+      {/* --- NOWOŚĆ: Wybór strony narożnika --- */}
+      {isCornerSofa && (
+        <div className="product-options">
+          <h3 className="product-options__title">Wybierz stronę narożnika:</h3>
+          <div className="product-options__group">
+            <button
+              className={`option-btn ${selectedSide === "lewy" ? "active" : ""}`}
+              onClick={() => setSelectedSide("lewy")}
+            >
+              <span className="option-btn__text">Lewostronny</span>
+            </button>
+            <button
+              className={`option-btn ${selectedSide === "prawy" ? "active" : ""}`}
+              onClick={() => setSelectedSide("prawy")}
+            >
+              <span className="option-btn__text">Prawostronny</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {sizes.length > 0 && (
         <div className="product-options">
           <h3 className="product-options__title">Wybierz rozmiar:</h3>
@@ -54,7 +74,6 @@ const ProductOptions = ({
                 className={`option-btn option-btn--fabric ${selectedFabric?.value_id === fabric.value_id ? "active" : ""}`}
                 onClick={() => setSelectedFabric(fabric)}
               >
-                {/* Miniatura tkaniny */}
                 {fabric.image_url && (
                   <span
                     className="option-btn__texture"
@@ -63,9 +82,7 @@ const ProductOptions = ({
                     }}
                   />
                 )}
-
                 <span className="option-btn__text">{fabric.value}</span>
-
                 {Number(fabric.price_modifier) > 0 && (
                   <span className="modifier">
                     (+{formatPrice(fabric.price_modifier)} zł)

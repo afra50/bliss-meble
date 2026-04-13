@@ -74,7 +74,8 @@ const CartPage = () => {
               <div className="cart-page__items">
                 {cartItems.map((item, index) => (
                   <CartItem
-                    key={`${item.id}-${item.size}-${item.fabric}`}
+                    // NOWOŚĆ: Dodano item.side do klucza
+                    key={`${item.id}-${item.size}-${item.fabric}-${item.side}`}
                     item={item}
                     index={index}
                     updateQuantity={updateQuantity}

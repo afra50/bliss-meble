@@ -131,6 +131,7 @@
   }
 
   div {
+    white-space: pre-wrap;
     font-family: $font-body;
     line-height: 1.8;
     color: color.change($color-black, $alpha: 0.8);

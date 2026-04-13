@@ -32,6 +32,9 @@ const ProductDetails = () => {
   const [selectedFabric, setSelectedFabric] = useState(null);
   const [quantity, setQuantity] = useState(1);
 
+  // --- NOWOŚĆ 1: Stan dla wybranej strony narożnika ---
+  const [selectedSide, setSelectedSide] = useState("lewy");
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
@@ -41,7 +44,7 @@ const ProductDetails = () => {
       const response = await productApi.getBySlug(slug);
       const fetchedProduct = response.data;
 
-      // --- NOWOŚĆ: Szukamy nazwy kategorii i dodajemy ją do produktu ---
+      // Szukamy nazwy kategorii i dodajemy ją do produktu
       if (fetchedProduct && fetchedProduct.subcategory_id) {
         const foundSub = SUBCATEGORIES.find(
           (s) => Number(s.id) === Number(fetchedProduct.subcategory_id),
@@ -56,7 +59,6 @@ const ProductDetails = () => {
           }
         }
       }
-      // ----------------------------------------------------------------
 
       setProduct(fetchedProduct);
 
@@ -80,10 +82,6 @@ const ProductDetails = () => {
   useEffect(() => {
     fetchData();
   }, [slug]);
-
-  // ==========================================
-  // STAN WIDOKÓW
-  // ==========================================
 
   if (isLoading) {
     return (
@@ -115,7 +113,7 @@ const ProductDetails = () => {
         <ErrorState
           message={
             error === "network_error"
-              ? "Brak połączenia z serwerem. Sprawdź swoje połączenie internetowe."
+              ? "Brak połączenia z serwerem."
               : "Wystąpił nieoczekiwany problem z serwerem."
           }
           onRetry={fetchData}
@@ -132,11 +130,17 @@ const ProductDetails = () => {
   // WYLICZENIA TYLKO GDY PRODUKT ISTNIEJE
   // ==========================================
 
-  // ZMIANA: Nowa funkcja generująca pełny adres URL zdjęcia
+  // --- NOWOŚĆ 2: Sprawdzamy, czy produkt jest narożnikiem używając slug ---
+  const productSubcategory = SUBCATEGORIES.find(
+    (sub) => Number(sub.id) === Number(product.subcategory_id),
+  );
+  const isCornerSofa = productSubcategory
+    ? productSubcategory.slug.includes("naroznik")
+    : false;
+
   const getImageUrl = (url) => {
     if (!url) return defaultImg;
     if (url.startsWith("http")) return url;
-
     const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
     return `${apiUrl}/uploads/products/${url}`;
   };
@@ -154,7 +158,6 @@ const ProductDetails = () => {
       ?.filter((a) => a.group_name.toLowerCase().includes("rozmiar"))
       .sort((a, b) => Number(a.price_modifier) - Number(b.price_modifier)) ||
     [];
-
   const fabrics =
     product.attributes
       ?.filter(
@@ -178,7 +181,6 @@ const ProductDetails = () => {
     if (filtered.length > 0) filteredImages = filtered;
   }
 
-  // Wyliczanie cen
   const baseRegularPrice = Number(product.price_brut);
   const isPromoActive =
     product.promotional_price && Number(product.promotional_price) > 0;
@@ -219,14 +221,11 @@ const ProductDetails = () => {
   if (totalReviews > 0) {
     const distribution = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
     let sum = 0;
-
     reviews.forEach((r) => {
       distribution[r.rating] += 1;
       sum += r.rating;
     });
-
     const average = (sum / totalReviews).toFixed(1);
-
     const formattedReviewsList = reviews.map((r) => ({
       ...r,
       date: new Date(r.date).toLocaleDateString("pl-PL", {
@@ -235,7 +234,6 @@ const ProductDetails = () => {
         year: "numeric",
       }),
     }));
-
     reviewsData = {
       average: Number(average),
       total: totalReviews,
@@ -272,6 +270,7 @@ const ProductDetails = () => {
             rating={Number(product.average_rating) || 0}
             reviewsCount={Number(product.reviews_count) || 0}
           >
+            {/* --- NOWOŚĆ 3: Przekazujemy nowe propsy --- */}
             <ProductOptions
               sizes={sizes}
               fabrics={fabrics}
@@ -279,6 +278,9 @@ const ProductDetails = () => {
               setSelectedSize={setSelectedSize}
               selectedFabric={selectedFabric}
               setSelectedFabric={setSelectedFabric}
+              isCornerSofa={isCornerSofa}
+              selectedSide={selectedSide}
+              setSelectedSide={setSelectedSide}
             />
 
             <div className="product-actions">
@@ -287,6 +289,8 @@ const ProductDetails = () => {
                 setQuantity={setQuantity}
                 max={99}
               />
+
+              {/* --- NOWOŚĆ 4: Przekazujemy stronę do przycisku --- */}
               <AddToCartButton
                 product={product}
                 quantity={quantity}
@@ -295,6 +299,7 @@ const ProductDetails = () => {
                 omnibusPrice={pricing.omnibusPrice}
                 size={selectedSize}
                 fabric={selectedFabric}
+                side={isCornerSofa ? selectedSide : null}
                 image={currentMainImage}
                 className="add-to-cart-btn"
               />
