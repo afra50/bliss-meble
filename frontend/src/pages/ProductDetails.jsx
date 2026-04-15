@@ -35,6 +35,8 @@ const ProductDetails = () => {
   // --- NOWOŚĆ 1: Stan dla wybranej strony narożnika ---
   const [selectedSide, setSelectedSide] = useState("lewy");
 
+  const [selectedHeadrest, setSelectedHeadrest] = useState(null);
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
@@ -134,8 +136,9 @@ const ProductDetails = () => {
   const productSubcategory = SUBCATEGORIES.find(
     (sub) => Number(sub.id) === Number(product.subcategory_id),
   );
+  // ZMIANA: Szukamy dokładnie sluga "narozniki", żeby pominąć "narozniki-u"
   const isCornerSofa = productSubcategory
-    ? productSubcategory.slug.includes("naroznik")
+    ? productSubcategory.slug === "narozniki"
     : false;
 
   const getImageUrl = (url) => {
@@ -168,8 +171,19 @@ const ProductDetails = () => {
       .sort((a, b) => Number(a.price_modifier) - Number(b.price_modifier)) ||
     [];
 
+  // --- NOWOŚĆ 2: Filtrujemy zagłówki z atrybutów ---
+  const headrests =
+    product.attributes
+      ?.filter((a) => a.group_name.toLowerCase().includes("zagłów"))
+      .sort((a, b) => Number(a.price_modifier) - Number(b.price_modifier)) ||
+    [];
+
   if (sizes.length > 0 && !selectedSize) setSelectedSize(sizes[0]);
   if (fabrics.length > 0 && !selectedFabric) setSelectedFabric(fabrics[0]);
+
+  // --- NOWOŚĆ 3: Domyślny wybór zagłówka (najtańszego/standardowego) ---
+  if (headrests.length > 0 && !selectedHeadrest)
+    setSelectedHeadrest(headrests[0]);
 
   let filteredImages = product.images || [];
   if (selectedFabric) {
@@ -193,6 +207,8 @@ const ProductDetails = () => {
     modifiersTotal += Number(selectedSize.price_modifier);
   if (selectedFabric?.price_modifier)
     modifiersTotal += Number(selectedFabric.price_modifier);
+  if (selectedHeadrest?.price_modifier)
+    modifiersTotal += Number(selectedHeadrest.price_modifier);
 
   const baseOmnibus = product.lowest_price_30_days
     ? Number(product.lowest_price_30_days)
@@ -274,9 +290,12 @@ const ProductDetails = () => {
             <ProductOptions
               sizes={sizes}
               fabrics={fabrics}
+              headrests={headrests}
               selectedSize={selectedSize}
               setSelectedSize={setSelectedSize}
               selectedFabric={selectedFabric}
+              selectedHeadrest={selectedHeadrest}
+              setSelectedHeadrest={setSelectedHeadrest}
               setSelectedFabric={setSelectedFabric}
               isCornerSofa={isCornerSofa}
               selectedSide={selectedSide}
@@ -300,6 +319,7 @@ const ProductDetails = () => {
                 size={selectedSize}
                 fabric={selectedFabric}
                 side={isCornerSofa ? selectedSide : null}
+                headrest={selectedHeadrest}
                 image={currentMainImage}
                 className="add-to-cart-btn"
               />

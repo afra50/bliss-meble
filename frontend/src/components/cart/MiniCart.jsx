@@ -56,8 +56,8 @@ const MiniCart = ({ isOpen, onClose }) => {
             <div className="mini-cart__items">
               {cartItems.map((item, index) => (
                 <CartItem
-                  // NOWOŚĆ: Dodajemy item.side do klucza
-                  key={`${item.id}-${item.size}-${item.fabric}-${item.side}`}
+                  // NOWOŚĆ: Dodajemy item.side ORAZ item.headrest do klucza
+                  key={`${item.id}-${item.size}-${item.fabric}-${item.side}-${item.headrest}`}
                   item={item}
                   index={index}
                   removeFromCart={removeFromCart}

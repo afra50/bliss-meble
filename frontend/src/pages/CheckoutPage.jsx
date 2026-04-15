@@ -528,12 +528,16 @@ const CheckoutPage = () => {
                       <h4>{item.name}</h4>
                       <p>Ilość: {item.quantity}</p>
 
-                      {/* NOWOŚĆ: Uwzględniamy wyświetlanie strony narożnika (item.side) */}
-                      {(item.fabric || item.size || item.side) && (
+                      {/* NOWOŚĆ: Uwzględniamy wyświetlanie strony i zagłówków */}
+                      {(item.fabric ||
+                        item.size ||
+                        item.side ||
+                        item.headrest) && (
                         <p>
                           {item.fabric}
                           {item.size ? ` | ${item.size}` : ""}
                           {item.side ? ` | Strona: ${item.side}` : ""}
+                          {item.headrest ? ` | Zagłówki: ${item.headrest}` : ""}
                         </p>
                       )}
                     </div>

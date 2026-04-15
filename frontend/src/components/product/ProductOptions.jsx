@@ -4,11 +4,13 @@ import "../../styles/components/product/product-options.scss";
 const ProductOptions = ({
   sizes,
   fabrics,
+  headrests, // <-- NOWY PROP
   selectedSize,
   setSelectedSize,
   selectedFabric,
   setSelectedFabric,
-  // --- NOWE PROPSY ---
+  selectedHeadrest, // <-- NOWY PROP
+  setSelectedHeadrest, // <-- NOWY PROP
   isCornerSofa,
   selectedSide,
   setSelectedSide,
@@ -21,7 +23,7 @@ const ProductOptions = ({
 
   return (
     <>
-      {/* --- NOWOŚĆ: Wybór strony narożnika --- */}
+      {/* WYBÓR STRONY NAROŻNIKA */}
       {isCornerSofa && (
         <div className="product-options">
           <h3 className="product-options__title">Wybierz stronę narożnika:</h3>
@@ -42,6 +44,44 @@ const ProductOptions = ({
         </div>
       )}
 
+      {/* NOWOŚĆ: WYBÓR ZAGŁÓWKÓW */}
+      {headrests && headrests.length > 0 && (
+        <div className="product-options">
+          <h3 className="product-options__title">
+            Ilość regulowanych zagłówków:
+          </h3>
+          <div className="product-options__group">
+            {headrests.map((hr) => {
+              // Mały trik gramatyczny, żeby 5 to było "zagłówków", a 3,4 to "zagłówki"
+              const word = ["2", "3", "4"].includes(hr.value)
+                ? "zagłówki"
+                : "zagłówków";
+              const isFree = Number(hr.price_modifier) === 0;
+
+              return (
+                <button
+                  key={hr.value_id}
+                  className={`option-btn ${selectedHeadrest?.value_id === hr.value_id ? "active" : ""}`}
+                  onClick={() => setSelectedHeadrest(hr)}
+                >
+                  <span className="option-btn__text">
+                    {hr.value} {word}
+                  </span>
+
+                  {/* Wyświetlamy darmowe jako "standardowo", a płatne z dopłatą */}
+                  <span className="modifier">
+                    {isFree
+                      ? "(standardowo)"
+                      : `(+${formatPrice(hr.price_modifier)} zł)`}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* WYBÓR ROZMIARU */}
       {sizes.length > 0 && (
         <div className="product-options">
           <h3 className="product-options__title">Wybierz rozmiar:</h3>
@@ -64,6 +104,7 @@ const ProductOptions = ({
         </div>
       )}
 
+      {/* WYBÓR TKANINY */}
       {fabrics.length > 0 && (
         <div className="product-options">
           <h3 className="product-options__title">Wybierz tkaninę:</h3>

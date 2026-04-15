@@ -13,6 +13,7 @@ const AddToCartButton = ({
   size,
   fabric,
   side, // <--- NOWOŚĆ: Odbieramy stronę
+  headrest,
   image,
   disabled = false,
   className = "",
@@ -37,6 +38,7 @@ const AddToCartButton = ({
       size: size?.value || null,
       fabric: fabric?.value || null,
       side: side || null, // <--- NOWOŚĆ: Dodajemy stronę do koszyka
+      headrest: headrest?.value || null,
       image: image,
       category_name: product.category_name || "Brak",
       subcategory_name: product.subcategory_name || "Brak",

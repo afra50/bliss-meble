@@ -55,10 +55,15 @@ const CartItem = ({
               <span>Rozmiar:</span> {item.size}
             </p>
           )}
-          {/* NOWOŚĆ: Wyświetlanie strony narożnika */}
           {item.side && (
             <p>
               <span>Strona:</span> {item.side}
+            </p>
+          )}
+          {/* --- NOWOŚĆ 4: Wyświetlanie wybranej liczby zagłówków w koszyku --- */}
+          {item.headrest && (
+            <p>
+              <span>Zagłówki:</span> {item.headrest}
             </p>
           )}
         </div>

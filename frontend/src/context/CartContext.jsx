@@ -75,7 +75,8 @@ export const CartProvider = ({ children }) => {
           item.id === newItem.id &&
           item.size === newItem.size &&
           item.fabric === newItem.fabric &&
-          item.side === newItem.side, // <--- NOWOŚĆ: Koszyk rozróżnia lewy i prawy!
+          item.side === newItem.side &&
+          item.headrest === newItem.headrest, // <--- NOWOŚĆ 3: Koszyk rozróżnia też ilość zagłówków!
       );
 
       if (existingItemIndex >= 0) {
