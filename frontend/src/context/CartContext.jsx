@@ -21,51 +21,38 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem("bliss_cart", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // --- 3. NOWOŚĆ: Walidacja koszyka przy starcie aplikacji ---
-  useEffect(() => {
-    const validateCartItems = async () => {
-      // Jeśli koszyk jest pusty, nic nie robimy
-      if (cartItems.length === 0) return;
+  // --- 3. Funkcja do wywoływania walidacji "na żądanie" ---
+  const validateCartItems = async () => {
+    if (cartItems.length === 0) return true; // Koszyk pusty = ważny
 
-      try {
-        // Wyciągamy unikalne ID produktów z koszyka
-        const productIds = [...new Set(cartItems.map((item) => item.id))];
+    try {
+      const productIds = [...new Set(cartItems.map((item) => item.id))];
+      const response = await productApi.validateCart({ ids: productIds });
 
-        // Odpytujemy API o status tych produktów
-        const response = await productApi.validateCart({ ids: productIds });
+      const activeProductIds = response.data.map((p) => p.id);
+      const validCartItems = cartItems.filter((item) =>
+        activeProductIds.includes(item.id),
+      );
 
-        // Zwrócone z backendu "żywe" produkty
-        const activeProducts = response.data;
-        const activeProductIds = activeProducts.map((p) => p.id);
-
-        // Filtrujemy koszyk – zostawiamy tylko to, co jest nadal aktywne
-        const validCartItems = cartItems.filter((item) =>
-          activeProductIds.includes(item.id),
+      if (validCartItems.length !== cartItems.length) {
+        setCartItems(validCartItems);
+        alert(
+          "UWAGA: Niektóre z Twoich produktów wyprzedały się lub zostały wycofane z oferty, dlatego usunęliśmy je z koszyka.",
         );
-
-        // Jeśli długość się różni, tzn. że jakiś produkt wyleciał z oferty
-        if (validCartItems.length !== cartItems.length) {
-          setCartItems(validCartItems); // Aktualizujemy stan na "czysty" koszyk
-
-          // Informujemy klienta
-          alert(
-            "UWAGA: Niektóre z Twoich produktów wyprzedały się lub zostały wycofane z oferty, dlatego usunęliśmy je z koszyka.",
-          );
-        }
-      } catch (error) {
-        console.error(
-          "Błąd podczas sprawdzania dostępności produktów w koszyku:",
-          error,
-        );
+        return false; // Zwraca false, jeśli koszyk musiał zostać zmieniony
       }
-    };
+      return true; // Zwraca true, jeśli wszystko jest OK
+    } catch (error) {
+      console.error("Błąd podczas sprawdzania dostępności:", error);
+      return true; // Przepuszczamy w razie błędu API, żeby nie zablokować całkiem sklepu
+    }
+  };
 
-    // Uruchamiamy walidację zaraz po załadowaniu
+  // Opcjonalnie: Nadal sprawdzaj przy pierwszym wejściu na stronę (F5)
+  useEffect(() => {
     validateCartItems();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Pusta tablica oznacza, że uruchomi się tylko raz (po F5 / wejściu do sklepu)
-  // -------------------------------------------------------------
+  }, []);
 
   // 4. Funkcja DODAWANIA do koszyka
   const addToCart = (newItem) => {
@@ -149,6 +136,7 @@ export const CartProvider = ({ children }) => {
         cartCount,
         cartTotal,
         cartTotalSavings,
+        validateCartItems,
       }}
     >
       {children}

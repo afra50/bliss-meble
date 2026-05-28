@@ -57,18 +57,21 @@ app.use(morgan("common"));
 // --- 2. KONTROLA RUCHU (Rate Limiting) ---
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minut
-  max: 300, // Limit 300 zapytań na IP
+  max: 1000, // Zwiększamy z 300 na 1000. Sklep generuje sporo zapytań (koszyk, produkty, opinie w tle)
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Zbyt wiele zapytań, spróbuj ponownie za 15 minut." },
 });
 
 const speedLimiter = slowDown({
-  windowMs: 15 * 60 * 1000,
-  delayAfter: 150,
+  windowMs: 15 * 60 * 1000, // 15 minut
+  delayAfter: 500, // Zaczynamy spowalniać dopiero po 500 zapytaniach (pozwala na swobodne przeglądanie sklepu)
   delayMs: (used, req) => {
     const delayAfter = req.slowDown.limit;
-    return (used - delayAfter) * 500;
+    // Łagodna kara: dodajemy tylko 50ms opóźnienia zamiast 500ms
+    const delay = (used - delayAfter) * 50;
+    // Ustalamy maksymalne opóźnienie na 2 sekundy (żeby API nie zawiesiło się całkowicie)
+    return delay > 2000 ? 2000 : delay;
   },
 });
 

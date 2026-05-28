@@ -3,13 +3,10 @@
 .order-summary {
     padding: 60px 20px;
     background-color: $color-white;
-
-    // Kluczowa zmiana: strona zajmie min. 70% wysokości okna, 
-    // co odepchnie stopkę na dół
     min-height: 70vh;
     display: flex;
-    align-items: center; // Środkowanie w pionie
-    justify-content: center; // Środkowanie w poziomie
+    align-items: center;
+    justify-content: center;
 
     &__container {
         width: 100%;
@@ -17,7 +14,6 @@
         margin: 0 auto;
     }
 
-    // --- STYL DLA EKRANU BŁĘDU (gdy brakuje danych) ---
     &--error {
         text-align: center;
 
@@ -33,6 +29,17 @@
             flex-direction: column;
             align-items: center;
             gap: 20px;
+            padding: 100px 0;
+        }
+    }
+
+    &__loading {
+        text-align: center;
+        padding: 100px 0;
+
+        .loading-spinner {
+            margin: 0 auto 20px;
+            animation: spin 1s linear infinite;
         }
     }
 
@@ -61,8 +68,8 @@
     }
 
     .payment-instructions {
-        background-color: #fdfaf6;
-        border: 1px solid rgba($color-brown, 0.15);
+        background-color: transparent; // Usunięte tło
+        border: 1px solid rgba($color-brown, 0.25); // Wyraźniejszy border
         padding: 30px;
         margin: 30px 0;
         text-align: left;
@@ -73,7 +80,7 @@
             gap: 10px;
             color: $color-brown;
             margin-bottom: 20px;
-            border-bottom: 1px solid rgba($color-brown, 0.1);
+            border-bottom: 1px solid rgba($color-brown, 0.15);
             padding-bottom: 10px;
 
             h3 {
@@ -100,6 +107,7 @@
                     color: $color-black;
                     word-break: break-all;
                     text-align: right;
+                    font-weight: 600;
                 }
             }
         }
@@ -114,15 +122,17 @@
 
     .payment-info {
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 15px;
-        background-color: #f8fafc;
-        padding: 20px;
+        gap: 10px;
+        background-color: transparent; // Usunięte tło
+        border: 1px solid rgba($color-brown, 0.2); // Sam border zamiast tła
+        padding: 25px;
         margin: 30px 0;
         color: $color-slate;
-        font-size: 0.9rem;
-        border-radius: 4px;
+        font-size: 0.95rem;
+        text-align: center;
 
         svg {
             color: $color-brown;
@@ -131,10 +141,10 @@
     }
 
     &__actions {
-        margin-top: 40px;
+        margin-top: 30px;
 
-        p {
-            margin-bottom: 20px;
+        .confirmation-note {
+            margin-bottom: 15px;
             color: $color-slate;
             font-size: 0.9rem;
         }
@@ -143,8 +153,8 @@
     .order-details {
         margin-top: 40px;
         text-align: left;
-        background-color: #fdfaf6; // Delikatne tło pasujące do reszty
-        border: 1px solid rgba($color-brown, 0.15);
+        background-color: transparent; // Usunięte tło
+        border: 1px solid rgba($color-brown, 0.25); // Dopasowany border
         padding: 30px;
 
         &__title {
@@ -152,7 +162,7 @@
             font-size: 1.2rem;
             color: $color-brown;
             margin-bottom: 20px;
-            border-bottom: 1px solid rgba($color-brown, 0.1);
+            border-bottom: 1px solid rgba($color-brown, 0.15);
             padding-bottom: 10px;
         }
 
@@ -187,7 +197,7 @@
         }
 
         &__products {
-            border-top: 1px dashed rgba($color-brown, 0.2);
+            border-top: 1px dashed rgba($color-brown, 0.3);
             padding-top: 20px;
 
             h4 {
@@ -200,26 +210,55 @@
             .product-row {
                 display: flex;
                 justify-content: space-between;
-                margin-bottom: 8px;
+                margin-bottom: 12px;
                 font-size: 0.95rem;
                 color: $color-slate;
 
+                .product-info-block {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                }
+
                 .product-name {
+                    color: $color-black;
+                    font-weight: 500;
+
                     em {
                         font-style: normal;
-                        color: #94a3b8;
+                        color: $color-slate;
                         margin-left: 5px;
+                    }
+                }
+
+                .product-attributes {
+                    font-size: 0.85rem;
+                    color: $color-black;
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+
+                    li {
+                        margin-bottom: 2px;
                     }
                 }
 
                 .product-price {
                     font-weight: 500;
+                    color: $color-black;
+                }
+
+                &--summary-line {
+                    margin-bottom: 8px;
+                    font-size: 0.95rem;
+                    border-top: 1px dashed rgba($color-brown, 0.15);
+                    padding-top: 8px;
                 }
 
                 &--total {
                     margin-top: 20px;
                     padding-top: 15px;
-                    border-top: 1px solid rgba($color-brown, 0.15);
+                    border-top: 1px solid rgba($color-brown, 0.25);
                     font-size: 1.15rem;
                     font-weight: 600;
                     color: $color-black;
@@ -230,5 +269,15 @@
                 }
             }
         }
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
     }
 }

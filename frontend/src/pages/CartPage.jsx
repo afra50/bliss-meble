@@ -23,8 +23,13 @@ const CartPage = () => {
     removeFromCart,
     cartTotal,
     cartTotalSavings,
+    validateCartItems,
   } = useCart();
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    validateCartItems();
+  }, []);
 
   const handleProceedToCheckout = () => {
     navigate("/zamowienie");

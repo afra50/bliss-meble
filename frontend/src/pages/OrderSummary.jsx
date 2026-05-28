@@ -1,14 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import {
-  CheckCircle,
-  Info,
-  CreditCard,
-  Truck,
-  AlertTriangle,
-  Loader2,
-} from "lucide-react";
+import { CheckCircle, Info, CreditCard, Truck } from "lucide-react";
 import Button from "../components/ui/Button";
+import Loader from "../components/ui/Loader"; // Dodany import Loadera
+import ErrorState from "../components/ui/ErrorState"; // Dodany import ErrorState
 import CheckoutStepper from "../components/checkout/CheckoutStepper";
 import { orderApi } from "../utils/api";
 import { useCart } from "../context/CartContext";
@@ -17,106 +12,117 @@ import { formatPrice } from "../utils/formatPrice";
 import "../styles/pages/order-summary.scss";
 
 const OrderSummary = () => {
-  const { token } = useParams(); // Pobieramy token UUID z linku
+  const { token } = useParams();
   const { clearCart } = useCart();
 
   const [order, setOrder] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Referencja zapobiegająca wielokrotnemu czyszczeniu koszyka
   const cartClearedRef = useRef(false);
 
   useEffect(() => {
-    let intervalId = null;
+    let timeoutId = null;
+    let isMounted = true;
 
     const fetchOrder = async () => {
       try {
         const response = await orderApi.getOrderByToken(token);
+
+        // Jeśli komponent został odmontowany w międzyczasie, przerywamy
+        if (!isMounted) return;
+
         const orderData = response.data;
         setOrder(orderData);
         setIsLoading(false);
 
         // BEZPIECZNE CZYSZCZENIE KOSZYKA
         if (!cartClearedRef.current) {
-          if (orderData.payment_method !== "online") {
-            // Przelew tradycyjny lub pobranie - czyścimy od razu
+          if (
+            orderData.payment_method !== "online" ||
+            orderData.status === "paid"
+          ) {
             clearCart();
             cartClearedRef.current = true;
-          } else if (orderData.status === "paid") {
-            // Online - czyścimy dopiero gdy P24 potwierdzi wpłatę
-            clearCart();
-            cartClearedRef.current = true;
-            if (intervalId) clearInterval(intervalId); // Zatrzymujemy odświeżanie
           }
-        } else if (orderData.status === "paid" && intervalId) {
-          clearInterval(intervalId); // Zatrzymujemy odświeżanie, jeśli już zapłacono
+        }
+
+        // --- KONTROLOWANY POLLING: Planujemy następne żądanie tylko gdy trzeba ---
+        if (
+          orderData.payment_method === "online" &&
+          orderData.status !== "paid"
+        ) {
+          timeoutId = setTimeout(fetchOrder, 3000);
         }
       } catch (err) {
         console.error("Błąd pobierania podsumowania:", err);
-        setError(
-          "Nie odnaleziono danych zamówienia lub link jest nieprawidłowy.",
-        );
-        setIsLoading(false);
-        if (intervalId) clearInterval(intervalId);
+        if (isMounted) {
+          setError(
+            "Nie odnaleziono danych zamówienia lub link jest nieprawidłowy.",
+          );
+          setIsLoading(false);
+        }
       }
     };
 
-    fetchOrder(); // Pierwsze pobranie po wejściu na stronę
-
-    // Mechanizm Polling - jeśli to płatność online, odpytuj bazę co 3 sekundy
-    intervalId = setInterval(() => {
-      fetchOrder();
-    }, 3000);
+    fetchOrder(); // Odpalamy pierwsze, pojedyncze zapytanie
 
     return () => {
-      if (intervalId) clearInterval(intervalId);
+      isMounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [token, clearCart]);
 
+  // 1. Użycie globalnego Loadera
   if (isLoading) {
     return (
-      <main className="order-summary">
-        <div
-          className="order-summary__container"
-          style={{ textAlign: "center", padding: "100px 0" }}
-        >
-          <Loader2
-            className="animate-spin"
-            size={48}
-            color="#7a5c43"
-            style={{ margin: "0 auto 20px" }}
+      <main
+        className="order-summary"
+        style={{
+          minHeight: "60vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Loader message="Weryfikujemy status zamówienia. Prosimy nie odświeżać strony." />
+      </main>
+    );
+  }
+
+  // 2. Użycie globalnego ErrorState
+  if (error || !order) {
+    return (
+      <main
+        className="order-summary"
+        style={{
+          minHeight: "60vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div className="order-summary__container">
+          <ErrorState
+            title="Brak danych"
+            message={
+              error ||
+              "Nie odnaleziono danych zamówienia lub link jest nieprawidłowy."
+            }
+            actionText="Wróć do sklepu"
+            actionLink="/sklep" // Zmień na właściwy props, jakiego oczekuje Twój ErrorState (np. onAction, href itp.)
           />
-          <h2>Weryfikujemy status zamówienia...</h2>
-          <p>Prosimy nie odświeżać strony.</p>
         </div>
       </main>
     );
   }
 
-  if (error || !order) {
-    return (
-      <main className="order-summary order-summary--error">
-        <div
-          className="order-summary__container"
-          style={{ textAlign: "center", padding: "100px 0" }}
-        >
-          <AlertTriangle
-            size={64}
-            color="#dc2626"
-            style={{ margin: "0 auto 20px" }}
-          />
-          <h2>{error || "Brak danych"}</h2>
-          <Link
-            to="/sklep"
-            style={{ display: "inline-block", marginTop: "20px" }}
-          >
-            <Button variant="primary">Wróć do sklepu</Button>
-          </Link>
-        </div>
-      </main>
-    );
-  }
+  // Obliczamy wartość samych produktów (brutto)
+  const productsTotal =
+    order.items?.reduce(
+      (acc, item) => acc + item.price_brut_snapshot * item.quantity,
+      0,
+    ) || 0;
 
   return (
     <main className="order-summary">
@@ -191,16 +197,8 @@ const OrderSummary = () => {
 
           {/* ODBIÓR OSOBISTY */}
           {order.payment_method === "odbior" && (
-            <div
-              className="payment-info payment-info--pickup"
-              style={{
-                background: "#f8fafc",
-                padding: "20px",
-                borderRadius: "8px",
-                marginTop: "20px",
-              }}
-            >
-              <Truck size={24} style={{ marginBottom: "10px" }} />
+            <div className="payment-info payment-info--pickup">
+              <Truck size={24} />
               <p>
                 Wybrałeś płatność przy odbiorze osobistym. Zapłacisz za swoje
                 produkty gotówką lub kartą na miejscu.
@@ -208,7 +206,7 @@ const OrderSummary = () => {
             </div>
           )}
 
-          {/* SZCZEGÓŁY ZAMÓWIENIA WIDOCZNE DLA KAŻDEGO */}
+          {/* SZCZEGÓŁY ZAMÓWIENIA */}
           <div className="order-details">
             <h3 className="order-details__title">Podsumowanie zamówienia</h3>
 
@@ -259,16 +257,69 @@ const OrderSummary = () => {
 
             <div className="order-details__products">
               <h4>Zamówione produkty</h4>
-              {order.items?.map((item, idx) => (
-                <div key={idx} className="product-row">
-                  <span className="product-name">
-                    {item.name} <em>(x{item.quantity})</em>
-                  </span>
-                  <span className="product-price">
-                    {formatPrice(item.price_brut_snapshot * item.quantity)} zł
-                  </span>
-                </div>
-              ))}
+              {order.items?.map((item, idx) => {
+                // 1. Wyciągamy dane (szukamy we wszystkich możliwych kluczach, w tym selected_options)
+                let selectedAttributes =
+                  item.selected_options ||
+                  item.configuration ||
+                  item.attributes;
+
+                // 2. KLUCZOWA ZMIANA: Jeśli dane przyszły z bazy jako tekst (String JSON), zamieniamy je na obiekt
+                if (typeof selectedAttributes === "string") {
+                  try {
+                    selectedAttributes = JSON.parse(selectedAttributes);
+                  } catch (e) {
+                    console.error("Błąd parsowania atrybutów:", e);
+                    selectedAttributes = null;
+                  }
+                }
+
+                return (
+                  <div key={idx} className="product-row">
+                    <div className="product-info-block">
+                      <span className="product-name">
+                        {item.name} <em>(x{item.quantity})</em>
+                      </span>
+                      {selectedAttributes &&
+                        Object.keys(selectedAttributes).length > 0 && (
+                          <ul className="product-attributes">
+                            {Object.entries(selectedAttributes).map(
+                              ([key, value]) => (
+                                <li key={key}>
+                                  - {key}: {String(value)}
+                                </li>
+                              ),
+                            )}
+                          </ul>
+                        )}
+                    </div>
+                    <span className="product-price">
+                      {formatPrice(item.price_brut_snapshot * item.quantity)} zł
+                    </span>
+                  </div>
+                );
+              })}
+
+              {/* Dodatkowy podział na produkty i koszt dostawy */}
+              <div className="product-row product-row--summary-line">
+                <span>Wartość produktów:</span>
+                <span>{formatPrice(productsTotal)} zł</span>
+              </div>
+              <div className="product-row">
+                <span>
+                  {order.delivery_method === "odbior" ||
+                  order.delivery_method === "odbior_osobisty"
+                    ? "Koszt odbioru:"
+                    : `Koszt dostawy (${order.delivery_method === "kurier" ? "Kurier" : "Paczkomat"}):`}
+                </span>
+                <span>
+                  {Number(order.shipping_cost) === 0
+                    ? "0 zł"
+                    : `${formatPrice(order.shipping_cost)} zł`}
+                </span>
+              </div>
+
+              {/* Podsumowanie końcowe łączące produkty i wysyłkę */}
               <div className="product-row product-row--total">
                 <span>Razem z dostawą:</span>
                 <span>{formatPrice(order.total_brut)} zł</span>
@@ -276,8 +327,8 @@ const OrderSummary = () => {
             </div>
           </div>
 
-          <div className="order-summary__actions" style={{ marginTop: "30px" }}>
-            <p style={{ marginBottom: "15px", color: "#64748b" }}>
+          <div className="order-summary__actions">
+            <p className="confirmation-note">
               Potwierdzenie zamówienia wysłaliśmy na Twój adres e-mail.
             </p>
             <Link to="/sklep">

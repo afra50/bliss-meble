@@ -12,7 +12,7 @@ import { FaInfoCircle } from "react-icons/fa";
 import "../styles/pages/checkout-page.scss";
 
 const CheckoutPage = () => {
-  const { cartItems, cartTotal } = useCart();
+  const { cartItems, cartTotal, validateCartItems } = useCart();
   const navigate = useNavigate();
 
   // --- STANY ---
@@ -56,6 +56,10 @@ const CheckoutPage = () => {
           paczkomatCode: "",
         };
   });
+
+  useEffect(() => {
+    validateCartItems();
+  }, []);
 
   // Zapisywanie do sessionStorage za każdym razem, gdy użytkownik coś wpisze
   useEffect(() => {
@@ -185,6 +189,14 @@ const CheckoutPage = () => {
     // --- NOWOŚĆ: Prawdziwe wysyłanie do API ---
     try {
       setIsSubmitting(true);
+
+      // --- PANCERNE ZABEZPIECZENIE: Ostatni check przed zapisem w bazie! ---
+      const isCartStillValid = await validateCartItems();
+      if (!isCartStillValid) {
+        setIsSubmitting(false);
+        return; // Przerywamy wysyłanie! Klient dostał już alert i koszyk mu się zaktualizował.
+      }
+      // ---------------------------------------------------------------------
 
       const response = await orderApi.createOrder(orderData);
       const { success, orderToken, paymentUrl } = response.data;

@@ -22,13 +22,19 @@ class Order {
 
       // 2. Dodajemy pozycje zamówienia (tabela: order_items)
       for (const item of items) {
-        // Obiekt selected_options (rozmiar, tkanina, strona, zagłówki)
-        const options = {
-          size: item.size || null,
-          fabric: item.fabric || null,
-          side: item.side || null,
-          headrest: item.headrest || null,
-        };
+        // Łapiemy cechy "luzem", które wysyła Twój CartContext i tłumaczymy je na ładne polskie etykiety
+        const options = {};
+
+        if (item.size) options["Rozmiar"] = item.size;
+        if (item.fabric) options["Tkanina"] = item.fabric;
+        if (item.side) options["Strona"] = item.side;
+        if (item.headrest) options["Zagłówek"] = item.headrest;
+        // Jeśli w przyszłości dodasz np. kolor do koszyka, dopisz to tutaj:
+        // if (item.color) options["Kolor"] = item.color;
+
+        // Jeśli są jakieś opcje, zamieniamy na JSON. Jeśli nie - null.
+        const optionsJson =
+          Object.keys(options).length > 0 ? JSON.stringify(options) : null;
 
         await connection.execute(
           `INSERT INTO order_items (order_id, product_id, quantity, price_brut_snapshot, selected_options) 
@@ -37,8 +43,8 @@ class Order {
             orderId,
             item.id,
             item.quantity,
-            item.price, // Cena u klienta (po uwzględnieniu promocji i atrybutów)
-            JSON.stringify(options), // Zapisujemy wybrane warianty jako JSON
+            item.price, // Cena u klienta
+            optionsJson,
           ],
         );
       }
