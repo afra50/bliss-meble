@@ -10,8 +10,8 @@ function PaymentCancel() {
       <header className="pc-hero">
         <h1 className="pc-title">Płatność odrzucona!</h1>
         <p className="pc-text">
-          Transakcja została anulowana. Jeśli to nie Ty anulowałeś płatność
-          skontaktuj się z nami
+          Transakcja została anulowana. Jeśli to nie Ty anulowałeś płatność,
+          skontaktuj się z nami.
         </p>
         <div className="pc-buttons">
           {/* Zmieniamy cel na /koszyk */}

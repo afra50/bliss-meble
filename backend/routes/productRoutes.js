@@ -12,6 +12,7 @@ router.get("/search", productController.searchProducts); // Wyszukiwarka
 router.get("/bestsellers", productController.getBestsellers); // Top 3
 router.get("/admin/all", auth, adminOnly, productController.getAdminProducts);
 router.get("/admin/:id", auth, adminOnly, productController.getProductById);
+router.post("/validate-cart", productController.validateCart);
 
 // === 2. TRASY BEZPARAMETROWE POST / GET (ŚRODEK) ===
 router.post(

@@ -2,7 +2,6 @@ import React from "react";
 // Importy stron publicznych
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
-import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
 import OrderSummary from "./pages/OrderSummary";
 import AboutUs from "./pages/AboutUs";
@@ -43,8 +42,7 @@ const routes = [
   // --- ROUTY DLA ZAMOWIEN ---
   { path: "/koszyk", element: <CartPage /> },
   { path: "/zamowienie", element: <CheckoutPage /> },
-  { path: "/zamowienie/podsumowanie", element: <OrderSummary /> },
-  { path: "/platnosc-udana", element: <PaymentSuccess /> },
+  { path: "/zamowienie/podsumowanie/:token", element: <OrderSummary /> },
   { path: "/platnosc-anulowana", element: <PaymentCancel /> },
 
   // --- LOGOWANIE ADMINA (Publiczne) ---

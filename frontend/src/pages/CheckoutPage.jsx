@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { formatPrice } from "../utils/formatPrice";
-import { settingApi } from "../utils/api";
+import { settingApi, orderApi } from "../utils/api";
 import CheckoutStepper from "../components/checkout/CheckoutStepper";
 import Button from "../components/ui/Button";
 import ToastAlert from "../components/ui/ToastAlert";
@@ -27,25 +27,44 @@ const CheckoutPage = () => {
     courierCost: 55,
     lockerCost: 50,
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [deliveryMethod, setDeliveryMethod] = useState("kurier");
   const [paymentMethod, setPaymentMethod] = useState("online");
-  const [wantsInvoice, setWantsInvoice] = useState(false);
+  // Zapisujemy też stan checkboxa od faktury
+  const [wantsInvoice, setWantsInvoice] = useState(() => {
+    return sessionStorage.getItem("bliss_wantsInvoice") === "true";
+  });
   const [termsAccepted, setTermsAccepted] = useState(false);
 
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    street: "",
-    apartment: "",
-    postalCode: "",
-    city: "",
-    phone: "",
-    email: "",
-    companyName: "",
-    nip: "",
-    notes: "",
-    paczkomatCode: "",
+  // Inicjalizacja z sessionStorage, żeby "Wstecz" nie czyściło formularza!
+  const [formData, setFormData] = useState(() => {
+    const savedData = sessionStorage.getItem("bliss_checkout");
+    return savedData
+      ? JSON.parse(savedData)
+      : {
+          firstName: "",
+          lastName: "",
+          street: "",
+          apartment: "",
+          postalCode: "",
+          city: "",
+          phone: "",
+          email: "",
+          companyName: "",
+          nip: "",
+          notes: "",
+          paczkomatCode: "",
+        };
   });
+
+  // Zapisywanie do sessionStorage za każdym razem, gdy użytkownik coś wpisze
+  useEffect(() => {
+    sessionStorage.setItem("bliss_checkout", JSON.stringify(formData));
+  }, [formData]);
+
+  useEffect(() => {
+    sessionStorage.setItem("bliss_wantsInvoice", wantsInvoice);
+  }, [wantsInvoice]);
 
   // --- LOGIKA BIZNESOWA ---
   const hasFurniture = cartItems.some(
@@ -100,9 +119,41 @@ const CheckoutPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // --- NOWOŚĆ: Blokada pól pod walidację z backendu ---
+    if (formData.firstName.trim().length < 2) {
+      showErrorToast("Imię musi mieć co najmniej 2 znaki.");
+      return;
+    }
+    if (formData.lastName.trim().length < 2) {
+      showErrorToast("Nazwisko musi mieć co najmniej 2 znaki.");
+      return;
+    }
+    if (formData.street.trim().length < 2) {
+      showErrorToast("Ulica i numer domu muszą mieć co najmniej 2 znaki.");
+      return;
+    }
+    if (formData.city.trim().length < 2) {
+      showErrorToast("Miasto musi mieć co najmniej 2 znaki.");
+      return;
+    }
+    if (formData.phone.trim().length < 5) {
+      showErrorToast("Numer telefonu jest za krótki.");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      showErrorToast("Podaj poprawny adres e-mail.");
+      return;
+    }
+    if (deliveryMethod === "paczkomat" && !formData.paczkomatCode.trim()) {
+      showErrorToast("Musisz podać kod paczkomatu.");
+      return;
+    }
+
+    // Istniejące walidacje regulaminu i faktury...
     if (!termsAccepted) {
       showErrorToast("Musisz zaakceptować regulamin i politykę prywatności.");
       return;
@@ -120,18 +171,44 @@ const CheckoutPage = () => {
 
     const orderData = {
       items: cartItems,
-      customer: formData,
+      // Doklejamy wantsInvoice z rzutowaniem na pewnego booleana
+      customer: {
+        ...formData,
+        wantsInvoice: Boolean(wantsInvoice),
+      },
       deliveryMethod,
       paymentMethod,
       shippingCost,
       totalAmount: finalTotal,
     };
 
-    // Tymczasowe przejście do podsumowania (zamiast wysyłania do API)
-    navigate("/zamowienie/podsumowanie", { state: { orderData } });
+    // --- NOWOŚĆ: Prawdziwe wysyłanie do API ---
+    try {
+      setIsSubmitting(true);
 
-    // Opcjonalnie: wyczyść koszyk tutaj lub na stronie podsumowania
-    clearCart();
+      const response = await orderApi.createOrder(orderData);
+      const { success, orderToken, paymentUrl } = response.data;
+
+      if (success) {
+        // Zgodnie z dobrymi praktykami NIE czyścimy jeszcze koszyka!
+
+        if (paymentMethod === "online" && paymentUrl) {
+          // Przekierowanie do bramki Przelewy24
+          window.location.href = paymentUrl;
+        } else {
+          // Przelew tradycyjny / Pobranie - idziemy prosto na stronę podsumowania
+          navigate(`/zamowienie/podsumowanie/${orderToken}`);
+        }
+      }
+    } catch (error) {
+      console.error("Błąd podczas składania zamówienia:", error);
+      showErrorToast(
+        error.response?.data?.error ||
+          "Wystąpił problem z serwerem. Spróbuj ponownie.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isLoading) {
@@ -403,30 +480,32 @@ const CheckoutPage = () => {
                 <div className="invoice-box">
                   <div className="info-text">
                     <FaInfoCircle className="info-icon" />
-                    Faktura zostanie wystawiona na powyższy adres. Jeśli
+                    Faktura zostanie wystawiona na podany wyżej adres. Jeśli
                     potrzebujesz faktury na firmę, wpisz dane poniżej.
                   </div>
                   <div className="form-row">
                     <div className="form-group">
-                      <label className="form-group__label">Nazwa firmy</label>
+                      <label className="form-group__label">
+                        Nazwa firmy (opcjonalnie)
+                      </label>
                       <input
                         className="form-group__input"
                         type="text"
                         name="companyName"
                         value={formData.companyName}
                         onChange={handleInputChange}
-                        required={wantsInvoice}
                       />
                     </div>
                     <div className="form-group">
-                      <label className="form-group__label">NIP</label>
+                      <label className="form-group__label">
+                        NIP (opcjonalnie)
+                      </label>
                       <input
                         className="form-group__input"
                         type="text"
                         name="nip"
                         value={formData.nip}
                         onChange={handleInputChange}
-                        required={wantsInvoice}
                       />
                     </div>
                   </div>
@@ -612,8 +691,9 @@ const CheckoutPage = () => {
                 type="submit"
                 variant="primary"
                 className="summary-box__btn"
+                disabled={isSubmitting}
               >
-                KUPUJĘ I PŁACĘ
+                {isSubmitting ? "PRZETWARZANIE..." : "KUPUJĘ I PŁACĘ"}
               </Button>
             </div>
           </aside>

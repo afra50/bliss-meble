@@ -475,3 +475,23 @@ exports.searchProducts = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.validateCart = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+
+    // Jeśli koszyk jest pusty (nie ma ID), odsyłamy pustą tablicę
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.json([]);
+    }
+
+    // Odpytujemy model o aktywne produkty
+    const activeProducts = await Product.getByIds(ids);
+
+    // Odsyłamy listę do Reacta
+    res.json(activeProducts);
+  } catch (error) {
+    logError("validateCart", error);
+    next(error);
+  }
+};

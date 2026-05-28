@@ -157,4 +157,10 @@ export const contactApi = {
   sendMessage: (formData) => api.post("/contact", formData),
 };
 
+// ---- ORDER API ----
+export const orderApi = {
+  createOrder: (orderData) => api.post("/orders", orderData),
+  getOrderByToken: (token) => api.get(`/orders/token/${token}`), // <--- NOWOŚĆ
+};
+
 export default api;

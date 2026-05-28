@@ -169,6 +169,23 @@ const Product = {
     await pool.execute("DELETE FROM product_images WHERE id = ?", [imageId]);
   },
 
+  getByIds: async (ids) => {
+    if (!ids || ids.length === 0) return [];
+
+    // Tworzymy znaki zapytania dla zapytania SQL np. (?, ?, ?)
+    const placeholders = ids.map(() => "?").join(",");
+
+    // Pobieramy tylko te produkty, które nie są usunięte i są dostępne
+    const query = `
+      SELECT id, name, price_brut 
+      FROM products 
+      WHERE id IN (${placeholders}) AND is_deleted = 0 AND is_available = 1
+    `;
+
+    const [rows] = await pool.execute(query, ids);
+    return rows;
+  },
+
   // --- METODY DO TRANSAKCJI ---
 
   create: async (connection, data) => {

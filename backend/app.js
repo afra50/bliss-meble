@@ -18,6 +18,7 @@ const attributeRoutes = require("./routes/attributeRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const settingRoutes = require("./routes/settingRoutes");
 const contactRoutes = require("./routes/contactRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 
 // --- KONFIGURACJA LOGGERA (Winston) ---
 const logger = winston.createLogger({
@@ -87,6 +88,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Niezbędne dla Przelewy24!
 app.use(cookieParser());
 
 // --- 4. PLIKI STATYCZNE (Zdjęcia produktów) ---
@@ -105,6 +107,7 @@ app.use("/api/attributes", attributeRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/settings", settingRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/orders", orderRoutes);
 
 // Obsługa nieznalezionych tras (404)
 app.use((req, res, next) => {
