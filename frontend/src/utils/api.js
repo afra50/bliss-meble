@@ -161,6 +161,10 @@ export const contactApi = {
 export const orderApi = {
   createOrder: (orderData) => api.post("/orders", orderData),
   getOrderByToken: (token) => api.get(`/orders/token/${token}`), // <--- NOWOŚĆ
+
+  getAdminAll: () => api.get("/orders/admin/all"),
+  updateStatus: (id, status) =>
+    api.patch(`/orders/admin/${id}/status`, { status }),
 };
 
 export default api;

@@ -11,6 +11,7 @@ const CustomSelect = ({
   isSearchable = false,
   variant = "sort", // Domyślnie "sort", dla formularzy admina "form"
   className = "",
+  ...rest // Przechwytuje menuPlacement, menuPortalTarget i wszystkie inne dodatkowe propsy
 }) => {
   // Szukamy obiektu po value (dla stringów) LUB sprawdzamy czy value jest już obiektem
   const selectedOption =
@@ -28,6 +29,7 @@ const CustomSelect = ({
       placeholder={placeholder}
       className={`custom-select-wrapper custom-select-wrapper--${variant} ${className}`}
       classNamePrefix="react-select"
+      {...rest} // Przekazuje je prosto do react-select
     />
   );
 };

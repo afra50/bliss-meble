@@ -130,3 +130,25 @@ exports.getOrderByToken = async (req, res, next) => {
     res.status(500).json({ error: "Błąd serwera." });
   }
 };
+
+exports.getAdminAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.getAllAdmin();
+    res.json(orders);
+  } catch (error) {
+    console.error("Błąd pobierania zamówień (Admin):", error);
+    res.status(500).json({ error: "Błąd serwera." });
+  }
+};
+
+exports.updateOrderStatusAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    await Order.updateOrderStatusAdmin(id, status);
+    res.json({ success: true, message: "Status zaktualizowany" });
+  } catch (error) {
+    console.error("Błąd aktualizacji statusu (Admin):", error);
+    res.status(500).json({ error: "Błąd serwera." });
+  }
+};

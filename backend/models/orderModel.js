@@ -113,6 +113,42 @@ class Order {
 
     return { ...order, items };
   }
+
+  // Zwraca WSZYSTKIE zamówienia wraz z tablicą ich produktów dla panelu Admina
+  static async getAllAdmin() {
+    // Pobieramy główne dane zamówień wraz ze szczegółami dostawy
+    const [orders] = await pool.execute(`
+      SELECT o.*, 
+             s.recipient_first_name, s.recipient_last_name, s.recipient_email, s.recipient_phone,
+             s.street, s.apartment, s.city, s.postal_code, s.method as delivery_method, 
+             s.cost as shipping_cost, s.company_name, s.nip, s.paczkomat_code, s.notes
+      FROM orders o
+      LEFT JOIN shipping_details s ON o.id = s.order_id
+      ORDER BY o.created_at DESC
+    `);
+
+    // Aby zminimalizować ilość zapytań do bazy, pobieramy od razu WSZYSTKIE produkty dla tych zamówień
+    const [allProducts] = await pool.execute(`
+      SELECT oi.*, p.name, pi.url as image
+      FROM order_items oi
+      LEFT JOIN products p ON oi.product_id = p.id
+      LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_main = 1
+    `);
+
+    // Grupujemy i przypinamy produkty do odpowiednich zamówień
+    return orders.map((order) => ({
+      ...order,
+      items: allProducts.filter((item) => item.order_id === order.id),
+    }));
+  }
+
+  // Służy do ręcznej zmiany statusu zamówienia przez Admina
+  static async updateOrderStatusAdmin(orderId, newStatus) {
+    await pool.execute(`UPDATE orders SET status = ? WHERE id = ?`, [
+      newStatus,
+      orderId,
+    ]);
+  }
 }
 
 module.exports = Order;

@@ -12,3 +12,9 @@ export const adminSortOptions = [
   { value: "newest", label: "Od najnowszych (ID)" },
   { value: "oldest", label: "Od najstarszych (ID)" },
 ];
+
+const adminOrderSortOptions = [
+  { value: "domyslne", label: "Domyślne (Priorytet produkcji)" },
+  { value: "najnowsze", label: "Od najnowszych" },
+  { value: "najstarsze", label: "Od najstarszych" },
+];
