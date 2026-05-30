@@ -114,6 +114,35 @@ class Order {
     return { ...order, items };
   }
 
+  // --- NOWOŚĆ: METODY POTRZEBNE DO WYSYŁKI MAILI AUTOMATYCZNYCH ---
+
+  // Pobieranie zamówienia po ID (używane przy zmianie statusu przez Admina)
+  static async findById(id) {
+    const [rows] = await pool.execute(
+      `SELECT o.*, s.recipient_first_name, s.recipient_last_name, s.recipient_email 
+       FROM orders o 
+       LEFT JOIN shipping_details s ON o.id = s.order_id 
+       WHERE o.id = ?`,
+      [id],
+    );
+    if (rows.length === 0) return null;
+    return rows[0];
+  }
+
+  // Pobieranie zamówienia po sesji P24 (używane przy webhooku płatności)
+  static async getBySessionId(sessionId) {
+    const [rows] = await pool.execute(
+      `SELECT o.*, s.recipient_first_name, s.recipient_last_name, s.recipient_email 
+       FROM orders o 
+       LEFT JOIN shipping_details s ON o.id = s.order_id 
+       WHERE o.p24_session_id = ?`,
+      [sessionId],
+    );
+    if (rows.length === 0) return null;
+    return rows[0];
+  }
+  // -----------------------------------------------------------------
+
   // Zwraca WSZYSTKIE zamówienia wraz z tablicą ich produktów dla panelu Admina
   static async getAllAdmin() {
     // Pobieramy główne dane zamówień wraz ze szczegółami dostawy

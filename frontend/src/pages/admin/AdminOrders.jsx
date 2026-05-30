@@ -40,6 +40,7 @@ const filterStatusOptions = [
   { value: "in_delivery", label: "W realizacji" },
   { value: "packed", label: "Gotowe do wysyłki" },
   { value: "ready_for_pickup", label: "Gotowe do odbioru" },
+  { value: "shipped", label: "Wysłane" }, // <-- DODANA LINIJKA
 ];
 
 function AdminOrders() {
@@ -138,17 +139,19 @@ function AdminOrders() {
     const s = String(dbStatus).toLowerCase().trim();
     switch (s) {
       case "ready_for_pickup":
-        return 1; // 1. Gotowe do odbioru - najwyższy priorytet, natychmiast wydać
+        return 1; // Do wydania na już
       case "packed":
-        return 2; // 2. Gotowe do wysyłki - spakowane, wysłać kurierem
+        return 2; // Do wydania kurierowi
+      case "shipped":
+        return 3; // W drodze do klienta
       case "in_delivery":
-        return 3; // 3. W realizacji - na produkcji
+        return 4; // Na produkcji
       case "paid":
-        return 4; // 4. Opłacone - czeka w kolejce produkcyjnej
+        return 5; // Czeka w kolejce
       case "waiting_payment":
-        return 5; // 5. Oczekuje na płatność - brak wpłaty
+        return 6; // Brak wpłaty
       default:
-        return 6;
+        return 7;
     }
   };
 
@@ -190,10 +193,12 @@ function AdminOrders() {
   // --- FILTROWANIE PO STATUSIE (Tylko dla sekcji "W TRAKCIE") ---
   const activeOrdersFiltered = processedOrders.filter((o) => {
     const s = String(o.status).toLowerCase().trim();
-    // Odrzucamy zrealizowane/anulowane
-    if (["cancelled", "completed", "shipped"].includes(s)) return false;
 
-    // Jeśli wybraliśmy konkretny filtr statusu
+    // ZMIANA: Z sekcji "W TRAKCIE" odrzucamy TYLKO Zakończone i Anulowane
+    // ("shipped" zostaje tutaj, bo wciąż jest realizowane)
+    if (["cancelled", "completed"].includes(s)) return false;
+
+    // Jeśli wybraliśmy konkretny filtr statusu z rozwijanej listy nad tabelą
     if (statusFilter !== "all" && o.status !== statusFilter) return false;
 
     return true;
@@ -201,7 +206,7 @@ function AdminOrders() {
 
   const activeOrders = sortOrdersList(activeOrdersFiltered, activeSort);
 
-  // Sekcje stałe dla archiwum
+  // Sekcje stałe dla archiwum (TYLKO Anulowane i Zakończone)
   const failedOrders = sortOrdersList(
     processedOrders.filter(
       (o) => String(o.status).toLowerCase().trim() === "cancelled",
@@ -210,10 +215,10 @@ function AdminOrders() {
   );
 
   const archivedOrders = sortOrdersList(
-    processedOrders.filter((o) =>
-      ["shipped", "completed"].includes(String(o.status).toLowerCase().trim()),
+    processedOrders.filter(
+      (o) => String(o.status).toLowerCase().trim() === "completed",
     ),
-    archiveSort,
+    archiveSort, // Sortowanie archiwum
   );
 
   const getStatusBadgeClass = (dbStatus) => {
