@@ -293,17 +293,22 @@ const emailService = {
   },
 
   // TYP 3: PROŚBA O OCENĘ
-  sendReviewRequest: async (order) => {
+  // TYP 3: PROŚBA O OCENĘ
+  sendReviewRequest: async (order, reviewToken) => {
+    // <--- ZMIANA: Dodano parametr reviewToken
+    // ZMIANA: Zbudowanie unikalnego linku z tokenem
+    const reviewLink = `${process.env.PUBLIC_FRONTEND_URL}/ocen-zakupy/${reviewToken}`;
+
     const htmlContent = getCommonLayout(
       "Podziel się opinią",
       `
         <h2 style="color: ${BRAND_COLORS.brown}; margin-top: 0;">Twoja opinia jest dla nas ważna!</h2>
         <p>Dzień dobry ${order.recipient_first_name || ""},</p>
         <p>Twoje zamówienie <strong>BLISS-${order.id.toString().padStart(5, "0")}</strong> zostało zakończone. Mamy nadzieję, że nowe meble idealnie wpasowały się w Twoje wnętrze!</p>
-        <p>Jako manufaktura Bliss Meble wkładamy serce w każdy produkt. Będziemy niezwykle wdzięczni, jeśli poświęcisz minutę na ocenienie zakupionych produktów na naszej stronie. Pomaga nam to stale rosnąć i dbać o najwyższą jakość.</p>
+        <p>Jako manufaktura Bliss Meble wkładamy serce w każdy produkt. Będziemy niezwykle wdzięczni, jeśli poświęcisz minutę na ocenienie zakupionych produktów. Pomaga nam to stale rosnąć i dbać o najwyższą jakość.</p>
         
-        <div style="text-align: center;">
-            <a href="${process.env.PUBLIC_FRONTEND_URL}/sklep" class="btn" style="background-color: #727a5e;">Oceń produkty w sklepie</a>
+        <div style="text-align: center; margin-top: 25px;">
+            <a href="${reviewLink}" class="btn" style="background-color: #727a5e;">Oceń zakupione produkty</a>
         </div>
       `,
     );

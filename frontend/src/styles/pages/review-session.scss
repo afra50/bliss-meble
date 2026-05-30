@@ -1,0 +1,214 @@
+@use "../variables" as *;
+
+.review-session-page {
+    min-height: 70vh;
+    padding: 60px 20px;
+    background-color: #fafafa;
+    display: flex;
+    justify-content: center;
+
+    @media (max-width: 768px) {
+        padding: 40px 15px;
+    }
+}
+
+.review-session__container {
+    width: 100%;
+    max-width: 700px;
+}
+
+.review-session__success-card {
+    background: $color-white;
+    padding: 60px 40px;
+    text-align: center;
+    border: 1px solid rgba($color-brown, 0.2);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+
+    h1 {
+        font-family: $font-heading;
+        color: $color-black;
+        margin: 20px 0 10px;
+    }
+
+    p {
+        color: $color-slate;
+        font-size: 1.1rem;
+        line-height: 1.5;
+        margin-bottom: 20px;
+    }
+}
+
+.review-session__header {
+    text-align: center;
+    margin-bottom: 40px;
+
+    .header-icon {
+        color: $color-brown;
+        margin-bottom: 15px;
+    }
+
+    h1 {
+        font-family: $font-heading;
+        font-size: 2.2rem;
+        color: $color-black;
+        margin-bottom: 10px;
+    }
+
+    p {
+        color: $color-slate;
+        font-size: 1.1rem;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+}
+
+.review-session__list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.review-item-card {
+    background: $color-white;
+    border: 1px solid rgba($color-brown, 0.15);
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+
+    &__info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        @media (max-width: 480px) {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border: 1px solid $color-cream;
+        }
+
+        .details {
+            flex: 1;
+
+            h3 {
+                font-size: 1.2rem;
+                color: $color-black;
+                margin-bottom: 15px;
+            }
+        }
+    }
+}
+
+.review-form {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 1px dashed rgba($color-brown, 0.2);
+
+    h4 {
+        text-align: center;
+        font-size: 1.1rem;
+        color: $color-black;
+        margin-bottom: 15px;
+    }
+
+    .stars-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 25px;
+
+        .star-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #cbd5e1; // Szary nieaktywny
+            transition: all 0.2s ease;
+
+            &.active {
+                color: #eab308; // Żółty aktywny
+                transform: scale(1.1);
+            }
+
+            &:hover {
+                transform: scale(1.2);
+            }
+        }
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: $color-black;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            font-family: inherit;
+            font-size: 1rem;
+            color: $color-black;
+            background-color: #f8fafc;
+            transition: border-color 0.2s ease;
+
+            &:focus {
+                outline: none;
+                border-color: $color-brown;
+                background-color: $color-white;
+            }
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+    }
+
+    .form-error {
+        color: #ef4444;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+        text-align: center;
+        background-color: #fef2f2;
+        padding: 10px;
+        border: 1px solid #fecaca;
+    }
+
+    .form-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+
+        @media (max-width: 480px) {
+            flex-direction: column;
+
+            button {
+                width: 100%;
+            }
+        }
+
+        .cancel-btn {
+            background: none;
+            border: none;
+            color: $color-slate;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 10px;
+
+            &:hover {
+                color: $color-black;
+                text-decoration: underline;
+            }
+        }
+    }
+}

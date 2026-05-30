@@ -2,6 +2,7 @@ const Order = require("../models/orderModel");
 const pool = require("../config/db");
 const { z } = require("zod");
 const { v4: uuidv4 } = require("uuid");
+const Review = require("../models/reviewModel");
 const p24 = require("../services/p24");
 const emailService = require("../services/emailService");
 
@@ -210,27 +211,54 @@ exports.updateOrderStatusAdmin = async (req, res) => {
 
     await Order.updateOrderStatusAdmin(id, status);
 
-    // NOWOŚĆ: POWIADAMIAMY KLIENTA O RĘCZNEJ ZMIANIE STATUSU PRZEZ ADMINA
+    // POWIADAMIAMY KLIENTA O RĘCZNEJ ZMIANIE STATUSU PRZEZ ADMINA
     try {
-      const order = await Order.findById(id); // <--- Sprawdź czy posiadasz taką metodę w orderModel!
+      const order = await Order.findById(id);
       if (order) {
-        // Ponieważ updateOrderStatusAdmin zmienił już to w bazie, wyciągniemy aktualny stan
         order.status = status;
 
-        // Wysyłka maila informacyjnego o statusie
+        // Wysyłka zwykłego maila informacyjnego o statusie
         emailService
           .sendOrderStatusUpdate(order)
           .catch((e) => console.error("Błąd wysyłki statusu admin:", e));
 
-        // Zależność: Prośba o recenzję PO ZAKOŃCZENIU
+        // Zależność: Prośba o recenzję WYŁĄCZNIE PO ZAKOŃCZENIU
         if (status === "completed") {
-          emailService
-            .sendReviewRequest(order)
-            .catch((e) => console.error("Błąd wysyłki zapytania o opinie:", e));
+          // Pobieramy produkty z tego zamówienia (aby wygenerować dla nich tokeny)
+          // (Order.findById nie zwraca domyślnie items, więc je dociągamy)
+          const [items] = await pool.execute(
+            `SELECT product_id FROM order_items WHERE order_id = ? AND product_id IS NOT NULL`,
+            [order.id],
+          );
+
+          if (items.length > 0) {
+            // 1. Tworzymy token ważny 30 dni
+            const reviewToken = uuidv4();
+            const expiresAt = new Date();
+            expiresAt.setDate(expiresAt.getDate() + 30);
+
+            // 2. Wpisujemy tokeny do bazy używając modelu Review
+            await Review.createTokensForOrder(
+              order.id,
+              items,
+              reviewToken,
+              expiresAt,
+            );
+
+            // 3. Wysyłamy maila Z TYM TOKENEM
+            emailService
+              .sendReviewRequest(order, reviewToken)
+              .catch((e) =>
+                console.error("Błąd wysyłki zapytania o opinie:", e),
+              );
+          }
         }
       }
     } catch (mailErr) {
-      console.error("Błąd pobrania zamówienia dla maila (Admin):", mailErr);
+      console.error(
+        "Błąd generowania maila o statusie/opinii (Admin):",
+        mailErr,
+      );
     }
 
     res.json({ success: true, message: "Status zaktualizowany" });

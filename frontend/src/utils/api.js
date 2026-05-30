@@ -134,7 +134,13 @@ export const attributeApi = {
 // ---- REVIEW API ----
 export const reviewApi = {
   // Publiczne
-  getByProduct: (productId) => api.get(`/reviews/product/${productId}`), // <--- NOWE
+  getByProduct: (productId) => api.get(`/reviews/product/${productId}`),
+
+  // NOWE: Pobieranie listy produktów do oceny na podstawie tokena z maila
+  getSessionByToken: (token) => api.get(`/reviews/session/${token}`),
+
+  // NOWE: Wysyłanie pojedynczej opinii (z podaniem tokena i ID produktu)
+  submitReview: (reviewData) => api.post("/reviews/submit", reviewData),
 
   // Admin
   getAdminAll: () => api.get("/reviews/admin/all"),

@@ -11,6 +11,7 @@ import Products from "./pages/Products";
 import ProductDetails from "./pages/ProductDetails";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import ReviewSession from "./pages/ReviewSession";
 
 // Importy Admina
 import LoginPage from "./pages/admin/Login";
@@ -44,6 +45,7 @@ const routes = [
   { path: "/zamowienie", element: <CheckoutPage /> },
   { path: "/zamowienie/podsumowanie/:token", element: <OrderSummary /> },
   { path: "/platnosc-anulowana", element: <PaymentCancel /> },
+  { path: "/ocen-zakupy/:token", element: <ReviewSession /> },
 
   // --- LOGOWANIE ADMINA (Publiczne) ---
   { path: "/admin/login", element: <LoginPage /> },
