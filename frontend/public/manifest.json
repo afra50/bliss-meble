@@ -1,0 +1,23 @@
+{
+  "name": "BLISS MEBLE",
+  "short_name": "BLISS MEBLE",
+  "description": "Sklep internetowy oferujący najwyższej jakości meble tapicerowane od sprawdzonych producentów. Znajdziesz u nas narożniki, sofy, łóżka i materace.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#564333",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

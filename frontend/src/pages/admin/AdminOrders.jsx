@@ -246,9 +246,10 @@ function AdminOrders() {
   const getImageUrl = (imagePath) => {
     if (!imagePath) return defaultImg;
     if (imagePath.startsWith("http")) return imagePath;
-    const apiUrl =
-      import.meta.env.VITE_API_URL?.replace("/api", "") ||
-      "http://localhost:5000";
+
+    // ZMIANA: Nie ucinamy /api, bierzemy pełen adres z .env
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
     return `${apiUrl}/uploads/products/${imagePath}`;
   };
 

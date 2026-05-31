@@ -1,5 +1,3 @@
-- index.html, seo, sitemap, googlesearch, manifest.json, JSON-LD
-- polityka prywatności zaktualizowac na koniec i zweryfikowac + dodac info o google mapie
 - wyczyscic tabele mserwis
 
 CRONy
@@ -14,3 +12,4 @@ CRONy
       Zamiast je usuwać (co zepsułoby wykresy Twoich zarobków z tamtego okresu), skrypt wchodzi do tabeli shipping_details 
       i podmienia wrażliwe dane osobowe na wartości fikcyjne. Ulica i miasto zmieniają się na "Zanonimizowano", 
       e-mail na "anonim@blissmeble.pl", a imię na "Anonim".
+    * Pamiętać o tabeli reviews
