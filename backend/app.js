@@ -112,6 +112,8 @@ app.use("/api/settings", settingRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/orders", orderRoutes);
 
+app.use("/api/cron", require("./routes/cronRoutes"));
+
 // Obsługa nieznalezionych tras (404)
 app.use((req, res, next) => {
   res.status(404).json({ message: "Trasa nie została znaleziona" });
