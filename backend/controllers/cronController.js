@@ -3,15 +3,18 @@ const pool = require("../config/db");
 exports.runCleanup = async (req, res) => {
   // ZABEZPIECZENIE: Sprawdzamy tajne hasło z nagłówka
   const secret = req.headers["x-cron-secret"];
-  if (secret !== process.env.CRON_SECRET) {
+  if (!secret || secret !== process.env.CRON_SECRET) {
     return res
       .status(403)
       .json({ error: "Brak uprawnień do uruchomienia zadań CRON." });
   }
 
   console.log("--- START CRON z mSerwis: Czyszczenie bazy ---");
+
+  let connection; // Wynosimy zmienną poza try, aby była dostępna w finally
+
   try {
-    const connection = await pool.getConnection();
+    connection = await pool.getConnection();
 
     // 1. Usuwanie nieopłaconych / anulowanych zamówień starszych niż 30 dni
     const [delOrders] = await connection.execute(`
@@ -48,7 +51,6 @@ exports.runCleanup = async (req, res) => {
         AND sd.recipient_first_name != 'Anonim'
     `);
 
-    connection.release();
     console.log("--- KONIEC CRON: Sukces ---");
 
     res.json({
@@ -63,5 +65,11 @@ exports.runCleanup = async (req, res) => {
   } catch (error) {
     console.error("--- BŁĄD CRON ---", error);
     res.status(500).json({ error: "Wystąpił błąd podczas czyszczenia bazy." });
+  } finally {
+    // To miejsce wykona się ZAWSZE, nawet jeśli był błąd.
+    // Dzięki temu zapobiegamy wyciekom połączeń do bazy danych.
+    if (connection) {
+      connection.release();
+    }
   }
 };
